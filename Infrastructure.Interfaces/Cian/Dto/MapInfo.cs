@@ -1,6 +1,6 @@
 ﻿using Infrastructure.Interfaces.Cian.Enums;
 
-namespace Infrastructure.Implemtation.Cian.Dto
+namespace Infrastructure.Interfaces.Cian.Dto
 {
     public class MapInfo
     {

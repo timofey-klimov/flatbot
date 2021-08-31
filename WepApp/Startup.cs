@@ -1,10 +1,12 @@
 using Infrastructure.Implemtation.Cian;
 using Infrastructure.Implemtation.Cian.HttpClient;
 using Infrastructure.Implemtation.DataAccess;
+using Infrastructure.Implemtation.FileService;
 using Infrastructure.Implemtation.Logger;
 using Infrastructure.Interfaces.Cian;
 using Infrastructure.Interfaces.Cian.HttpClient;
 using Infrastructure.Interfaces.DataAccess;
+using Infrastructure.Interfaces.FileService;
 using Infrastructure.Interfaces.Logger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -36,17 +38,26 @@ namespace WepApp
             {
                 x.UseSqlServer(Configuration.GetConnectionString("FlatDb"));
             });
-            services.AddScoped<ICianUrlBuilder, CianUrlBuilder>(x =>
+            services.AddScoped<ICianUrlBuilder, CianUrlBuilder>();
+
+            services.AddSingleton<ICianMapManager, CianMapManager>(x =>
             {
-                return serviceFactory.CreateCianUlrBuilder(Configuration, x);
+                return serviceFactory.CreateMapManager(Configuration, x);
             });
 
             services.AddSingleton<ILoggerService, LoggerService>(x =>
             {
                 return serviceFactory.CreateLogger(x);
             });
-
+            services.AddSingleton<ICianStoreManager, CianStoreManager>(x => new CianStoreManager(x.GetRequiredService<IWebHostEnvironment>().ContentRootPath));
+            services.AddScoped<IFIleShare, LocalFileShare>();
             services.AddScoped<ICianHttpClient, CianHttpClient>();
+            services.AddScoped<ICianService, CianService>();
+            services.AddHttpClient<ICianService, CianService>();
+
+            services.AddScoped<ICianFileShareManager, CianFileShareManager>();
+
+            //frameworks
             services.AddControllers();
         }
 

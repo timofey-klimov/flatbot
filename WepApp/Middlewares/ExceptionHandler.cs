@@ -1,4 +1,5 @@
 ﻿using Entities.Models.Exceptions;
+using Infrastructure.Interfaces.Logger;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -20,15 +21,14 @@ namespace WepApp.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var loggerFactory = context.RequestServices.GetRequiredService<ILoggerFactory>();
-            var logger = loggerFactory.CreateLogger<ExceptionHandler>();
+            var logger = context.RequestServices.GetRequiredService<ILoggerService>();
             try
             {
                 await _next(context);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex.Message);
+                logger.Error(ex.Message);
 
                 string response = string.Empty;
 

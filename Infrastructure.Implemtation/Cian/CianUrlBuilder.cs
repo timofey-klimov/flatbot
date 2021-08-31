@@ -1,8 +1,6 @@
-﻿using Infrastructure.Implemtation.Cian.Dto;
-using Infrastructure.Implemtation.Cian.Exceptions;
+﻿using Infrastructure.Implemtation.Cian.Exceptions;
 using Infrastructure.Interfaces.Cian;
 using Infrastructure.Interfaces.Cian.Enums;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Utils;
@@ -11,15 +9,15 @@ namespace Infrastructure.Implemtation.Cian
 {
     public class CianUrlBuilder : ICianUrlBuilder
     {
-        private IEnumerable<MapInfo> _mapInfo;
-        public CianUrlBuilder(IEnumerable<MapInfo> mapInfo)
+        private ICianMapManager _cianMapManager;
+        public CianUrlBuilder(ICianMapManager cianMapManager)
         {
-            _mapInfo = mapInfo;
+            _cianMapManager = cianMapManager;
         }
 
         public string BuildCianUrl(City city, DealType dealType, Room room, OperationType type, int page)
         {
-            var map = _mapInfo.FirstOrDefault(x => x.City == city);
+            var map = _cianMapManager.GetMapsInfo().FirstOrDefault(x => x.City == city);
 
             if (map == null)
                 throw new MapNotFoundException($"Map with city {nameof(city)} not found");

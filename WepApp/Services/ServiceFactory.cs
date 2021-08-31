@@ -1,6 +1,6 @@
 ﻿using Infrastructure.Implemtation.Cian;
-using Infrastructure.Implemtation.Cian.Dto;
 using Infrastructure.Implemtation.Logger;
+using Infrastructure.Interfaces.Cian.Dto;
 using Infrastructure.Interfaces.Cian.Enums;
 using Microsoft.Extensions.Configuration;
 using Serilog;
@@ -14,7 +14,7 @@ namespace WepApp.Services
 {
     public class ServiceFactory
     {
-        public CianUrlBuilder CreateCianUlrBuilder(IConfiguration configuration, IServiceProvider provider)
+        public CianMapManager CreateMapManager(IConfiguration configuration, IServiceProvider provider)
         {
             try
             {
@@ -30,7 +30,7 @@ namespace WepApp.Services
                     list.Add(new MapInfo() { BaseUrl = map.Url, City = city, Region = map.Region });
                 }
 
-                return new CianUrlBuilder(list);
+                return new CianMapManager(list);
             }
             catch (Exception ex)
             {

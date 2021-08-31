@@ -19,7 +19,7 @@ namespace Infrastructure.Implemtation.Cian.HttpClient
             if (!response.IsSuccessStatusCode)
                 throw new CianHttpClientException($"StatusCode:{response.StatusCode}, Message:{await response.Content.ReadAsStringAsync()}");
 
-            return await response.Content.ReadAsByteArrayAsync()
+            return await response.Content.ReadAsByteArrayAsync();
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Infrastructure.Implemtation.Cian;
-using Infrastructure.Implemtation.Cian.Dto;
+using Infrastructure.Interfaces.Cian.Dto;
 using Infrastructure.Interfaces.Cian.Enums;
 using NUnit.Framework;
 using System.Collections.Generic;
@@ -16,13 +16,13 @@ namespace Tests.Cian
             {
                 new MapInfo
                 {
-                    BaseUrl = "https://cian.ru/cat.php",
+                    BaseUrl = "https://cian.ru/",
                     Region = 1,
                     City = City.Moscow
                 }
             };
 
-            _builder = new CianUrlBuilder(mapInfo);
+            _builder = new CianUrlBuilder(new CianMapManager(mapInfo));
             
         }
 
@@ -30,13 +30,13 @@ namespace Tests.Cian
         public void GenerateUrl()
         {
             var urlOneRoom = _builder
-                .BuildCianUrl(City.Moscow, DealType.Sale, Room.One, 2);
+                .BuildCianUrl(City.Moscow, DealType.Sale, Room.One, OperationType.GetExcel, 2);
 
             var urlSecondRoom = _builder
-                .BuildCianUrl(City.Moscow, DealType.Sale, Room.Two, 2);
+                .BuildCianUrl(City.Moscow, DealType.Sale, Room.Two, OperationType.GetExcel, 2);
 
             var urlOneAndSecondRoom = _builder
-                .BuildCianUrl(City.Moscow, DealType.Sale, Room.One | Room.Two, 2);
+                .BuildCianUrl(City.Moscow, DealType.Sale, Room.One | Room.Two, OperationType.GetExcel, 2);
 
         }
     }
