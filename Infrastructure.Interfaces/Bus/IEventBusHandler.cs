@@ -9,6 +9,6 @@ namespace Infrastructure.Interfaces.Bus
     public interface IEventBusHandler<in T>
         where T : IEvent
     {
-        Task Handle(T @event);
+        Task HandleAsync(T @event);
     }
 }

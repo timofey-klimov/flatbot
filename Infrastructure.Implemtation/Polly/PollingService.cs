@@ -29,13 +29,22 @@ namespace Infrastructure.Implemtation.Polly
             for (int i = 0; i < _attemptCount; i++)
             {
                 _logger.Info($"Попытка {i}");
-                var actResult = await action();
 
-                if (actResult.IsSuccess)
-                    return result.Data;
+                retryAction();
 
-                if (i != _attemptCount)
-                    retryAction();
+                PollResult<T> actResult = default;
+
+                try
+                {
+                    actResult = await action();
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex.Message);
+                }
+
+                if (actResult?.IsSuccess == true)
+                    return actResult.Data;
 
                 if (i == _attemptCount)
                     _logger.Error("Error in polling");
@@ -55,15 +64,24 @@ namespace Infrastructure.Implemtation.Polly
             for (int i = 0; i < _attemptCount; i++)
             {
                 _logger.Info($"Попытка {i}");
-                var actResult = await action(arg);
 
-                if (actResult.IsSuccess)
-                    return result.Data;
+                retryAction();
 
-                if (i != _attemptCount)
-                    retryAction();
+                PollResult<T> actResult = default;
 
-                if (i == _attemptCount)
+                try
+                {
+                    actResult = await action(arg);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex.Message);
+                }
+
+                if (actResult?.IsSuccess == true)
+                    return actResult.Data;
+
+                if (i == _attemptCount - 1)
                     _logger.Error("Error in polling");
             }
 

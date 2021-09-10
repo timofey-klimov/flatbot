@@ -5,10 +5,10 @@ namespace Infrastructure.Interfaces.Bus
 {
     public interface IEventBus
     {
-        void Publish(IEvent @event);
+        Task Publish(IEvent @event);
 
         IDisposable Subscribe<T, V>()
-             where T : IEventBusHandler<V>
-             where V : IEvent;
+            where T : IEventBusHandler<V>
+            where V : IEvent;
     }
 }

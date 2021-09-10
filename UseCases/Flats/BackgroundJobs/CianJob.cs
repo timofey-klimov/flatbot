@@ -29,6 +29,8 @@ namespace UseCases.Flats.BackgroundJobs
             {
                 var pagesCount = await CianService.GetPagesCountAsync(city);
 
+                Logger.Info($"Find {pagesCount} pages");
+
                 for (int i = 0; i < pagesCount; i++)
                 {
                     Logger.Debug($"Start {i} page");

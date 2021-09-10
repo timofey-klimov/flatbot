@@ -21,6 +21,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using UseCases.Flats.BackgroundJobs;
+using WepApp.HostedServices;
 using WepApp.HostedServices.EventBusSubscribers;
 using WepApp.Middlewares;
 using WepApp.Services;
@@ -66,24 +67,18 @@ namespace WepApp
             });
             services.AddScoped<IPollService, PollingService>(x =>
             {
-                return new PollingService(3, x.GetRequiredService<ILoggerService>());
+                return new PollingService(4, x.GetRequiredService<ILoggerService>());
             });
 
             services.AddSingleton<IEventBus, InMemoryBus>();
 
             services.AddHostedService<CianExcelParserHostedService>();
-
+            services.AddHostedService<ParseCianJob>();
             //Events
             services.AddTransient<ExcelDownloadHandler>();
 
             //frameworks
             services.AddControllers();
-            services.AddHangfire(x =>
-            {
-                x.UseSerilogLogProvider();
-                x.UseSqlServerStorage(Configuration.GetConnectionString("HangfireConnection"));
-            });
-            services.AddHangfireServer();
 
             services.AddScoped<ParseCianRentFlatJob>();
         }
@@ -104,8 +99,6 @@ namespace WepApp
             {
                 endpoints.MapControllers();
             });
-
-            RecurringJob.AddOrUpdate<ParseCianRentFlatJob>(x => x.Execute(), Cron.Hourly);
         }
     }
 }

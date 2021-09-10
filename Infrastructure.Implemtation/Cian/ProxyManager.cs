@@ -15,6 +15,7 @@ namespace Infrastructure.Implemtation.Cian
         {
             if (!proxies.Any())
                 throw new ArgumentException();
+            _proxies = proxies;
         }
 
         public ICollection<Proxy> GetProxys()

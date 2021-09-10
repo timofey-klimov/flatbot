@@ -28,7 +28,7 @@ namespace Infrastructure.Implemtation.Cian.Events.ExcelDownloaded
             _logger = loggerService;
         }
 
-        public async Task Handle(ExcelDownloadedEvent @event)
+        public async Task HandleAsync(ExcelDownloadedEvent @event)
         {
             try
             {
@@ -42,7 +42,7 @@ namespace Infrastructure.Implemtation.Cian.Events.ExcelDownloaded
                             break;
 
                         var cianID = workSheet.Cells[i, 1]?.GetValue<long>();
-                        var flatCount = workSheet.Cells[i, 2]?.GetValue<int>();
+                        var flatCountInfo = workSheet.Cells[i, 2]?.GetValue<string>();
                         var metro = workSheet.Cells[i, 4]?.GetValue<string>();
                         var address = workSheet.Cells[i, 5]?.GetValue<string>();
                         var flatSquare = workSheet.Cells[i, 6]?.GetValue<string>();
@@ -67,9 +67,11 @@ namespace Infrastructure.Implemtation.Cian.Events.ExcelDownloaded
                             .FirstOrDefault()
                             .ToDouble();
 
+                        var flatCount = flatCountInfo.Split(',').FirstOrDefault();
+
                         var flat = new Flat(
                             cianId: cianID == null ? default : cianID.Value,
-                            roomCount: flatCount == null ? default : flatCount.Value,
+                            roomCount: flatCount == null ? default : int.Parse(flatCount),
                             metro: metroEntity,
                             address: addressEntity,
                             roomArea: roomArea,
@@ -89,6 +91,7 @@ namespace Infrastructure.Implemtation.Cian.Events.ExcelDownloaded
                         else
                         {
                             await _context.Flats.AddAsync(flat);
+                            _logger.Info($"Create new Flat CianId {flat.CianId}");
                         }
 
                         await _context.SaveChangesAsync(default);

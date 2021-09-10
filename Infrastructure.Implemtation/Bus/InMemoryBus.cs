@@ -25,7 +25,7 @@ namespace Infrastructure.Implemtation.Bus
             _factory = factory;
         }
 
-        public void Publish(IEvent @event)
+        public async Task Publish(IEvent @event)
         {
             _logger.Debug($"Publish event {@event.GetType().Name}");
 
@@ -35,16 +35,25 @@ namespace Infrastructure.Implemtation.Bus
                 .Select(x => x.Value)
                 .FirstOrDefault();
 
+            if (handler == null)
+            {
+                _logger.Error($"Handler for message {@event.GetType().Name} not found");
+            }
+
             using (var scope = _factory.CreateScope())
             {
                 ///У обработчиков событий всегда есть метод Handle, который принимает объект типа IEvent
-                dynamic service = scope.ServiceProvider.GetService(handler);
 
-                service.Handle(@event);
+                object service = scope.ServiceProvider.GetService(handler);
+
+                var method = service.GetType()
+                    .GetMethod("HandleAsync");
+
+                await (Task)method.Invoke(service, new object[] { @event });
             }
         }
 
-        public IDisposable Subscribe<T, V>()
+        public IDisposable Subscribe<T,V>()
             where T : IEventBusHandler<V>
             where V : IEvent
         {

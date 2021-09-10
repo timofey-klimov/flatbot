@@ -49,9 +49,23 @@ namespace Infrastructure.Implemtation.Cian
             });
         }
 
-
         private async Task<PollResult<byte[]>> GetExcelFromCianPoll(string url)
         {
+            var domParser = new HtmlParser();
+            var page = await _cianClient.GetPageAsync(url);
+
+            var document = await domParser.ParseDocumentAsync(page);
+
+            var recapcha = document
+                .QuerySelectorAll("div")
+                .Where(x => x.ClassName == "recaptcha-checkbox-checkmark")
+                .FirstOrDefault();
+
+            if (recapcha != null)
+                return PollResult<byte[]>.Fail("Recapcha");
+
+            await Task.Delay(2000);
+
             var bytes = await _cianClient.GetExcelFromCianAsync(url);
 
             return PollResult<byte[]>.Success(bytes);
