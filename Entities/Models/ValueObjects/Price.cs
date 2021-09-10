@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using Utils;
 
@@ -6,7 +7,7 @@ namespace Entities.Models.ValueObjects
 {
     public class Price : ValueObject
     {
-        public int? Value { get; private set; }
+        public decimal Value { get; private set; }
 
         private Price() { }
 
@@ -15,7 +16,11 @@ namespace Entities.Models.ValueObjects
             if (value.IsEmpty())
                 throw new ArgumentException(nameof(value));
 
-            if (int.TryParse(value.Split('/').FirstOrDefault(), out var result))
+            var priceInfo = value.Split('/');
+
+            var priceStr = priceInfo.FirstOrDefault().Replace("руб.", "").Trim();
+
+            if (decimal.TryParse(priceStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
             {
                 Value = result;
             }

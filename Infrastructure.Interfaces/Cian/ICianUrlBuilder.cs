@@ -4,6 +4,6 @@ namespace Infrastructure.Interfaces.Cian
 {
     public interface ICianUrlBuilder
     {
-        string BuildCianUrl(City city, OperationType type, int page);
+        string BuildCianUrl(City city, int page);
     }
 }

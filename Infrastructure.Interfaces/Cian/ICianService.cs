@@ -7,8 +7,8 @@ namespace Infrastructure.Interfaces.Cian
     {
         Task<int> GetPagesCountAsync(City city);
 
-        Task<byte[]> GetExcelFromCianAsync(string url);
+        string BuildCianUrl(City city, int page);
 
-        string BuildCianUrl(City city, OperationType type, int page);
+        Task<string> GetHtmlAsync(string url);
     }
 }

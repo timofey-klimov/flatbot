@@ -2,7 +2,7 @@
 
 namespace Infrastructure.Implemtation.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -21,7 +21,7 @@ namespace Infrastructure.Implemtation.Migrations
                     RoomArea = table.Column<double>(type: "float", nullable: false),
                     CurrentFloor = table.Column<int>(type: "int", nullable: false),
                     LastFloor = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<int>(type: "int", nullable: true),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     Phone = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     CeilingHeight = table.Column<double>(type: "float", nullable: true),
                     Reference = table.Column<string>(type: "nvarchar(max)", nullable: true)

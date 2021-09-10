@@ -26,7 +26,7 @@ namespace Infrastructure.Implemtation.Cian.HttpClient
 
         public ICianHttpClient CreateClientWithProxy()
         {
-            _logger.Debug("CreateClientWithProxy");
+            _logger.Info("CreateClientWithProxy");
 
             var proxys = _manager.GetProxys();
 
@@ -44,8 +44,6 @@ namespace Infrastructure.Implemtation.Cian.HttpClient
 
         public async Task<byte[]> GetExcelFromCianAsync(string url)
         {
-            _logger.Debug("GetExcelFromCianAsync");
-
             var response = await _client.GetAsync(url);
 
             if (!response.IsSuccessStatusCode)
@@ -56,8 +54,6 @@ namespace Infrastructure.Implemtation.Cian.HttpClient
 
         public async Task<string> GetPageAsync(string url)
         {
-            _logger.Debug("GetPageAsync");
-
             var response = await _client.GetAsync(url);
 
             if (!response.IsSuccessStatusCode)

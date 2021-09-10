@@ -26,14 +26,14 @@ namespace Infrastructure.Implemtation.Cian
             _pollService = pollService;
         }
 
-        public string BuildCianUrl(City city, OperationType type, int page)
+        public string BuildCianUrl(City city, int page)
         {
-            return _cianUrlBuilder.BuildCianUrl(city, type, page);
+            return _cianUrlBuilder.BuildCianUrl(city, page);
         }
 
-        public async Task<byte[]> GetExcelFromCianAsync(string url)
+        public async Task<string> GetHtmlAsync(string url)
         {
-            return await _pollService.Execute(GetExcelFromCianPoll, url, () =>
+            return await _pollService.Execute(GetHtmlPoll, url, () =>
             {
                 _cianClient = _cianClient.CreateClientWithProxy();
                 return Task.CompletedTask;
@@ -49,26 +49,11 @@ namespace Infrastructure.Implemtation.Cian
             });
         }
 
-        private async Task<PollResult<byte[]>> GetExcelFromCianPoll(string url)
+        private async Task<PollResult<string>> GetHtmlPoll(string url)
         {
-            var domParser = new HtmlParser();
-            var page = await _cianClient.GetPageAsync(url);
+            var html = await _cianClient.GetPageAsync(url);
 
-            var document = await domParser.ParseDocumentAsync(page);
-
-            var recapcha = document
-                .QuerySelectorAll("div")
-                .Where(x => x.ClassName == "recaptcha-checkbox-checkmark")
-                .FirstOrDefault();
-
-            if (recapcha != null)
-                return PollResult<byte[]>.Fail("Recapcha");
-
-            await Task.Delay(2000);
-
-            var bytes = await _cianClient.GetExcelFromCianAsync(url);
-
-            return PollResult<byte[]>.Success(bytes);
+            return PollResult<string>.Success(html);
         }
 
         private async Task<PollResult<int>> GetPagesCountPolls(City city)
@@ -78,7 +63,7 @@ namespace Infrastructure.Implemtation.Cian
 
             for (int pageNumber = 0; pageNumber < int.MaxValue; pageNumber += 8)
             {
-                var url = _cianUrlBuilder.BuildCianUrl(city, OperationType.GetFlats, pageNumber);
+                var url = _cianUrlBuilder.BuildCianUrl(city, pageNumber);
 
                 var content = await _cianClient.GetPageAsync(url);
 

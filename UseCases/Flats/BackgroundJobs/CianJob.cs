@@ -33,13 +33,13 @@ namespace UseCases.Flats.BackgroundJobs
 
                 for (int i = 0; i < pagesCount; i++)
                 {
-                    Logger.Debug($"Start {i} page");
+                    Logger.Info($"Start {i} page");
 
                     try
                     {
-                        var url = CianService.BuildCianUrl(city, OperationType.GetExcel, i);
-                        var excelInBytes = await CianService.GetExcelFromCianAsync(url);
-                        Bus.Publish(new ExcelDownloadedEvent(excelInBytes));
+                        var url = CianService.BuildCianUrl(city, i);
+                        var html = await CianService.GetHtmlAsync(url);
+                        Bus.Publish(new HtmlDownloadedEvent(html));
 
                         await Task.Delay(6000);
                     }

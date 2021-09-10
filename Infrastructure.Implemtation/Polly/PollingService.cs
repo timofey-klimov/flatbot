@@ -17,7 +17,6 @@ namespace Infrastructure.Implemtation.Polly
             _logger = loggerService;
         }
 
-
         public async Task<T> Execute<T>(Func<Task<PollResult<T>>> action,
             Func<Task> retryAction)
         {

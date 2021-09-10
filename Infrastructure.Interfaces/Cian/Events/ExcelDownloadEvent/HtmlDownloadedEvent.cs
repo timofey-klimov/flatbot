@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Interfaces.Cian.Events.ExcelDownloaded
 {
-    public class ExcelDownloadedEvent : IEvent
+    public class HtmlDownloadedEvent : IEvent
     {
-        public byte[] Data { get; }
+        public string Data { get; }
 
-        public ExcelDownloadedEvent(byte[] data)
+        public HtmlDownloadedEvent(string data)
         {
             Data = data;
         }

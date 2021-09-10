@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Implemtation.Migrations
 {
     [DbContext(typeof(FlatDbContext))]
-    [Migration("20210909223113_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20210910205740_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -115,8 +115,8 @@ namespace Infrastructure.Implemtation.Migrations
                                 .HasColumnType("int")
                                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                            b1.Property<int?>("Value")
-                                .HasColumnType("int")
+                            b1.Property<decimal>("Value")
+                                .HasColumnType("decimal(18,2)")
                                 .HasColumnName("Price");
 
                             b1.HasKey("FlatId");

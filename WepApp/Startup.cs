@@ -72,10 +72,10 @@ namespace WepApp
 
             services.AddSingleton<IEventBus, InMemoryBus>();
 
-            services.AddHostedService<CianExcelParserHostedService>();
+            services.AddHostedService<CianParserHostedService>();
             services.AddHostedService<ParseCianJob>();
             //Events
-            services.AddTransient<ExcelDownloadHandler>();
+            services.AddTransient<HtmlDownloadHandler>();
 
             //frameworks
             services.AddControllers();

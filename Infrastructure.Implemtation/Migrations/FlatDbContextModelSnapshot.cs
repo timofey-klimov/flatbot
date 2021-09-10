@@ -113,8 +113,8 @@ namespace Infrastructure.Implemtation.Migrations
                                 .HasColumnType("int")
                                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                            b1.Property<int?>("Value")
-                                .HasColumnType("int")
+                            b1.Property<decimal>("Value")
+                                .HasColumnType("decimal(18,2)")
                                 .HasColumnName("Price");
 
                             b1.HasKey("FlatId");

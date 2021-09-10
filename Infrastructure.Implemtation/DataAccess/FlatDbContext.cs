@@ -20,6 +20,7 @@ namespace Infrastructure.Implemtation.DataAccess
             modelBuilder.Entity<Flat>(x =>
             {
                 x.HasKey(x => x.Id);
+
                 x.OwnsOne(x => x.Metro, c =>
                 {
                     c.Property(x => x.Name).HasMaxLength(100)
@@ -40,7 +41,9 @@ namespace Infrastructure.Implemtation.DataAccess
                 x.OwnsOne(x => x.Price, c =>
                 {
                     c.Property(x => x.Value)
-                        .HasColumnName("Price");
+                        .HasColumnName("Price")
+                        .HasColumnType("decimal(18,2)")
+                        .IsRequired();
                 });
 
                 x.Property(x => x.Phone)

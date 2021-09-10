@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace WepApp.HostedServices.EventBusSubscribers
 {
-    public class CianExcelParserHostedService : IHostedService
+    public class CianParserHostedService : IHostedService
     {
         private IDisposable disposer;
-        public CianExcelParserHostedService(
+        public CianParserHostedService(
             IEventBus bus)
         {
-            disposer = bus.Subscribe<ExcelDownloadHandler, ExcelDownloadedEvent>();
+            disposer = bus.Subscribe<HtmlDownloadHandler, HtmlDownloadedEvent>();
         }
 
 

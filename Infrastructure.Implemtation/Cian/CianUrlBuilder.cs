@@ -15,7 +15,7 @@ namespace Infrastructure.Implemtation.Cian
             _cianMapManager = cianMapManager;
         }
 
-        public string BuildCianUrl(City city, OperationType type, int page)
+        public string BuildCianUrl(City city, int page)
         {
             var map = _cianMapManager.GetMapsInfo().FirstOrDefault(x => x.City == city);
 
@@ -24,15 +24,7 @@ namespace Infrastructure.Implemtation.Cian
 
             var stringBuilder = new StringBuilder(map.BaseUrl);
 
-            switch (type)
-            {
-                case OperationType.GetExcel:
-                    stringBuilder.Append("export/xls/offers/");
-                    break;
-                case OperationType.GetFlats:
-                    stringBuilder.Append("cat.php");
-                    break;
-            }
+            stringBuilder.Append("cat.php");
 
             stringBuilder.Append("?deal_type=rent");
             stringBuilder.Append("&type=4");
