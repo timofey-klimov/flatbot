@@ -3,6 +3,7 @@
     public enum Room
     {
         One = 1,
-        Two = 2
+        Two = 2,
+        Three = 3
     }
 }

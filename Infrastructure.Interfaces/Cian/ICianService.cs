@@ -5,6 +5,6 @@ namespace Infrastructure.Interfaces.Cian
 {
     public interface ICianService
     {
-        public Task<int?> GetPagesCount(City city, DealType dealType, Room room);
+        Task<int?> GetPagesCount(City city);
     }
 }

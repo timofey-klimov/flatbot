@@ -8,20 +8,25 @@ using System.Linq;
 using System;
 using Infrastructure.Implemtation.Cian.Exceptions;
 using System.Net.Http;
+using MihaZupan;
+using Infrastructure.Interfaces.Cian.HttpClient;
 
 namespace Infrastructure.Implemtation.Cian
 {
     public class CianService : ICianService
     {
         private readonly ICianUrlBuilder _cianUrlBuilder;
-        private readonly System.Net.Http.HttpClient _httpClient;
-        public CianService(ICianUrlBuilder cianUrlBuilder, IHttpClientFactory httpClient)
+        private readonly ICianHttpClient _cianClient;
+
+        public CianService(
+            ICianUrlBuilder cianUrlBuilder,
+            ICianHttpClient httpCLient)
         {
             _cianUrlBuilder = cianUrlBuilder;
-            _httpClient = httpClient.CreateClient();
+            _cianClient = httpCLient;
         }
 
-        public async Task<int?> GetPagesCount(City city, DealType dealType, Room room)
+        public async Task<int?> GetPagesCount(City city)
         {
             try
             {
@@ -30,26 +35,31 @@ namespace Infrastructure.Implemtation.Cian
 
                 for (int pageNumber = 0; pageNumber < int.MaxValue; pageNumber += 8)
                 {
-                    var url = _cianUrlBuilder.BuildCianUrl(city, dealType, room, OperationType.GetFlats, pageNumber);
+                    var url = _cianUrlBuilder.BuildCianUrl(city, OperationType.GetFlats, pageNumber);
 
-                    var page = await (await _httpClient.GetAsync(url))
-                        .Content
-                        .ReadAsStringAsync();
+                    var content = await _cianClient.GetPageAsync(url);
 
-                    IHtmlDocument document = await domParser.ParseDocumentAsync(page, token);
+                    IHtmlDocument document = await domParser.ParseDocumentAsync(content, token);
 
-                    var pagination = document.QuerySelectorAll("div")
-                            .Where(x => x.GetAttribute("data-name") == "Pagination")
-                            .FirstOrDefault();
+                    var pagination = document
+                        ?.QuerySelectorAll("div")
+                        ?.Where(x => x.GetAttribute("data-name") == "Pagination")
+                        ?.FirstOrDefault();
 
-                    var lastPage = pagination.QuerySelector("ul")
-                        .QuerySelectorAll("li")
-                        .Where(x => x.QuerySelector("a") != null)
-                        .Select(x => x.QuerySelector("a")?.TextContent)
-                        .Last();
+                    if (pagination == null)
+                        throw new BanIpException("Ban IP");
+
+                    var lastPage = pagination
+                        ?.QuerySelector("ul")
+                        ?.QuerySelectorAll("li")
+                        ?.Where(x => x.QuerySelector("a") != null)
+                        ?.Select(x => x.QuerySelector("a")?.TextContent)
+                        ?.Last();
 
                     if (lastPage != "..")
                         return int.Parse(lastPage);
+
+                    await Task.Delay(2000);
                 }
 
                 return default;

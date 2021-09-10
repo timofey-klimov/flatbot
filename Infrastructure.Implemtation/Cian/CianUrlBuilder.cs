@@ -3,19 +3,19 @@ using Infrastructure.Interfaces.Cian;
 using Infrastructure.Interfaces.Cian.Enums;
 using System.Linq;
 using System.Text;
-using Utils;
 
 namespace Infrastructure.Implemtation.Cian
 {
     public class CianUrlBuilder : ICianUrlBuilder
     {
         private ICianMapManager _cianMapManager;
-        public CianUrlBuilder(ICianMapManager cianMapManager)
+        public CianUrlBuilder(
+            ICianMapManager cianMapManager)
         {
             _cianMapManager = cianMapManager;
         }
 
-        public string BuildCianUrl(City city, DealType dealType, Room room, OperationType type, int page)
+        public string BuildCianUrl(City city, OperationType type, int page)
         {
             var map = _cianMapManager.GetMapsInfo().FirstOrDefault(x => x.City == city);
 
@@ -34,35 +34,16 @@ namespace Infrastructure.Implemtation.Cian
                     break;
             }
 
-            switch (dealType)
-            {
-                case DealType.Rent:
-                    stringBuilder.Append("?deal_type=rent");
-                    stringBuilder.Append("&type=4");
-                    break;
-                case DealType.Sale:
-                    stringBuilder.Append("?deal_type=sale");
-                    break;
-            }
+            stringBuilder.Append("?deal_type=rent");
+            stringBuilder.Append("&type=4");
 
             stringBuilder.Append("&engine_version=2");
             stringBuilder.Append("&offer_type=flat");
             stringBuilder.Append($"&region={map.Region}");
             stringBuilder.Append($"&p={page}");
+            stringBuilder.Append("&room1=1");
+            stringBuilder.Append("&room2=1");
 
-            switch (room.To<int>())
-            {
-                case 1:
-                    stringBuilder.Append("&room1=1");
-                    break;
-                case 2:
-                    stringBuilder.Append("&room2=1");
-                    break;
-                case 3:
-                    stringBuilder.Append("&room1=1");
-                    stringBuilder.Append("&room2=1");
-                    break;
-            }
 
             return stringBuilder.ToString();
         }

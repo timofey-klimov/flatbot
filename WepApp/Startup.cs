@@ -1,8 +1,11 @@
+using Hangfire;
+using Infrastructure.Implemtation.Bus;
 using Infrastructure.Implemtation.Cian;
 using Infrastructure.Implemtation.Cian.HttpClient;
 using Infrastructure.Implemtation.DataAccess;
 using Infrastructure.Implemtation.FileService;
 using Infrastructure.Implemtation.Logger;
+using Infrastructure.Interfaces.Bus;
 using Infrastructure.Interfaces.Cian;
 using Infrastructure.Interfaces.Cian.HttpClient;
 using Infrastructure.Interfaces.DataAccess;
@@ -14,6 +17,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using UseCases.Flats.BackgroundJobs;
+using WepApp.HostedServices;
+using WepApp.HostedServices.EventBusSubscribers;
 using WepApp.Middlewares;
 using WepApp.Services;
 
@@ -49,16 +55,24 @@ namespace WepApp
             {
                 return serviceFactory.CreateLogger(x);
             });
-            services.AddSingleton<ICianStoreManager, CianStoreManager>(x => new CianStoreManager(x.GetRequiredService<IWebHostEnvironment>().ContentRootPath));
             services.AddScoped<IFIleShare, LocalFileShare>();
             services.AddScoped<ICianHttpClient, CianHttpClient>();
             services.AddScoped<ICianService, CianService>();
-            services.AddHttpClient<ICianService, CianService>();
+            services.AddScoped<ICianExcelParser, CianExcelParser>();
+            
+            services.AddSingleton<IEventBus, InMemoryBus>();
 
-            services.AddScoped<ICianFileShareManager, CianFileShareManager>();
-
+            services.AddHostedService<CianExcelParserHostedService>();
             //frameworks
             services.AddControllers();
+            services.AddHangfire(x =>
+            {
+                x.UseSerilogLogProvider();
+                x.UseSqlServerStorage(Configuration.GetConnectionString("HangfireConnection"));
+            });
+            services.AddHangfireServer();
+
+            services.AddScoped<ParseCianRentFlatJob>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -77,6 +91,8 @@ namespace WepApp
             {
                 endpoints.MapControllers();
             });
+
+            RecurringJob.AddOrUpdate<ParseCianRentFlatJob>(x => x.Execute(), Cron.Hourly);
         }
     }
 }

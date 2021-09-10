@@ -1,11 +1,6 @@
 ﻿using Entities.Models;
 using Infrastructure.Interfaces.DataAccess;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Implemtation.DataAccess
 {
@@ -22,7 +17,35 @@ namespace Infrastructure.Implemtation.DataAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            
+            modelBuilder.Entity<Flat>(x =>
+            {
+                x.HasKey(x => x.Id);
+                x.OwnsOne(x => x.Metro, c =>
+                {
+                    c.Property(x => x.Name).HasMaxLength(100)
+                        .HasColumnName("MetroName");
+                    c.Property(x => x.OnCar)
+                        .HasColumnName("OnCar");
+                    c.Property(x => x.TimeToGoInMinutes)
+                        .HasColumnName("TimeToGo");
+                });
+
+                x.OwnsOne(x => x.Address, c =>
+                {
+                    c.Property(x => x.Value)
+                        .HasColumnName("Address")
+                        .HasMaxLength(200);
+                });
+
+                x.OwnsOne(x => x.Price, c =>
+                {
+                    c.Property(x => x.Value)
+                        .HasColumnName("Price");
+                });
+
+                x.Property(x => x.Phone)
+                    .HasMaxLength(100);
+            });
         }
     }
 }

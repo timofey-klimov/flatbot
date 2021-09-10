@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utils;
 namespace Entities.Models.ValueObjects
 {
@@ -10,24 +7,37 @@ namespace Entities.Models.ValueObjects
     {
         public string Name { get; private set; }
 
-        public int? TimeToGo { get; private set; }
+        public int? TimeToGoInMinutes { get; private set; }
 
         public bool OnCar { get; private set; }
 
 
         private Metro() { }
 
-        public Metro(string name, int? timeToGo, bool onCar)
+        public Metro(string name)
         {
             if (name.IsEmpty())
                 throw new ArgumentException(nameof(name));
 
-            if (timeToGo <= 0)
-                throw new ArgumentException(nameof(timeToGo));
+            var objs = name.Split('(');
 
-            Name = name;
-            TimeToGo = timeToGo;
-            OnCar = onCar;
+            var metroName = objs.ElementAtOrDefault(0);
+
+            var info = objs.ElementAtOrDefault(1);
+
+            if (info.Contains("пешком"))
+            {
+                OnCar = false;
+            }
+            else
+            {
+                OnCar = true;
+            }
+
+            Name = metroName;
+
+            if (int.TryParse(info.Split(" ").FirstOrDefault(), out var result))
+                TimeToGoInMinutes = result;
         }
     }
 }

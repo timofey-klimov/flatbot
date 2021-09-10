@@ -4,6 +4,7 @@ using Infrastructure.Interfaces.Cian.Dto;
 using Infrastructure.Interfaces.Cian.Enums;
 using Microsoft.Extensions.Configuration;
 using Serilog;
+using Serilog.Events;
 using System;
 using System.Collections.Generic;
 using Utils;
@@ -20,6 +21,7 @@ namespace WepApp.Services
             {
                 var maps = configuration
                     .GetSection("CianUrl")
+                    .GetSection("Maps")
                     .Get<IEnumerable<Map>>();
 
                 var list = new List<MapInfo>();
@@ -44,11 +46,10 @@ namespace WepApp.Services
             {
                 var logger = new LoggerConfiguration()
                     .WriteTo
-                    .Console()
-                    .WriteTo.File("log-.txt", rollingInterval: RollingInterval.Day)
+                    .Console(restrictedToMinimumLevel: LogEventLevel.Information)
                     .CreateLogger();
 
-                return new LoggerService(logger.Error, logger.Information);
+                return new LoggerService(logger.Error, logger.Information, logger.Debug);
             }
             catch (Exception ex)
             {

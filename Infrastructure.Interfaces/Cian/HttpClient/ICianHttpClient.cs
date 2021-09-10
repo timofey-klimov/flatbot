@@ -4,6 +4,8 @@ namespace Infrastructure.Interfaces.Cian.HttpClient
 {
     public interface ICianHttpClient
     {
-        Task<byte[]> GetExcelFromCian(string url);
+        Task<byte[]> GetExcelFromCianAsync(string url);
+
+        Task<string> GetPageAsync(string url);
     }
 }

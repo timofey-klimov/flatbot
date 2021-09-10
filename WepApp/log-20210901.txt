@@ -1,0 +1,47 @@
+2021-09-01 15:36:16.499 +03:00 [ERR] A suitable constructor for type 'Infrastructure.Implemtation.Cian.CianService' could not be located. Ensure the type is concrete and services are registered for all parameters of a public constructor.
+2021-09-01 15:43:01.566 +03:00 [ERR] CianHttpClientException StatusCode:TooManyRequests, Message:<html>
+<head><title>429 Too Many Requests</title></head>
+<body>
+<center><h1>429 Too Many Requests</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+
+2021-09-01 15:43:01.827 +03:00 [ERR] CianHttpClientException StatusCode:TooManyRequests, Message:<html>
+<head><title>429 Too Many Requests</title></head>
+<body>
+<center><h1>429 Too Many Requests</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+
+2021-09-01 15:43:01.827 +03:00 [ERR] CianHttpClientException StatusCode:TooManyRequests, Message:<html>
+<head><title>429 Too Many Requests</title></head>
+<body>
+<center><h1>429 Too Many Requests</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+
+2021-09-01 15:43:01.913 +03:00 [ERR] CianHttpClientException StatusCode:TooManyRequests, Message:<html>
+<head><title>429 Too Many Requests</title></head>
+<body>
+<center><h1>429 Too Many Requests</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+
+2021-09-01 15:43:02.167 +03:00 [ERR] CianHttpClientException StatusCode:TooManyRequests, Message:<html>
+<head><title>429 Too Many Requests</title></head>
+<body>
+<center><h1>429 Too Many Requests</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+
+2021-09-01 15:47:27.658 +03:00 [ERR] GetPagesCountException Object reference not set to an instance of an object.
+2021-09-01 15:47:27.658 +03:00 [ERR] GetPagesCountException Object reference not set to an instance of an object.
+2021-09-01 15:47:27.658 +03:00 [ERR] GetPagesCountException Object reference not set to an instance of an object.
+2021-09-01 15:47:27.658 +03:00 [ERR] GetPagesCountException Object reference not set to an instance of an object.
+2021-09-01 15:47:27.658 +03:00 [ERR] GetPagesCountException Object reference not set to an instance of an object.
+2021-09-01 15:47:27.658 +03:00 [ERR] GetPagesCountException Object reference not set to an instance of an object.

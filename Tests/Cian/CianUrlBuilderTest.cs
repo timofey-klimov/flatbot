@@ -30,13 +30,13 @@ namespace Tests.Cian
         public void GenerateUrl()
         {
             var urlOneRoom = _builder
-                .BuildCianUrl(City.Moscow, DealType.Sale, Room.One, OperationType.GetExcel, 2);
+                .BuildCianUrl(City.Moscow,OperationType.GetFlats, 2);
 
             var urlSecondRoom = _builder
-                .BuildCianUrl(City.Moscow, DealType.Sale, Room.Two, OperationType.GetExcel, 2);
+                .BuildCianUrl(City.Moscow, OperationType.GetExcel, 2);
 
             var urlOneAndSecondRoom = _builder
-                .BuildCianUrl(City.Moscow, DealType.Sale, Room.One | Room.Two, OperationType.GetExcel, 2);
+                .BuildCianUrl(City.Moscow, OperationType.GetExcel, 2);
 
         }
     }

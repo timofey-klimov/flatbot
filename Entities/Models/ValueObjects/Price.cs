@@ -1,23 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Utils;
 
 namespace Entities.Models.ValueObjects
 {
     public class Price : ValueObject
     {
-        public int Value { get; private set; }
+        public int? Value { get; private set; }
 
         private Price() { }
 
-        public Price(int value)
+        public Price(string value)
         {
-            if (value <= 0)
+            if (value.IsEmpty())
                 throw new ArgumentException(nameof(value));
 
-            Value = value;
+            if (int.TryParse(value.Split('/').FirstOrDefault(), out var result))
+            {
+                Value = result;
+            }
         }
     }
 }
