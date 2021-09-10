@@ -2,6 +2,7 @@
 using Entities.Models.ValueObjects;
 using Infrastructure.Interfaces.Bus;
 using Infrastructure.Interfaces.Cian;
+using Infrastructure.Interfaces.Cian.Events.ExcelDownloaded;
 using Infrastructure.Interfaces.DataAccess;
 using Infrastructure.Interfaces.Logger;
 using Microsoft.EntityFrameworkCore;
@@ -12,14 +13,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Utils;
 
-namespace Infrastructure.Implemtation.Cian
+namespace Infrastructure.Implemtation.Cian.Events.ExcelDownloaded
 {
-    public class CianExcelParser : ICianExcelParser
+    public class ExcelDownloadHandler : IEventBusHandler<ExcelDownloadedEvent>
     {
         private readonly ILoggerService _logger;
         private readonly IDbContext _context;
 
-        public CianExcelParser(
+        public ExcelDownloadHandler(
             IDbContext dbContext,
             ILoggerService loggerService)
         {
@@ -27,11 +28,11 @@ namespace Infrastructure.Implemtation.Cian
             _logger = loggerService;
         }
 
-        public async Task ParseAsync(byte[] bytes)
+        public async Task Handle(ExcelDownloadedEvent @event)
         {
             try
             {
-                using (var package = new ExcelPackage(new MemoryStream(bytes)))
+                using (var package = new ExcelPackage(new MemoryStream(@event.Data)))
                 {
                     var workSheet = package.Workbook.Worksheets.FirstOrDefault();
 

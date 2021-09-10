@@ -5,69 +5,93 @@ using Infrastructure.Interfaces.Cian.Enums;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
-using System;
-using Infrastructure.Implemtation.Cian.Exceptions;
-using System.Net.Http;
-using MihaZupan;
 using Infrastructure.Interfaces.Cian.HttpClient;
+using Infrastructure.Interfaces.Poll;
 
 namespace Infrastructure.Implemtation.Cian
 {
     public class CianService : ICianService
     {
-        private readonly ICianUrlBuilder _cianUrlBuilder;
-        private readonly ICianHttpClient _cianClient;
+        private ICianUrlBuilder _cianUrlBuilder;
+        private ICianHttpClient _cianClient;
+        private IPollService _pollService;
 
         public CianService(
             ICianUrlBuilder cianUrlBuilder,
-            ICianHttpClient httpCLient)
+            ICianHttpClient httpCLient,
+            IPollService pollService)
         {
             _cianUrlBuilder = cianUrlBuilder;
             _cianClient = httpCLient;
+            _pollService = pollService;
         }
 
-        public async Task<int?> GetPagesCount(City city)
+        public string BuildCianUrl(City city, OperationType type, int page)
         {
-            try
+            return _cianUrlBuilder.BuildCianUrl(city, type, page);
+        }
+
+        public async Task<byte[]> GetExcelFromCianAsync(string url)
+        {
+            return await _pollService.Execute(GetExcelFromCianPoll, url, () =>
             {
-                var domParser = new HtmlParser();
-                var token = CancellationToken.None;
+                _cianClient = _cianClient.CreateClientWithProxy();
+                return Task.CompletedTask;
+            });
+        }
 
-                for (int pageNumber = 0; pageNumber < int.MaxValue; pageNumber += 8)
-                {
-                    var url = _cianUrlBuilder.BuildCianUrl(city, OperationType.GetFlats, pageNumber);
-
-                    var content = await _cianClient.GetPageAsync(url);
-
-                    IHtmlDocument document = await domParser.ParseDocumentAsync(content, token);
-
-                    var pagination = document
-                        ?.QuerySelectorAll("div")
-                        ?.Where(x => x.GetAttribute("data-name") == "Pagination")
-                        ?.FirstOrDefault();
-
-                    if (pagination == null)
-                        throw new BanIpException("Ban IP");
-
-                    var lastPage = pagination
-                        ?.QuerySelector("ul")
-                        ?.QuerySelectorAll("li")
-                        ?.Where(x => x.QuerySelector("a") != null)
-                        ?.Select(x => x.QuerySelector("a")?.TextContent)
-                        ?.Last();
-
-                    if (lastPage != "..")
-                        return int.Parse(lastPage);
-
-                    await Task.Delay(2000);
-                }
-
-                return default;
-            }
-            catch (Exception ex)
+        public async Task<int> GetPagesCountAsync(City city)
+        {
+            return await _pollService.Execute(GetPagesCountPolls, city, () =>
             {
-                throw new GetPagesCountException(ex.Message);
+                _cianClient = _cianClient.CreateClientWithProxy();
+                return Task.CompletedTask;
+            });
+        }
+
+
+        private async Task<PollResult<byte[]>> GetExcelFromCianPoll(string url)
+        {
+            var bytes = await _cianClient.GetExcelFromCianAsync(url);
+
+            return PollResult<byte[]>.Success(bytes);
+        }
+
+        private async Task<PollResult<int>> GetPagesCountPolls(City city)
+        {
+            var domParser = new HtmlParser();
+            var token = CancellationToken.None;
+
+            for (int pageNumber = 0; pageNumber < int.MaxValue; pageNumber += 8)
+            {
+                var url = _cianUrlBuilder.BuildCianUrl(city, OperationType.GetFlats, pageNumber);
+
+                var content = await _cianClient.GetPageAsync(url);
+
+                IHtmlDocument document = await domParser.ParseDocumentAsync(content, token);
+
+                var pagination = document
+                    ?.QuerySelectorAll("div")
+                    ?.Where(x => x.GetAttribute("data-name") == "Pagination")
+                    ?.FirstOrDefault();
+
+                if (pagination == null)
+                    return PollResult<int>.Fail("Ban Ip");
+
+                var lastPage = pagination
+                    ?.QuerySelector("ul")
+                    ?.QuerySelectorAll("li")
+                    ?.Where(x => x.QuerySelector("a") != null)
+                    ?.Select(x => x.QuerySelector("a")?.TextContent)
+                    ?.Last();
+
+                if (lastPage != "..")
+                    return PollResult<int>.Success(int.Parse(lastPage));
+
+                await Task.Delay(3000);
             }
+
+            return default;
         }
     }
 }

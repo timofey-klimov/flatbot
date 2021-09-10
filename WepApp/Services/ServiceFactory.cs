@@ -46,7 +46,7 @@ namespace WepApp.Services
             {
                 var logger = new LoggerConfiguration()
                     .WriteTo
-                    .Console(restrictedToMinimumLevel: LogEventLevel.Information)
+                    .Console(restrictedToMinimumLevel: LogEventLevel.Debug)
                     .CreateLogger();
 
                 return new LoggerService(logger.Error, logger.Information, logger.Debug);
@@ -54,6 +54,22 @@ namespace WepApp.Services
             catch (Exception ex)
             {
                 throw new CannotCreateServiceException(typeof(LoggerService));
+            }
+        }
+
+        public ProxyManager CreateProxyManager(IConfiguration configuration)
+        {
+            try
+            {
+                var proxys = configuration
+                    .GetSection("ProxySettings:Proxys")
+                    .Get<ICollection<Proxy>>();
+
+                return new ProxyManager(proxys);
+            }
+            catch (Exception ex)
+            {
+                throw new CannotCreateServiceException(typeof(ProxyManager));
             }
         }
     }

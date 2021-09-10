@@ -5,6 +5,10 @@ namespace Infrastructure.Interfaces.Cian
 {
     public interface ICianService
     {
-        Task<int?> GetPagesCount(City city);
+        Task<int> GetPagesCountAsync(City city);
+
+        Task<byte[]> GetExcelFromCianAsync(string url);
+
+        string BuildCianUrl(City city, OperationType type, int page);
     }
 }

@@ -1,25 +1,32 @@
-﻿using Infrastructure.Interfaces.Bus;
-using Infrastructure.Interfaces.Cian;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Infrastructure.Implemtation.Cian.Events.ExcelDownloaded;
+using Infrastructure.Interfaces.Bus;
+using Infrastructure.Interfaces.Cian.Events.ExcelDownloaded;
+using Microsoft.Extensions.Hosting;
 using System;
-using UseCases.Flats.Events;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace WepApp.HostedServices.EventBusSubscribers
 {
-    public class CianExcelParserHostedService : EventBusSubscriberBase<ICianExcelParser>
+    public class CianExcelParserHostedService : IHostedService
     {
         private IDisposable disposer;
         public CianExcelParserHostedService(
-            IEventBus bus,
-            IServiceScopeFactory factory)
-            : base(bus, factory)
+            IEventBus bus)
         {
-            disposer = EventBus.Subscribe<FileSavedEvent>(x => ServiceHandler.ParseAsync(x.FileInBytes));
+            disposer = bus.Subscribe<ExcelDownloadHandler, ExcelDownloadedEvent>();
         }
 
-        public override void Dispose()
+
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
         {
             disposer.Dispose();
+            return Task.CompletedTask;
         }
     }
 }

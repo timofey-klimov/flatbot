@@ -7,5 +7,7 @@ namespace Infrastructure.Interfaces.Cian.HttpClient
         Task<byte[]> GetExcelFromCianAsync(string url);
 
         Task<string> GetPageAsync(string url);
+
+        ICianHttpClient CreateClientWithProxy();
     }
 }

@@ -1,7 +1,9 @@
-﻿using Infrastructure.Implemtation.Cian.Exceptions;
+﻿using Infrastructure.Interfaces.Cian;
 using Infrastructure.Interfaces.Cian.HttpClient;
 using Infrastructure.Interfaces.Logger;
 using MihaZupan;
+using System;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -9,16 +11,41 @@ namespace Infrastructure.Implemtation.Cian.HttpClient
 {
     public class CianHttpClient : ICianHttpClient
     {
-        private readonly System.Net.Http.HttpClient _client;
+        private System.Net.Http.HttpClient _client;
         private readonly ILoggerService _logger;
-        public CianHttpClient(ILoggerService loggerService)
+        private readonly IProxyManager _manager;
+
+        public CianHttpClient(
+            ILoggerService loggerService,
+            IProxyManager proxyManager)
         {
             _logger = loggerService;
             _client = new System.Net.Http.HttpClient();
+            _manager = proxyManager;
+        }
+
+        public ICianHttpClient CreateClientWithProxy()
+        {
+            _logger.Debug("CreateClientWithProxy");
+
+            var proxys = _manager.GetProxys();
+
+            var currentProxy = proxys.ElementAt(new Random().Next(0, proxys.Count));
+
+            var handler = new HttpClientHandler()
+            {
+                Proxy = new HttpToSocks5Proxy(currentProxy.Ip, currentProxy.Port)
+            };
+
+            _client = new System.Net.Http.HttpClient(handler);
+
+            return this;
         }
 
         public async Task<byte[]> GetExcelFromCianAsync(string url)
         {
+            _logger.Debug("GetExcelFromCianAsync");
+
             var response = await _client.GetAsync(url);
 
             if (!response.IsSuccessStatusCode)
@@ -29,6 +56,8 @@ namespace Infrastructure.Implemtation.Cian.HttpClient
 
         public async Task<string> GetPageAsync(string url)
         {
+            _logger.Debug("GetPageAsync");
+
             var response = await _client.GetAsync(url);
 
             if (!response.IsSuccessStatusCode)

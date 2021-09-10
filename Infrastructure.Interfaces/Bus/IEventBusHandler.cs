@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Interfaces.Bus
 {
-    public interface IEventBusHandler
+    public interface IEventBusHandler<in T>
+        where T : IEvent
     {
-        
+        Task Handle(T @event);
     }
 }

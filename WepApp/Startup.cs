@@ -1,16 +1,19 @@
 using Hangfire;
 using Infrastructure.Implemtation.Bus;
 using Infrastructure.Implemtation.Cian;
+using Infrastructure.Implemtation.Cian.Events.ExcelDownloaded;
 using Infrastructure.Implemtation.Cian.HttpClient;
 using Infrastructure.Implemtation.DataAccess;
 using Infrastructure.Implemtation.FileService;
 using Infrastructure.Implemtation.Logger;
+using Infrastructure.Implemtation.Polly;
 using Infrastructure.Interfaces.Bus;
 using Infrastructure.Interfaces.Cian;
 using Infrastructure.Interfaces.Cian.HttpClient;
 using Infrastructure.Interfaces.DataAccess;
 using Infrastructure.Interfaces.FileService;
 using Infrastructure.Interfaces.Logger;
+using Infrastructure.Interfaces.Poll;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +21,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using UseCases.Flats.BackgroundJobs;
-using WepApp.HostedServices;
 using WepApp.HostedServices.EventBusSubscribers;
 using WepApp.Middlewares;
 using WepApp.Services;
@@ -58,11 +60,22 @@ namespace WepApp
             services.AddScoped<IFIleShare, LocalFileShare>();
             services.AddScoped<ICianHttpClient, CianHttpClient>();
             services.AddScoped<ICianService, CianService>();
-            services.AddScoped<ICianExcelParser, CianExcelParser>();
-            
+            services.AddScoped<IProxyManager, ProxyManager>(x =>
+            {
+                return serviceFactory.CreateProxyManager(Configuration);
+            });
+            services.AddScoped<IPollService, PollingService>(x =>
+            {
+                return new PollingService(3, x.GetRequiredService<ILoggerService>());
+            });
+
             services.AddSingleton<IEventBus, InMemoryBus>();
 
             services.AddHostedService<CianExcelParserHostedService>();
+
+            //Events
+            services.AddTransient<ExcelDownloadHandler>();
+
             //frameworks
             services.AddControllers();
             services.AddHangfire(x =>

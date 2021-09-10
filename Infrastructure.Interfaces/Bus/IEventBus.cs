@@ -7,6 +7,8 @@ namespace Infrastructure.Interfaces.Bus
     {
         void Publish(IEvent @event);
 
-        IDisposable Subscribe<T>(Func<T, Task> func) where T : IEvent;
+        IDisposable Subscribe<T, V>()
+             where T : IEventBusHandler<V>
+             where V : IEvent;
     }
 }

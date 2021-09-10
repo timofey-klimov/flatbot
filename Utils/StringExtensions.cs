@@ -11,7 +11,7 @@ namespace Utils
 
         public static double ToDouble(this string str)
         {
-            return double.Parse(str, System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture);
+            return double.Parse(str, NumberStyles.Any, CultureInfo.InvariantCulture);
         }
     }
 }
