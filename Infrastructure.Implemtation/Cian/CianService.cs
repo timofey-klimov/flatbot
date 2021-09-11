@@ -53,6 +53,9 @@ namespace Infrastructure.Implemtation.Cian
         {
             var html = await _cianClient.GetPageAsync(url);
 
+            if (html.Contains("<!doctype html>"))
+                return PollResult<string>.Fail("Ban ip");
+
             return PollResult<string>.Success(html);
         }
 

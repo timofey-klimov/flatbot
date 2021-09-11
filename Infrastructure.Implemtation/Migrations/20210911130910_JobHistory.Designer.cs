@@ -4,14 +4,16 @@ using Infrastructure.Implemtation.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Infrastructure.Implemtation.Migrations
 {
     [DbContext(typeof(FlatDbContext))]
-    partial class FlatDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210911130910_JobHistory")]
+    partial class JobHistory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

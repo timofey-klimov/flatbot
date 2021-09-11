@@ -15,6 +15,8 @@ namespace Infrastructure.Implemtation.DataAccess
 
         public DbSet<Flat> Flats { get; set; }
 
+        public DbSet<JobHistory> JobHistory { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Flat>(x =>
@@ -32,6 +34,23 @@ namespace Infrastructure.Implemtation.DataAccess
 
                 x.Property(x => x.Price)
                     .HasColumnType("decimal(18,2)");
+
+                x.Property(x => x.Comission)
+                    .HasColumnType("int");
+            });
+
+            modelBuilder.Entity<JobHistory>(x =>
+            {
+                x.HasKey(x => x.Id);
+
+                x.Property(x => x.Message)
+                    .HasMaxLength(150);
+
+                x.Property(x => x.StartDate)
+                    .HasColumnType("datetime2(0)");
+
+                x.Property(x => x.EndDate)
+                    .HasColumnType("datetime2(0)");
             });
         }
     }

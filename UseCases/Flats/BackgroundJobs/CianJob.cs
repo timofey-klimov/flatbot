@@ -5,6 +5,7 @@ using Infrastructure.Interfaces.Cian.Events.ExcelDownloaded;
 using Infrastructure.Interfaces.Logger;
 using System;
 using System.Threading.Tasks;
+using UseCases.Flats.BackgroundJobs.Exceptions;
 
 namespace UseCases.Flats.BackgroundJobs
 {
@@ -25,33 +26,29 @@ namespace UseCases.Flats.BackgroundJobs
         }
         protected async Task Execute(City city)
         {
-            try
+            var pagesCount = await CianService.GetPagesCountAsync(city);
+
+            Logger.Info($"Find {pagesCount} pages");
+
+            if (pagesCount == 0)
+                throw new FindZeroPagesException("Cant find count of pages");
+
+            for (int i = 0; i < pagesCount; i++)
             {
-                var pagesCount = await CianService.GetPagesCountAsync(city);
+                Logger.Info($"Start {i} page");
 
-                Logger.Info($"Find {pagesCount} pages");
-
-                for (int i = 0; i < pagesCount; i++)
+                try
                 {
-                    Logger.Info($"Start {i} page");
+                    var url = CianService.BuildCianUrl(city, i);
+                    var html = await CianService.GetHtmlAsync(url);
+                    Bus.Publish(new HtmlDownloadedEvent(html));
 
-                    try
-                    {
-                        var url = CianService.BuildCianUrl(city, i);
-                        var html = await CianService.GetHtmlAsync(url);
-                        Bus.Publish(new HtmlDownloadedEvent(html));
-
-                        await Task.Delay(6000);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error($"{ex.GetType().Name} {ex.Message}");
-                    }
+                    await Task.Delay(6000);
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"{ex.GetType().Name} {ex.Message}");
+                catch (Exception ex)
+                {
+                    Logger.Error($"{ex.GetType().Name} {ex.Message}");
+                }
             }
         }
     }

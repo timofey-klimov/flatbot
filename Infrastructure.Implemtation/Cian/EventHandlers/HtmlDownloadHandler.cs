@@ -145,8 +145,6 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
                         TimeToMetro = time,
                         WayToGo = onCar == true ? Entities.Enums.WayToGo.Car : Entities.Enums.WayToGo.Walk,
                         Address = address,
-                        NeedComission = formatPriceInfo.NeedCommision,
-                        NeedPledge = formatPriceInfo.NeedPledge,
                         Comission = formatPriceInfo.Commision,
                         Pledge = formatPriceInfo.Pledge,
                         MoreThanYear = formatPriceInfo.MoreThanYear,
@@ -158,6 +156,9 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
 
                     if (entity != null)
                     {
+                        var entCreateDate = entity.CreateDate;
+                        flat.UpdateDate = DateTime.Now;
+                        flat.CreateDate = entCreateDate;
                         entity = flat;
                     }
                     else
@@ -175,7 +176,7 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
             }
         }
 
-        private (bool? NeedCommision, bool? NeedPledge, int? Commision, decimal? Pledge, bool? MoreThanYear) FormatPriceInfo(string priceInfo)
+        private (int? Commision, decimal? Pledge, bool? MoreThanYear) FormatPriceInfo(string priceInfo)
         {
             if (priceInfo.IsEmpty())
                 return default;
@@ -193,7 +194,7 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
 
             if (needCommision == true)
             {
-                commision = splited.ElementAtOrDefault(2)?.Split(' ')[1]?.Replace("%", "")?.Trim()?.ToNullableInt();
+                commision = splited.ElementAtOrDefault(2)?.Trim()?.Split(' ')[1]?.Replace("%", "")?.Trim().ToNullableInt();
             }
 
             if (needPlegde == true)
@@ -201,7 +202,7 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
                 pledge = splited.ElementAtOrDefault(3)?.Replace(" ", "")?.Replace("залог", "")?.Replace("₽", "")?.Trim().ToNullableDecimal();
             }
 
-            return (needCommision, needPlegde, commision, pledge, moreThanYear);
+            return (commision, pledge, moreThanYear);
         }
     }
 }

@@ -19,9 +19,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
 using UseCases.Flats.BackgroundJobs;
-using WepApp.HostedServices;
 using WepApp.HostedServices.EventBusSubscribers;
+using WepApp.HostedServices.JobManagers;
 using WepApp.Middlewares;
 using WepApp.Services;
 
@@ -72,7 +73,13 @@ namespace WepApp
             services.AddSingleton<IEventBus, InMemoryBus>();
 
             services.AddHostedService<CianParserHostedService>();
-            services.AddHostedService<ParseCianJob>();
+            services.AddHostedService<ParseCianJobManager>(x => 
+            {
+                return new ParseCianJobManager(
+                    x.GetRequiredService<ILoggerService>(),
+                    x.GetRequiredService<IServiceScopeFactory>(),
+                    TimeSpan.FromHours(Configuration.GetSection("Jobs:ParseCianJobManager").Get<int>()));
+            });
             //Events
             services.AddTransient<HtmlDownloadHandler>();
 

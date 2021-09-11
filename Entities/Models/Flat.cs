@@ -1,4 +1,5 @@
 ﻿using Entities.Enums;
+using System;
 
 namespace Entities.Models
 {
@@ -22,10 +23,6 @@ namespace Entities.Models
 
         public string Address { get; set; }
 
-        public bool? NeedComission { get; set; }
-
-        public bool? NeedPledge { get; set; }
-
         public int? Comission { get; set; }
 
         public decimal? Pledge { get; set; }
@@ -36,5 +33,14 @@ namespace Entities.Models
 
         public string CianReference { get; set; }
 
+        public DateTime CreateDate { get; set; }
+
+        public DateTime? UpdateDate { get; set; }
+
+
+        public Flat()
+        {
+            CreateDate = DateTime.Now;
+        }
     }
 }

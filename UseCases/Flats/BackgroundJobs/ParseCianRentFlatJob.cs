@@ -2,12 +2,14 @@
 using Infrastructure.Interfaces.Cian;
 using Infrastructure.Interfaces.Cian.Enums;
 using Infrastructure.Interfaces.Cian.HttpClient;
+using Infrastructure.Interfaces.Jobs;
 using Infrastructure.Interfaces.Logger;
+using System;
 using System.Threading.Tasks;
 
 namespace UseCases.Flats.BackgroundJobs
 {
-    public class ParseCianRentFlatJob : CianJob  
+    public class ParseCianRentFlatJob : CianJob, IJob  
     {
         private ICianMapManager _cianMapManager;
         public ParseCianRentFlatJob(
@@ -22,16 +24,12 @@ namespace UseCases.Flats.BackgroundJobs
 
         public async Task Execute()
         {
-            Logger.Info("Start ParseCianRentFlatJob");
-
             var cities = _cianMapManager.GetCities();
 
             foreach (var city in cities)
             {
-                await Execute(city);
+                 await Execute(city);
             }
-
-            Logger.Info("Finish ParseCianRentFlatJob");
         }
     }
 }
