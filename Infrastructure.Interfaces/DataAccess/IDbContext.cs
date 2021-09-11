@@ -10,7 +10,7 @@ namespace Infrastructure.Interfaces.DataAccess
     public interface IDbContext : IDisposable
     {
         DbSet<Flat> Flats { get; }
-        public DatabaseFacade Database { get; }
+        DatabaseFacade Database { get; }
         Task<int> SaveChangesAsync(CancellationToken token);
     }
 }

@@ -23,5 +23,30 @@ namespace Utils
         {
             return int.Parse(str, NumberStyles.Any, CultureInfo.InvariantCulture);
         }
+
+        public static decimal ToDecimal(this string str)
+        {
+            return decimal.Parse(str, NumberStyles.Any, CultureInfo.InvariantCulture);
+        }
+
+        public static decimal? ToNullableDecimal(this string str)
+        {
+            if (decimal.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
+            {
+                return result;
+            }
+
+            return null;
+        }
+
+        public static int? ToNullableInt(this string str)
+        {
+            if (int.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
+            {
+                return result;
+            }
+
+            return null;
+        }
     }
 }

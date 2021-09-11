@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Utils;
 
 namespace Infrastructure.Implemtation.Bus
 {
@@ -27,7 +28,7 @@ namespace Infrastructure.Implemtation.Bus
 
         public async Task Publish(IEvent @event)
         {
-            _logger.Debug($"Publish event {@event.GetType().Name}");
+            _logger.Info($"Publish event {@event.GetType().Name}");
 
             var messageType = @event.GetType();
 
@@ -42,14 +43,20 @@ namespace Infrastructure.Implemtation.Bus
 
             using (var scope = _factory.CreateScope())
             {
-                ///У обработчиков событий всегда есть метод Handle, который принимает объект типа IEvent
-
+                ///У обработчиков событий всегда есть метод HandleAsync, который принимает объект типа IEvent
                 object service = scope.ServiceProvider.GetService(handler);
 
                 var method = service.GetType()
                     .GetMethod("HandleAsync");
 
-                await (Task)method.Invoke(service, new object[] { @event });
+                try
+                {
+                    await (Task)method.Invoke(service, new object[] { @event });
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error($"Exception in {service.GetTypeName()}, {ex.Message}");
+                }
             }
         }
 

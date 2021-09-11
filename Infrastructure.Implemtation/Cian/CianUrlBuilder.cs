@@ -30,12 +30,13 @@ namespace Infrastructure.Implemtation.Cian
             stringBuilder.Append("&type=4");
 
             stringBuilder.Append("&engine_version=2");
+            stringBuilder.Append("&maxprice=80000");
             stringBuilder.Append("&offer_type=flat");
             stringBuilder.Append($"&region={map.Region}");
             stringBuilder.Append($"&p={page}");
             stringBuilder.Append("&room1=1");
             stringBuilder.Append("&room2=1");
-
+            
 
             return stringBuilder.ToString();
         }

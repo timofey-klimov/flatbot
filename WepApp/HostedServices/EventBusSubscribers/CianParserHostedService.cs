@@ -1,4 +1,4 @@
-﻿using Infrastructure.Implemtation.Cian.Events.ExcelDownloaded;
+﻿using Infrastructure.Implemtation.Cian.EventHandlers;
 using Infrastructure.Interfaces.Bus;
 using Infrastructure.Interfaces.Cian.Events.ExcelDownloaded;
 using Microsoft.Extensions.Hosting;

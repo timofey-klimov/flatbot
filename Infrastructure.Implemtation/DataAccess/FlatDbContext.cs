@@ -21,33 +21,17 @@ namespace Infrastructure.Implemtation.DataAccess
             {
                 x.HasKey(x => x.Id);
 
-                x.OwnsOne(x => x.Metro, c =>
-                {
-                    c.Property(x => x.Name).HasMaxLength(100)
-                        .HasColumnName("MetroName");
-                    c.Property(x => x.OnCar)
-                        .HasColumnName("OnCar");
-                    c.Property(x => x.TimeToGoInMinutes)
-                        .HasColumnName("TimeToGo");
-                });
-
-                x.OwnsOne(x => x.Address, c =>
-                {
-                    c.Property(x => x.Value)
-                        .HasColumnName("Address")
-                        .HasMaxLength(200);
-                });
-
-                x.OwnsOne(x => x.Price, c =>
-                {
-                    c.Property(x => x.Value)
-                        .HasColumnName("Price")
-                        .HasColumnType("decimal(18,2)")
-                        .IsRequired();
-                });
-
-                x.Property(x => x.Phone)
+                x.Property(x => x.Metro)
                     .HasMaxLength(100);
+
+                x.Property(x => x.Address)
+                    .HasMaxLength(150);
+
+                x.Property(x => x.Pledge)
+                    .HasColumnType("decimal(18,2)");
+
+                x.Property(x => x.Price)
+                    .HasColumnType("decimal(18,2)");
             });
         }
     }

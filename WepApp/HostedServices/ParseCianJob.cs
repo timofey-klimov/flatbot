@@ -29,7 +29,7 @@ namespace WepApp.HostedServices
         {
             _loggerService.Info("Start MyJob");
 
-            _timer = new Timer(Execute, null, TimeSpan.Zero, TimeSpan.FromHours(1));
+            _timer = new Timer(Execute, null, TimeSpan.Zero, TimeSpan.FromHours(8));
         }
 
         private async void Execute(object state)

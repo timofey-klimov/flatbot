@@ -1,7 +1,6 @@
-using Hangfire;
 using Infrastructure.Implemtation.Bus;
 using Infrastructure.Implemtation.Cian;
-using Infrastructure.Implemtation.Cian.Events.ExcelDownloaded;
+using Infrastructure.Implemtation.Cian.EventHandlers;
 using Infrastructure.Implemtation.Cian.HttpClient;
 using Infrastructure.Implemtation.DataAccess;
 using Infrastructure.Implemtation.FileService;

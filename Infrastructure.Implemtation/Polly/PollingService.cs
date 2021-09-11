@@ -45,7 +45,7 @@ namespace Infrastructure.Implemtation.Polly
                 if (actResult?.IsSuccess == true)
                     return actResult.Data;
 
-                if (i == _attemptCount)
+                if (i == _attemptCount - 1)
                     _logger.Error("Error in polling");
             }
 
