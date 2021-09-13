@@ -63,9 +63,6 @@ namespace WepApp.HostedServices.JobManagers.Base
 
                     history.EndDate = DateTime.Now;
                     history.Status = Entities.Enums.JobStatus.Success;
-                    dbContext.SaveChangesAsync(cts).Wait();
-
-                    Logger.Info($"Finish {typeof(T).Name}");
                 }
                 catch (Exception ex)
                 {
@@ -87,6 +84,10 @@ namespace WepApp.HostedServices.JobManagers.Base
                 }
                 finally
                 {
+                    history.NextFireAt = DateTime.Now.Add(_period);
+                    dbContext.SaveChangesAsync(cts).Wait();
+
+                    Logger.Info($"Finish {typeof(T).Name}");
                     FinishEvent.Invoke();
                 }
             }
