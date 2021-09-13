@@ -5,6 +5,7 @@ using Infrastructure.Interfaces.Cian.HttpClient;
 using Infrastructure.Interfaces.Jobs;
 using Infrastructure.Interfaces.Logger;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace UseCases.Flats.BackgroundJobs
@@ -22,13 +23,13 @@ namespace UseCases.Flats.BackgroundJobs
             _cianMapManager = cianMapManager;
         }
 
-        public async Task Execute()
+        public async Task Execute(CancellationToken token)
         {
             var cities = _cianMapManager.GetCities();
 
             foreach (var city in cities)
             {
-                 await Execute(city);
+                 await Execute(city, token);
             }
         }
     }

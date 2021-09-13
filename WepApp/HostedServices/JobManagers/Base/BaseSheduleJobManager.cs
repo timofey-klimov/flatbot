@@ -4,17 +4,13 @@ using Infrastructure.Interfaces.DataAccess;
 using Infrastructure.Interfaces.Jobs;
 using Infrastructure.Interfaces.Logger;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace WepApp.HostedServices.JobManagers.Base
 {
-    public abstract class BaseSheduleJobManager<T> : BackgroundService
+    public abstract class BaseSheduleJobManager<T> : ISheduleJobManager
         where T : IJob
     {
         private Timer _timer;
@@ -23,6 +19,7 @@ namespace WepApp.HostedServices.JobManagers.Base
         protected IServiceScopeFactory ScopeFactory;
         protected T HandleJobService;
 
+        public event Action FinishEvent;
 
         public BaseSheduleJobManager(
             ILoggerService logger,
@@ -34,15 +31,14 @@ namespace WepApp.HostedServices.JobManagers.Base
             _period = period;
         }
 
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        public async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _timer = new Timer(InternalExecute, null, TimeSpan.Zero, _period);
-
-            return Task.CompletedTask;
+            _timer = new Timer(InternalExecute, stoppingToken, TimeSpan.Zero, _period);
         }
 
         private void InternalExecute(object state)
         {
+            var cts = (CancellationToken)state;
             Logger.Info($"Start {typeof(T).Name}");
 
             using (var scope = ScopeFactory.CreateScope())
@@ -58,16 +54,16 @@ namespace WepApp.HostedServices.JobManagers.Base
                 };
 
                 dbContext.JobHistory.Add(history);
-                dbContext.SaveChangesAsync(default).Wait();
+                dbContext.SaveChangesAsync(cts).Wait();
 
                 try
                 {
                     var service = scope.ServiceProvider.GetRequiredService<T>();
-                    service.Execute().Wait();
+                    service.Execute(cts).Wait();
 
                     history.EndDate = DateTime.Now;
                     history.Status = Entities.Enums.JobStatus.Success;
-                    dbContext.SaveChangesAsync(default).Wait();
+                    dbContext.SaveChangesAsync(cts).Wait();
 
                     Logger.Info($"Finish {typeof(T).Name}");
                 }
@@ -87,7 +83,11 @@ namespace WepApp.HostedServices.JobManagers.Base
                     history.EndDate = DateTime.Now;
                     history.Status = Entities.Enums.JobStatus.Fail;
 
-                    dbContext.SaveChangesAsync(default).Wait();
+                    dbContext.SaveChangesAsync(cts).Wait();
+                }
+                finally
+                {
+                    FinishEvent.Invoke();
                 }
             }
         }

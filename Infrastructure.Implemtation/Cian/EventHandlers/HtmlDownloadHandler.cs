@@ -157,9 +157,10 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
                     if (entity != null)
                     {
                         var entCreateDate = entity.CreateDate;
-                        flat.UpdateDate = DateTime.Now;
-                        flat.CreateDate = entCreateDate;
                         entity = flat;
+                        entity.CreateDate = entCreateDate;
+                        entity.UpdateDate = DateTime.Now;
+                        _context.Flats.Update(entity);
                     }
                     else
                     {

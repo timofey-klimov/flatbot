@@ -1,26 +1,31 @@
-﻿using Infrastructure.Interfaces.Cian;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Infrastructure.Interfaces.Cian;
 using Infrastructure.Interfaces.Cian.Dto;
-using System;
+using Infrastructure.Interfaces.DataAccess;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Implemtation.Cian
 {
     public class ProxyManager : IProxyManager
     {
-        private readonly ICollection<Proxy> _proxies;
-        public ProxyManager(ICollection<Proxy> proxies)
+        private IDbContext _dbContext;
+        private IMapper _mapper;
+        public ProxyManager(
+            IDbContext dbContext,
+            IMapper mapper)
         {
-            if (!proxies.Any())
-                throw new ArgumentException();
-            _proxies = proxies;
+            _dbContext = dbContext;
+            _mapper = mapper;
         }
 
-        public ICollection<Proxy> GetProxys()
+        public IReadOnlyCollection<ProxyDto> GetProxys()
         {
-            return _proxies;
+            return _dbContext.Proxies
+                .ProjectTo<ProxyDto>(_mapper.ConfigurationProvider)
+                .ToArray();
+
         }
     }
 }

@@ -4,6 +4,7 @@ using Infrastructure.Interfaces.Cian.Enums;
 using Infrastructure.Interfaces.Cian.Events.ExcelDownloaded;
 using Infrastructure.Interfaces.Logger;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using UseCases.Flats.BackgroundJobs.Exceptions;
 
@@ -24,7 +25,7 @@ namespace UseCases.Flats.BackgroundJobs
             Logger = logger;
             Bus = eventBus;
         }
-        protected async Task Execute(City city)
+        protected async Task Execute(City city, CancellationToken token)
         {
             var pagesCount = await CianService.GetPagesCountAsync(city);
 
@@ -39,6 +40,9 @@ namespace UseCases.Flats.BackgroundJobs
 
                 try
                 {
+                    if (token.IsCancellationRequested)
+                        break;
+
                     var url = CianService.BuildCianUrl(city, i);
                     var html = await CianService.GetHtmlAsync(url);
                     Bus.Publish(new HtmlDownloadedEvent(html));

@@ -24,7 +24,7 @@ namespace Infrastructure.Implemtation.Cian.HttpClient
             _manager = proxyManager;
         }
 
-        public ICianHttpClient CreateClientWithProxy()
+        public void CreateClientWithProxy()
         {
             _logger.Info("CreateClientWithProxy");
 
@@ -39,7 +39,6 @@ namespace Infrastructure.Implemtation.Cian.HttpClient
 
             _client = new System.Net.Http.HttpClient(handler);
 
-            return this;
         }
 
         public async Task<byte[]> GetExcelFromCianAsync(string url)

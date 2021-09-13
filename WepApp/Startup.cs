@@ -2,6 +2,7 @@ using Infrastructure.Implemtation.Bus;
 using Infrastructure.Implemtation.Cian;
 using Infrastructure.Implemtation.Cian.EventHandlers;
 using Infrastructure.Implemtation.Cian.HttpClient;
+using Infrastructure.Implemtation.Cian.Profiles;
 using Infrastructure.Implemtation.DataAccess;
 using Infrastructure.Implemtation.FileService;
 using Infrastructure.Implemtation.Logger;
@@ -11,6 +12,7 @@ using Infrastructure.Interfaces.Cian;
 using Infrastructure.Interfaces.Cian.HttpClient;
 using Infrastructure.Interfaces.DataAccess;
 using Infrastructure.Interfaces.FileService;
+using Infrastructure.Interfaces.Jobs;
 using Infrastructure.Interfaces.Logger;
 using Infrastructure.Interfaces.Poll;
 using Microsoft.AspNetCore.Builder;
@@ -23,6 +25,7 @@ using System;
 using UseCases.Flats.BackgroundJobs;
 using WepApp.HostedServices.EventBusSubscribers;
 using WepApp.HostedServices.JobManagers;
+using WepApp.HostedServices.JobManagers.Queue;
 using WepApp.Middlewares;
 using WepApp.Services;
 
@@ -59,34 +62,49 @@ namespace WepApp
                 return serviceFactory.CreateLogger(x);
             });
             services.AddScoped<IFIleShare, LocalFileShare>();
-            services.AddScoped<ICianHttpClient, CianHttpClient>();
-            services.AddScoped<ICianService, CianService>();
-            services.AddScoped<IProxyManager, ProxyManager>(x =>
-            {
-                return serviceFactory.CreateProxyManager(Configuration);
-            });
+            services.AddTransient<ICianHttpClient, CianHttpClient>();
+            services.AddTransient<IProxyManager, ProxyManager>();
+          
+            services.AddTransient<ICianService, CianService>();
             services.AddScoped<IPollService, PollingService>(x =>
             {
-                return new PollingService(4, x.GetRequiredService<ILoggerService>());
+                return new PollingService(Configuration.GetSection("RetryCount").Get<int>(), 
+                    x.GetRequiredService<ILoggerService>());
             });
 
             services.AddSingleton<IEventBus, InMemoryBus>();
 
-            services.AddHostedService<CianParserHostedService>();
-            services.AddHostedService<ParseCianJobManager>(x => 
+            services.AddHostedService<CianSubscribers>();
+
+            services.AddHostedService<JobsQueue>();
+
+            //Jobs
+            services.AddTransient<ParseCianRentFlatJob>();
+            services.AddTransient<ClearDeletedAnnouncementJob>();
+
+            //Managers
+            services.AddTransient<ISheduleJobManager, ClearDeletedAnnouncementJobManager>(x =>
+            {
+                return new ClearDeletedAnnouncementJobManager(
+                    x.GetRequiredService<ILoggerService>(),
+                    x.GetRequiredService<IServiceScopeFactory>(),
+                    TimeSpan.FromHours(Configuration.GetSection("Jobs:ClearDeletedAnnouncementJob").Get<int>()));
+            });
+            services.AddTransient<ISheduleJobManager, ParseCianJobManager>(x =>
             {
                 return new ParseCianJobManager(
                     x.GetRequiredService<ILoggerService>(),
                     x.GetRequiredService<IServiceScopeFactory>(),
                     TimeSpan.FromHours(Configuration.GetSection("Jobs:ParseCianJobManager").Get<int>()));
             });
-            //Events
+
+            //EventHandlers
             services.AddTransient<HtmlDownloadHandler>();
 
             //frameworks
             services.AddControllers();
+            services.AddAutoMapper(typeof(ProxyProfile));
 
-            services.AddScoped<ParseCianRentFlatJob>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -105,6 +123,8 @@ namespace WepApp
             {
                 endpoints.MapControllers();
             });
+
+
         }
     }
 }

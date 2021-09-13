@@ -5,6 +5,6 @@ namespace Infrastructure.Interfaces.Cian
 {
     public interface IProxyManager
     {
-        ICollection<Proxy> GetProxys();
+        IReadOnlyCollection<ProxyDto> GetProxys();
     }
 }

@@ -56,21 +56,5 @@ namespace WepApp.Services
                 throw new CannotCreateServiceException(typeof(LoggerService));
             }
         }
-
-        public ProxyManager CreateProxyManager(IConfiguration configuration)
-        {
-            try
-            {
-                var proxys = configuration
-                    .GetSection("ProxySettings:Proxys")
-                    .Get<ICollection<Proxy>>();
-
-                return new ProxyManager(proxys);
-            }
-            catch (Exception ex)
-            {
-                throw new CannotCreateServiceException(typeof(ProxyManager));
-            }
-        }
     }
 }

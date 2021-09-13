@@ -8,6 +8,6 @@ namespace Infrastructure.Interfaces.Cian.HttpClient
 
         Task<string> GetPageAsync(string url);
 
-        ICianHttpClient CreateClientWithProxy();
+        void CreateClientWithProxy();
     }
 }

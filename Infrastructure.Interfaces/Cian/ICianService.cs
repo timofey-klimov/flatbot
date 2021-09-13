@@ -10,5 +10,7 @@ namespace Infrastructure.Interfaces.Cian
         string BuildCianUrl(City city, int page);
 
         Task<string> GetHtmlAsync(string url);
+
+        Task<bool> CheckAnnouncement(string url);
     }
 }

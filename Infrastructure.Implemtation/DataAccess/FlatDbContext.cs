@@ -17,6 +17,8 @@ namespace Infrastructure.Implemtation.DataAccess
 
         public DbSet<JobHistory> JobHistory { get; set; }
 
+        public DbSet<Proxy> Proxies { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Flat>(x =>
@@ -51,6 +53,18 @@ namespace Infrastructure.Implemtation.DataAccess
 
                 x.Property(x => x.EndDate)
                     .HasColumnType("datetime2(0)");
+            });
+
+            modelBuilder.Entity<Proxy>(x =>
+            {
+                x.HasKey(x => x.Id);
+
+                x.Property(x => x.Ip)
+                    .HasMaxLength(50);
+
+                x.Property(x => x.Port)
+                    .HasColumnType("int");
+
             });
         }
     }

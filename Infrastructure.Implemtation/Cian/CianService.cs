@@ -31,11 +31,20 @@ namespace Infrastructure.Implemtation.Cian
             return _cianUrlBuilder.BuildCianUrl(city, page);
         }
 
+        public async Task<bool> CheckAnnouncement(string url)
+        {
+            return await _pollService.Execute(CheckAnnouncementPolls, url, () =>
+            {
+                _cianClient.CreateClientWithProxy();
+                return Task.CompletedTask;
+            });
+        }
+
         public async Task<string> GetHtmlAsync(string url)
         {
             return await _pollService.Execute(GetHtmlPoll, url, () =>
             {
-                _cianClient = _cianClient.CreateClientWithProxy();
+                _cianClient.CreateClientWithProxy();
                 return Task.CompletedTask;
             });
         }
@@ -44,9 +53,32 @@ namespace Infrastructure.Implemtation.Cian
         {
             return await _pollService.Execute(GetPagesCountPolls, city, () =>
             {
-                _cianClient = _cianClient.CreateClientWithProxy();
+                _cianClient.CreateClientWithProxy();
                 return Task.CompletedTask;
             });
+        }
+
+        #region polls
+
+        private async Task<PollResult<bool>> CheckAnnouncementPolls(string url)
+        {
+            var html = await _cianClient.GetPageAsync(url);
+
+            if (html.Contains("<!doctype html>"))
+                return PollResult<bool>.Fail("Ban ip");
+
+            var document = await new HtmlParser().ParseDocumentAsync(html);
+
+            var element = document
+                .QuerySelectorAll("div")
+                .Where(x => x.GetAttribute("data-name") == "OfferUnpublished")
+                .FirstOrDefault();
+
+            if (element == null)
+                return PollResult<bool>.Success(false);
+
+            return PollResult<bool>.Success(true);
+
         }
 
         private async Task<PollResult<string>> GetHtmlPoll(string url)
@@ -95,5 +127,7 @@ namespace Infrastructure.Implemtation.Cian
 
             return default;
         }
+
+        #endregion
     }
 }

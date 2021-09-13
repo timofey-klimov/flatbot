@@ -12,7 +12,9 @@ namespace Infrastructure.Interfaces.DataAccess
         DbSet<Flat> Flats { get; }
         DbSet<JobHistory> JobHistory { get; }
 
+        DbSet<Proxy> Proxies { get; }
+
         DatabaseFacade Database { get; }
-        Task<int> SaveChangesAsync(CancellationToken token);
+        Task<int> SaveChangesAsync(CancellationToken token = default);
     }
 }

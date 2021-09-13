@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace WepApp.HostedServices.EventBusSubscribers
 {
-    public class CianParserHostedService : IHostedService
+    public class CianSubscribers : IHostedService
     {
         private IDisposable disposer;
-        public CianParserHostedService(
+        public CianSubscribers(
             IEventBus bus)
         {
             disposer = bus.Subscribe<HtmlDownloadHandler, HtmlDownloadedEvent>();

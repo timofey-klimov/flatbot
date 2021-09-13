@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Interfaces.Cian.Dto
 {
-    public class Proxy
+    public class ProxyDto
     {
         public string Ip { get; set; }
 
