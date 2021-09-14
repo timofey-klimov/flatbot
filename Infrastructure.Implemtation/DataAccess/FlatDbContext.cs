@@ -53,6 +53,8 @@ namespace Infrastructure.Implemtation.DataAccess
 
                 x.Property(x => x.EndDate)
                     .HasColumnType("datetime2(0)");
+                x.Property(x => x.NextFireAt)
+                    .HasColumnType("datetime2(2)");
             });
 
             modelBuilder.Entity<Proxy>(x =>

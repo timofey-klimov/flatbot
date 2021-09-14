@@ -17,15 +17,17 @@ using Infrastructure.Interfaces.Logger;
 using Infrastructure.Interfaces.Poll;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using Telegram.Bot;
 using UseCases.Flats.BackgroundJobs;
 using WepApp.HostedServices.EventBusSubscribers;
-using WepApp.HostedServices.JobManagers;
-using WepApp.HostedServices.JobManagers.Queue;
+using WepApp.HostedServices.Queue;
+using WepApp.JobManagers;
 using WepApp.Middlewares;
 using WepApp.Services;
 
@@ -45,6 +47,9 @@ namespace WepApp
         public void ConfigureServices(IServiceCollection services)
         {
             var serviceFactory = new ServiceFactory();
+
+            services.AddSingleton(Configuration);
+
             //Infrastructure
             services.AddDbContext<IDbContext, FlatDbContext>(x =>
             {
@@ -102,13 +107,17 @@ namespace WepApp
             services.AddTransient<HtmlDownloadHandler>();
 
             //frameworks
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson();
             services.AddAutoMapper(typeof(ProxyProfile));
+            services.AddSingleton<ITelegramBotClient>(x =>
+            {
+                return new TelegramBotClient(Configuration.GetSection("TelegramToken").Get<string>());
+            });
 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ITelegramBotClient telegramBot)
         {
             if (env.IsDevelopment())
             {
@@ -124,6 +133,8 @@ namespace WepApp
                 endpoints.MapControllers();
             });
 
+            var host = Configuration.GetSection("AppUrl").Get<string>();
+            telegramBot.SetWebhookAsync($"{host}/api/bot");
 
         }
     }

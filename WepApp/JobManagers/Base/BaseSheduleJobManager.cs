@@ -8,7 +8,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace WepApp.HostedServices.JobManagers.Base
+namespace WepApp.JobManagers.Base
 {
     public abstract class BaseSheduleJobManager<T> : ISheduleJobManager
         where T : IJob

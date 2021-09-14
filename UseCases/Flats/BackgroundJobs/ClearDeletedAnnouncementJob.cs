@@ -50,6 +50,8 @@ namespace UseCases.Flats.BackgroundJobs
 
                         _logger.Info($"Announcement deleted {dto.CianReference}");
                     }
+
+                    await Task.Delay(6000);
                 }
                 catch (Exception ex)
                 {

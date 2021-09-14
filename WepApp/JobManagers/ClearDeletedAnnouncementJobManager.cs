@@ -1,10 +1,11 @@
 ﻿using Infrastructure.Interfaces.Logger;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System;
 using UseCases.Flats.BackgroundJobs;
-using WepApp.HostedServices.JobManagers.Base;
+using WepApp.JobManagers.Base;
 
-namespace WepApp.HostedServices.JobManagers
+namespace WepApp.JobManagers
 {
     public class ClearDeletedAnnouncementJobManager : BaseSheduleJobManager<ClearDeletedAnnouncementJob>
     {

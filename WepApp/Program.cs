@@ -2,13 +2,12 @@ using Infrastructure.Interfaces.DataAccess;
 using Infrastructure.Interfaces.Logger;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using WepApp.HostedServices.JobManagers.Base;
+using Telegram.Bot;
 
 namespace WepApp
 {
