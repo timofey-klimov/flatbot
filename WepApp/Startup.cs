@@ -25,6 +25,7 @@ using Microsoft.Extensions.Hosting;
 using System;
 using Telegram.Bot;
 using UseCases.Flats.BackgroundJobs;
+using Utils;
 using WepApp.HostedServices.EventBusSubscribers;
 using WepApp.HostedServices.Queue;
 using WepApp.JobManagers;
@@ -117,7 +118,7 @@ namespace WepApp
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ITelegramBotClient telegramBot)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -132,10 +133,6 @@ namespace WepApp
             {
                 endpoints.MapControllers();
             });
-
-            var host = Configuration.GetSection("AppUrl").Get<string>();
-            telegramBot.SetWebhookAsync($"{host}/api/bot");
-
         }
     }
 }
