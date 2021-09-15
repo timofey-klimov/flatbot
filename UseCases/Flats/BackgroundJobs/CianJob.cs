@@ -34,6 +34,8 @@ namespace UseCases.Flats.BackgroundJobs
             if (pagesCount == 0)
                 throw new FindZeroPagesException("Cant find count of pages");
 
+            await CianService.ClearDatabase();
+
             for (int i = 0; i < pagesCount; i++)
             {
                 Logger.Info($"Start {i} page");

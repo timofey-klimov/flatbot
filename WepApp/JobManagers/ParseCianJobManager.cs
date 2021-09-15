@@ -1,6 +1,5 @@
 ﻿using Infrastructure.Interfaces.Logger;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using System;
 using UseCases.Flats.BackgroundJobs;
 using WepApp.JobManagers.Base;

@@ -17,15 +17,12 @@ using Infrastructure.Interfaces.Logger;
 using Infrastructure.Interfaces.Poll;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
-using Telegram.Bot;
 using UseCases.Flats.BackgroundJobs;
-using Utils;
 using WepApp.HostedServices.EventBusSubscribers;
 using WepApp.HostedServices.Queue;
 using WepApp.JobManagers;
@@ -86,16 +83,8 @@ namespace WepApp
 
             //Jobs
             services.AddTransient<ParseCianRentFlatJob>();
-            services.AddTransient<ClearDeletedAnnouncementJob>();
 
             //Managers
-            services.AddTransient<ISheduleJobManager, ClearDeletedAnnouncementJobManager>(x =>
-            {
-                return new ClearDeletedAnnouncementJobManager(
-                    x.GetRequiredService<ILoggerService>(),
-                    x.GetRequiredService<IServiceScopeFactory>(),
-                    TimeSpan.FromHours(Configuration.GetSection("Jobs:ClearDeletedAnnouncementJob").Get<int>()));
-            });
             services.AddTransient<ISheduleJobManager, ParseCianJobManager>(x =>
             {
                 return new ParseCianJobManager(
@@ -110,11 +99,6 @@ namespace WepApp
             //frameworks
             services.AddControllers().AddNewtonsoftJson();
             services.AddAutoMapper(typeof(ProxyProfile));
-            services.AddSingleton<ITelegramBotClient>(x =>
-            {
-                return new TelegramBotClient(Configuration.GetSection("TelegramToken").Get<string>());
-            });
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

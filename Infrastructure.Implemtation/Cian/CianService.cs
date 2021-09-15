@@ -7,8 +7,11 @@ using System.Threading.Tasks;
 using System.Linq;
 using Infrastructure.Interfaces.Cian.HttpClient;
 using Infrastructure.Interfaces.Poll;
-using Infrastructure.Implemtation.Cian.Exceptions;
 using System;
+using Infrastructure.Interfaces.DataAccess;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Infrastructure.Interfaces.Logger;
 
 namespace Infrastructure.Implemtation.Cian
 {
@@ -17,15 +20,21 @@ namespace Infrastructure.Implemtation.Cian
         private ICianUrlBuilder _cianUrlBuilder;
         private ICianHttpClient _cianClient;
         private IPollService _pollService;
+        private IDbContext _dbContext;
+        private ILoggerService _logger;
 
         public CianService(
             ICianUrlBuilder cianUrlBuilder,
             ICianHttpClient httpCLient,
-            IPollService pollService)
+            IPollService pollService,
+            IDbContext dbContext,
+            ILoggerService logger)
         {
             _cianUrlBuilder = cianUrlBuilder;
             _cianClient = httpCLient;
             _pollService = pollService;
+            _dbContext = dbContext;
+            _logger = logger;
         }
 
         public string BuildCianUrl(City city, int page)
@@ -40,6 +49,15 @@ namespace Infrastructure.Implemtation.Cian
                 _cianClient.CreateClientWithProxy();
                 return Task.CompletedTask;
             });
+        }
+
+        public async Task ClearDatabase()
+        {
+            var count = await _dbContext.Flats.CountAsync();
+
+            _logger.Info($"Delete {count} entities");
+
+            _dbContext.Database.ExecuteSqlRaw("TRUNCATE TABLE dbo.Flats");
         }
 
         public async Task<string> GetHtmlAsync(string url)

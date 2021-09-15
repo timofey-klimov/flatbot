@@ -12,5 +12,7 @@ namespace Infrastructure.Interfaces.Cian
         Task<string> GetHtmlAsync(string url);
 
         Task<bool> CheckAnnouncement(string url);
+
+        Task ClearDatabase();
     }
 }
