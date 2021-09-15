@@ -156,10 +156,10 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
 
                     if (entity != null)
                     {
-                        var entCreateDate = entity.CreateDate;
-                        entity = flat;
-                        entity.CreateDate = entCreateDate;
                         entity.UpdateDate = DateTime.Now;
+                        entity.Price = flat.Price;
+                        entity.Comission = flat.Comission;
+                        entity.Pledge = flat.Pledge;
                         _context.Flats.Update(entity);
                     }
                     else

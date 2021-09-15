@@ -29,7 +29,7 @@ namespace UseCases.Flats.BackgroundJobs
         public async Task Execute(CancellationToken token)
         {
             var dtos = _dbContext.Flats
-                .Select(x => new { x.Id, x.CianReference })
+                .Select(x => new { x.CianId, x.CianReference })
                 .AsNoTracking()
                 .ToArray();
 
@@ -44,9 +44,11 @@ namespace UseCases.Flats.BackgroundJobs
 
                     if (check)
                     {
-                        var entity = await _dbContext.Flats.FirstOrDefaultAsync(x => x.Id == dto.Id);
+                        var entities = await _dbContext.Flats.Where(x => dto.CianId == x.CianId).ToListAsync();
 
-                        _dbContext.Flats.Remove(entity);
+                        _dbContext.Flats.RemoveRange(entities);
+
+                        await _dbContext.SaveChangesAsync();
 
                         _logger.Info($"Announcement deleted {dto.CianReference}");
                     }

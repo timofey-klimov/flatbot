@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Linq;
 using Infrastructure.Interfaces.Cian.HttpClient;
 using Infrastructure.Interfaces.Poll;
+using Infrastructure.Implemtation.Cian.Exceptions;
+using System;
 
 namespace Infrastructure.Implemtation.Cian
 {
@@ -62,10 +64,18 @@ namespace Infrastructure.Implemtation.Cian
 
         private async Task<PollResult<bool>> CheckAnnouncementPolls(string url)
         {
-            var html = await _cianClient.GetPageAsync(url);
+            string html = string.Empty;
+            try
+            {
+                html = await _cianClient.GetPageAsync(url);
 
-            if (html.Contains("<!doctype html>"))
-                return PollResult<bool>.Fail("Ban ip");
+                if (html.Contains("<!doctype html>"))
+                    return PollResult<bool>.Fail("Ban ip");
+            }
+            catch (Exception ex)
+            {
+                return PollResult<bool>.Fail(ex.Message);
+            }
 
             var document = await new HtmlParser().ParseDocumentAsync(html);
 
@@ -83,10 +93,20 @@ namespace Infrastructure.Implemtation.Cian
 
         private async Task<PollResult<string>> GetHtmlPoll(string url)
         {
-            var html = await _cianClient.GetPageAsync(url);
+            string html = string.Empty;
+            
+            try
+            {
+                 html = await _cianClient.GetPageAsync(url);
 
-            if (html.Contains("<!doctype html>"))
-                return PollResult<string>.Fail("Ban ip");
+                if (html.Contains("<!doctype html>"))
+                    return PollResult<string>.Fail("Ban ip");
+            }
+            catch(Exception ex)
+            {
+                return PollResult<string>.Fail(ex.Message);
+            }
+
 
             return PollResult<string>.Success(html);
         }
@@ -100,7 +120,17 @@ namespace Infrastructure.Implemtation.Cian
             {
                 var url = _cianUrlBuilder.BuildCianUrl(city, pageNumber);
 
-                var content = await _cianClient.GetPageAsync(url);
+                string content = string.Empty;
+
+                try
+                {
+                    content = await _cianClient.GetPageAsync(url);
+                }
+                catch(Exception ex)
+                {
+                    return PollResult<int>.Fail(ex.Message);
+                }
+
 
                 IHtmlDocument document = await domParser.ParseDocumentAsync(content, token);
 

@@ -1,4 +1,5 @@
-﻿using Infrastructure.Interfaces.Cian;
+﻿using Infrastructure.Implemtation.Cian.Exceptions;
+using Infrastructure.Interfaces.Cian;
 using Infrastructure.Interfaces.Cian.HttpClient;
 using Infrastructure.Interfaces.Logger;
 using MihaZupan;
@@ -12,22 +13,17 @@ namespace Infrastructure.Implemtation.Cian.HttpClient
     public class CianHttpClient : ICianHttpClient
     {
         private System.Net.Http.HttpClient _client;
-        private readonly ILoggerService _logger;
         private readonly IProxyManager _manager;
 
         public CianHttpClient(
-            ILoggerService loggerService,
             IProxyManager proxyManager)
         {
-            _logger = loggerService;
             _client = new System.Net.Http.HttpClient();
             _manager = proxyManager;
         }
 
         public void CreateClientWithProxy()
         {
-            _logger.Info("CreateClientWithProxy");
-
             var proxys = _manager.GetProxys();
 
             var currentProxy = proxys.ElementAt(new Random().Next(0, proxys.Count));
@@ -46,7 +42,7 @@ namespace Infrastructure.Implemtation.Cian.HttpClient
             var response = await _client.GetAsync(url);
 
             if (!response.IsSuccessStatusCode)
-                _logger.Error(await response.Content.ReadAsStringAsync());
+                throw new HttpException(nameof(HttpException));
 
             return await response.Content.ReadAsByteArrayAsync();
         }
@@ -56,7 +52,7 @@ namespace Infrastructure.Implemtation.Cian.HttpClient
             var response = await _client.GetAsync(url);
 
             if (!response.IsSuccessStatusCode)
-                _logger.Error(await response.Content.ReadAsStringAsync());
+                throw new HttpException(nameof(HttpException));
 
             return await response.Content.ReadAsStringAsync();
 

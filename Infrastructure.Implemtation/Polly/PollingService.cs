@@ -29,7 +29,7 @@ namespace Infrastructure.Implemtation.Polly
             {
                 _logger.Info($"Попытка {i}");
 
-                retryAction();
+                await retryAction();
 
                 PollResult<T> actResult = default;
 
@@ -43,7 +43,10 @@ namespace Infrastructure.Implemtation.Polly
                 }
 
                 if (actResult?.IsSuccess == true)
+                {
+                    _logger.Info("Poll success");
                     return actResult.Data;
+                }
 
                 if (i == _attemptCount - 1)
                     _logger.Error("Error in polling");
@@ -64,7 +67,7 @@ namespace Infrastructure.Implemtation.Polly
             {
                 _logger.Info($"Попытка {i}");
 
-                retryAction();
+                await retryAction();
 
                 PollResult<T> actResult = default;
 
@@ -78,7 +81,10 @@ namespace Infrastructure.Implemtation.Polly
                 }
 
                 if (actResult?.IsSuccess == true)
+                {
+                    _logger.Info("Poll success");
                     return actResult.Data;
+                }
 
                 if (i == _attemptCount - 1)
                     _logger.Error("Error in polling");
