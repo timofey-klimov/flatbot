@@ -15,6 +15,7 @@ using Infrastructure.Interfaces.FileService;
 using Infrastructure.Interfaces.Jobs;
 using Infrastructure.Interfaces.Logger;
 using Infrastructure.Interfaces.Poll;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using UseCases.Flats.BackgroundJobs;
+using UseCases.User.Commands.CreateUser;
+using UseCases.User.Commands.SetFlatMinumPrice;
+using UseCases.User.Commands.SetMaximumPrice;
+using UseCases.User.Commands.SetTimeToMetro;
+using UseCases.User.Queries.GetUserProfile;
 using WepApp.HostedServices.EventBusSubscribers;
 using WepApp.HostedServices.Queue;
 using WepApp.JobManagers;
@@ -44,7 +50,7 @@ namespace WepApp
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            var serviceFactory = new ServiceFactory();
+            var serviceFactory = new Services.ServiceFactory();
 
             services.AddSingleton(Configuration);
 
@@ -93,6 +99,14 @@ namespace WepApp
                     TimeSpan.FromHours(Configuration.GetSection("Jobs:ParseCianJobManager").Get<int>()));
             });
 
+            //Mediatr
+            services.AddMediatR(
+                typeof(CreateUserRequest),
+                typeof(SetFlatMinimumPriceRequest),
+                typeof(SetFlatMaximumPriceRequest),
+                typeof(SetTimeToMetroRequest),
+                typeof(GetUserProfileRequest)
+                );
             //EventHandlers
             services.AddTransient<HtmlDownloadHandler>();
 

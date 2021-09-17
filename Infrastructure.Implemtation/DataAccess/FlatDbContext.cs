@@ -19,6 +19,8 @@ namespace Infrastructure.Implemtation.DataAccess
 
         public DbSet<Proxy> Proxies { get; set; }
 
+        public DbSet<User> Users { get;set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Flat>(x =>
@@ -67,6 +69,23 @@ namespace Infrastructure.Implemtation.DataAccess
                 x.Property(x => x.Port)
                     .HasColumnType("int");
 
+            });
+            modelBuilder.Entity<User>(x =>
+            {
+                x.HasKey(x => x.Id);
+                x.Property(x => x.UserName)
+                    .HasMaxLength(100);
+            });
+
+            modelBuilder.Entity<UserContext>(x =>
+            {
+                x.HasKey(x => x.Id);
+
+                x.Property(x => x.MinimumPrice)
+                    .HasColumnType("decimal(18,2)");
+
+                x.Property(x => x.MaximumPrice)
+                    .HasColumnType("decimal(18,2)");
             });
         }
     }

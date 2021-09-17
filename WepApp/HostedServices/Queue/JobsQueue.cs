@@ -1,4 +1,5 @@
 ﻿using Infrastructure.Interfaces.Jobs;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,15 +13,20 @@ namespace WepApp.HostedServices.Queue
         private readonly IEnumerable<ISheduleJobManager> _jobs;
         private int _indexCurrentJob;
         private CancellationToken _token;
+        private IWebHostEnvironment _env;
 
-        public JobsQueue(IEnumerable<ISheduleJobManager> jobs)
+        public JobsQueue(IEnumerable<ISheduleJobManager> jobs, IWebHostEnvironment env)
         {
             _jobs = jobs;
             _indexCurrentJob = 0;
+            _env = env;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            if (_env.IsDevelopment())
+                return;
+
             _token = stoppingToken;
 
             foreach(var job in _jobs)

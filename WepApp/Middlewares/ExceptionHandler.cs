@@ -38,7 +38,7 @@ namespace WepApp.Middlewares
                 }
                 else
                 {
-                    response = JsonConvert.SerializeObject(ApiResponse.Fail("Unhandled exeption"));
+                    response = JsonConvert.SerializeObject(ApiResponse.Fail("Internal error"));
                 }
 
                 await context.Response.WriteAsync(response);

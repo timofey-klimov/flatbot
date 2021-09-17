@@ -4,14 +4,16 @@ using Infrastructure.Implemtation.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Infrastructure.Implemtation.Migrations
 {
     [DbContext(typeof(FlatDbContext))]
-    partial class FlatDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210917074145_ChangeUserContext")]
+    partial class ChangeUserContext
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -177,10 +179,10 @@ namespace Infrastructure.Implemtation.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<decimal>("MaximumPrice")
+                    b.Property<decimal?>("MaximumPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("MinimumPrice")
+                    b.Property<decimal?>("MinimumPrice")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int?>("RoomCountContext")

@@ -10,9 +10,12 @@ namespace Infrastructure.Interfaces.DataAccess
     public interface IDbContext : IDisposable
     {
         DbSet<Flat> Flats { get; }
+
         DbSet<JobHistory> JobHistory { get; }
 
         DbSet<Proxy> Proxies { get; }
+
+        DbSet<User> Users { get; }
 
         DatabaseFacade Database { get; }
         Task<int> SaveChangesAsync(CancellationToken token = default);
