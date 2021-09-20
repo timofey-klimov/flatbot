@@ -5,27 +5,27 @@ using System.Threading;
 using System.Threading.Tasks;
 using UseCases.User.Exceptions;
 
-namespace UseCases.User.Commands.SetTimeToMetro
+namespace UseCases.Notifications.Commands.DisableNotifications
 {
-    public class SetTimeToMetroHandler : IRequestHandler<SetTimeToMetroRequest>
+    public class DisableNotificationsHandler : IRequestHandler<DisableNotificationsRequest>
     {
         private IDbContext _dbContext;
 
-        public SetTimeToMetroHandler(IDbContext dbContext)
+        public DisableNotificationsHandler(IDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
-        public async Task<Unit> Handle(SetTimeToMetroRequest request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(DisableNotificationsRequest request, CancellationToken cancellationToken)
         {
             var user = await _dbContext.Users
-                .Include(x => x.UserContext)
+                .Include(x => x.NotificationContext)
                 .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
 
             if (user == null)
                 throw new UserIsNullException("No such user");
 
-            user.UserContext.ChangeTimeToMetro(request.TimeToMetro);
+            user.DisableNotifications();
 
             await _dbContext.SaveChangesAsync();
 

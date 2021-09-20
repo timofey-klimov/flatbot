@@ -4,14 +4,16 @@ using Infrastructure.Implemtation.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Infrastructure.Implemtation.Migrations
 {
     [DbContext(typeof(FlatDbContext))]
-    partial class FlatDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210917191818_IsActive")]
+    partial class IsActive
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -132,36 +134,6 @@ namespace Infrastructure.Implemtation.Migrations
                     b.ToTable("Metro");
                 });
 
-            modelBuilder.Entity("Entities.Models.NotificationContext", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("LastNotify")
-                        .HasColumnType("datetime2(0)");
-
-                    b.Property<DateTime?>("NextNotify")
-                        .HasColumnType("datetime2(0)");
-
-                    b.Property<int>("NotificationType")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("NotificationContext");
-                });
-
             modelBuilder.Entity("Entities.Models.Proxy", b =>
                 {
                     b.Property<int>("Id")
@@ -191,6 +163,9 @@ namespace Infrastructure.Implemtation.Migrations
                     b.Property<long>("ChatId")
                         .HasColumnType("bigint");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("UserName")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -212,9 +187,6 @@ namespace Infrastructure.Implemtation.Migrations
 
                     b.Property<decimal>("MinimumPrice")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("PostedNotifications")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("RoomCountContext")
                         .HasColumnType("int");
@@ -240,15 +212,6 @@ namespace Infrastructure.Implemtation.Migrations
                         .HasForeignKey("UserContextId");
                 });
 
-            modelBuilder.Entity("Entities.Models.NotificationContext", b =>
-                {
-                    b.HasOne("Entities.Models.User", null)
-                        .WithOne("NotificationContext")
-                        .HasForeignKey("Entities.Models.NotificationContext", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Entities.Models.UserContext", b =>
                 {
                     b.HasOne("Entities.Models.User", null)
@@ -260,8 +223,6 @@ namespace Infrastructure.Implemtation.Migrations
 
             modelBuilder.Entity("Entities.Models.User", b =>
                 {
-                    b.Navigation("NotificationContext");
-
                     b.Navigation("UserContext");
                 });
 

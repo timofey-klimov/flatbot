@@ -2,7 +2,7 @@
 
 namespace UseCases.User.Base
 {
-    public class BaseUserRequest : IRequest
+    public abstract class BaseUserRequest : IRequest
     {
         public long ChatId { get; }
 
@@ -12,7 +12,7 @@ namespace UseCases.User.Base
         }
     }
 
-    public class BaseUserRequest<T> : IRequest<T>
+    public abstract class BaseUserRequest<T> : IRequest<T>
     {
         public long ChatId { get; }
 

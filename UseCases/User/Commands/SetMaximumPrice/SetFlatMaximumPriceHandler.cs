@@ -25,7 +25,7 @@ namespace UseCases.User.Commands.SetMaximumPrice
             if (user == null)
                 throw new UserIsNullException("No such user");
 
-            user.UserContext.MaximumPrice = request.Price;
+            user.ChangeMaximumPrice(request.Price);
 
             await _dbContext.SaveChangesAsync();
 

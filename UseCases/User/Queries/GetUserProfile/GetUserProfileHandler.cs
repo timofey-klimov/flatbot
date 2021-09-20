@@ -1,4 +1,5 @@
-﻿using Infrastructure.Interfaces.DataAccess;
+﻿using Entities.Enums;
+using Infrastructure.Interfaces.DataAccess;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
@@ -21,6 +22,7 @@ namespace UseCases.User.Queries.GetUserProfile
         {
             var user = await _dbContext.Users
                 .Include(x => x.UserContext)
+                .Include(x => x.NotificationContext)
                 .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
 
             if (user == null)
@@ -30,11 +32,26 @@ namespace UseCases.User.Queries.GetUserProfile
 
             var stringBuilder = new StringBuilder();
 
+            var isActive = user.NotificationContext.IsActive ? "Да" : "Нет";
+
+            var type = user.NotificationContext.NotificationType switch
+            {
+                NotificationType.Default => "По обнаружению новых",
+                NotificationType.EveryDay => "Раз в день",
+                NotificationType.EveryWeek => "Раз в неделю"
+            };
+
+
             stringBuilder
                 .AppendLine($"Твой профиль:")
+                .AppendLine("--Настройки поиска квартир--")
                 .AppendLine($"Минимальная цена: {userContext.MinimumPrice}")
                 .AppendLine($"Максимальная цена: {userContext.MaximumPrice}")
-                .AppendLine($"Время до метро: {userContext.TimeToMetro}");
+                .AppendLine($"Время до метро: {userContext.TimeToMetro}")
+                .AppendLine("--Настройки уведомлений--")
+                .AppendLine($"Присылать уведомления: {isActive}")
+                .AppendLine($"Частота уведомлений: {type}");
+            
 
             return stringBuilder.ToString();
         }

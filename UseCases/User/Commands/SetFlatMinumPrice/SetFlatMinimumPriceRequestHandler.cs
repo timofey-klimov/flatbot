@@ -1,10 +1,6 @@
 ﻿using Infrastructure.Interfaces.DataAccess;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,7 +20,7 @@ namespace UseCases.User.Commands.SetFlatMinumPrice
                 .Include(x => x.UserContext)
                 .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
 
-            user.UserContext.MinimumPrice = request.MinimumPrice;
+            user.ChangeMinimumPrice(request.MinimumPrice);
 
             await _dbContext.SaveChangesAsync();
 

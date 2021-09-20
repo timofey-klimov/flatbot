@@ -26,6 +26,11 @@ namespace Infrastructure.Implemtation.Bus
             _factory = factory;
         }
 
+        public void Dispose()
+        {
+            _events.Clear();
+        }
+
         public async Task Publish(IEvent @event)
         {
             _logger.Info($"Publish event {@event.GetType().Name}");

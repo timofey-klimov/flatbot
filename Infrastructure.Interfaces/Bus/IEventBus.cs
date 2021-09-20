@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Interfaces.Bus
 {
-    public interface IEventBus
+    public interface IEventBus : IDisposable
     {
         Task Publish(IEvent @event);
 

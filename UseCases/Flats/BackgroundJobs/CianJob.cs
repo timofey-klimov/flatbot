@@ -2,6 +2,7 @@
 using Infrastructure.Interfaces.Cian;
 using Infrastructure.Interfaces.Cian.Enums;
 using Infrastructure.Interfaces.Cian.Events.ExcelDownloaded;
+using Infrastructure.Interfaces.Cian.Events.FinishParseCian;
 using Infrastructure.Interfaces.Logger;
 using System;
 using System.Threading;
@@ -55,7 +56,10 @@ namespace UseCases.Flats.BackgroundJobs
                 {
                     Logger.Error($"{ex.GetType().Name} {ex.Message}");
                 }
+
             }
+
+            Bus.Publish(new FinishParseCianEvent());
         }
     }
 }

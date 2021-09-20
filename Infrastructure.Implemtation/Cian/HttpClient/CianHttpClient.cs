@@ -1,7 +1,6 @@
 ﻿using Infrastructure.Implemtation.Cian.Exceptions;
 using Infrastructure.Interfaces.Cian;
 using Infrastructure.Interfaces.Cian.HttpClient;
-using Infrastructure.Interfaces.Logger;
 using MihaZupan;
 using System;
 using System.Linq;

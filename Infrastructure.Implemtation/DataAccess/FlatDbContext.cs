@@ -1,6 +1,10 @@
 ﻿using Entities.Models;
 using Infrastructure.Interfaces.DataAccess;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Newtonsoft.Json;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Infrastructure.Implemtation.DataAccess
 {
@@ -86,6 +90,23 @@ namespace Infrastructure.Implemtation.DataAccess
 
                 x.Property(x => x.MaximumPrice)
                     .HasColumnType("decimal(18,2)");
+
+                x.Property(x => x.PostedNotifications)
+                    .HasColumnType("nvarchar(max)");
+
+                x.Ignore(x => x.Notifications);
+                
+            });
+
+            modelBuilder.Entity<NotificationContext>(x =>
+            {
+                x.HasKey(x => x.Id);
+
+                x.Property(x => x.LastNotify)
+                    .HasColumnType("datetime2(0)");
+
+                x.Property(x => x.NextNotify)
+                    .HasColumnType("datetime2(0)");
             });
         }
     }

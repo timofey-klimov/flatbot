@@ -24,16 +24,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using UseCases.Flats.BackgroundJobs;
+using UseCases.User.Base;
 using UseCases.User.Commands.CreateUser;
 using UseCases.User.Commands.SetFlatMinumPrice;
 using UseCases.User.Commands.SetMaximumPrice;
 using UseCases.User.Commands.SetTimeToMetro;
+using UseCases.User.Queries.GetUser;
 using UseCases.User.Queries.GetUserProfile;
+using UseCases.User.Queries.Profiles;
 using WepApp.HostedServices.EventBusSubscribers;
 using WepApp.HostedServices.Queue;
 using WepApp.JobManagers;
 using WepApp.Middlewares;
-using WepApp.Services;
 
 namespace WepApp
 {
@@ -72,6 +74,10 @@ namespace WepApp
             });
             services.AddScoped<IFIleShare, LocalFileShare>();
             services.AddTransient<ICianHttpClient, CianHttpClient>();
+            services.AddSingleton<IClientMessageSender, TelegramHttpClient>(x =>
+            {
+                return new TelegramHttpClient(Configuration.GetSection("ClientAppUrl").Get<string>());
+            });
             services.AddTransient<IProxyManager, ProxyManager>();
           
             services.AddTransient<ICianService, CianService>();
@@ -100,19 +106,16 @@ namespace WepApp
             });
 
             //Mediatr
-            services.AddMediatR(
-                typeof(CreateUserRequest),
-                typeof(SetFlatMinimumPriceRequest),
-                typeof(SetFlatMaximumPriceRequest),
-                typeof(SetTimeToMetroRequest),
-                typeof(GetUserProfileRequest)
-                );
+            services.AddMediatR(typeof(BaseUserRequest).Assembly);
             //EventHandlers
             services.AddTransient<HtmlDownloadHandler>();
+            services.AddTransient<SendNotificationsHandler>();
 
             //frameworks
             services.AddControllers().AddNewtonsoftJson();
-            services.AddAutoMapper(typeof(ProxyProfile));
+            services.AddAutoMapper(
+                typeof(ProxyProfile),
+                typeof(UserProfile));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

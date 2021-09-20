@@ -9,7 +9,6 @@ using Infrastructure.Interfaces.Cian.HttpClient;
 using Infrastructure.Interfaces.Poll;
 using System;
 using Infrastructure.Interfaces.DataAccess;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Infrastructure.Interfaces.Logger;
 

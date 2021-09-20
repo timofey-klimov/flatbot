@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UseCases.User.Base;
+﻿using UseCases.User.Base;
 
 namespace UseCases.User.Queries.GetUserProfile
 {
