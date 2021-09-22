@@ -24,8 +24,8 @@ namespace WepApp.HostedServices.Queue
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (_env.IsDevelopment())
-                return;
+            //if (_env.IsDevelopment())
+            //    return;
 
             _token = stoppingToken;
 

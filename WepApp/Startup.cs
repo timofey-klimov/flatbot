@@ -7,6 +7,7 @@ using Infrastructure.Implemtation.DataAccess;
 using Infrastructure.Implemtation.FileService;
 using Infrastructure.Implemtation.Logger;
 using Infrastructure.Implemtation.Polly;
+using Infrastructure.Implemtation.Telegram;
 using Infrastructure.Interfaces.Bus;
 using Infrastructure.Interfaces.Cian;
 using Infrastructure.Interfaces.Cian.HttpClient;
@@ -15,6 +16,7 @@ using Infrastructure.Interfaces.FileService;
 using Infrastructure.Interfaces.Jobs;
 using Infrastructure.Interfaces.Logger;
 using Infrastructure.Interfaces.Poll;
+using Infrastructure.Interfaces.Telegram;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -22,15 +24,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
 using UseCases.Flats.BackgroundJobs;
+using UseCases.Notifications.Jobs;
 using UseCases.User.Base;
-using UseCases.User.Commands.CreateUser;
-using UseCases.User.Commands.SetFlatMinumPrice;
-using UseCases.User.Commands.SetMaximumPrice;
-using UseCases.User.Commands.SetTimeToMetro;
-using UseCases.User.Queries.GetUser;
-using UseCases.User.Queries.GetUserProfile;
 using UseCases.User.Queries.Profiles;
 using WepApp.HostedServices.EventBusSubscribers;
 using WepApp.HostedServices.Queue;
@@ -74,9 +70,9 @@ namespace WepApp
             });
             services.AddScoped<IFIleShare, LocalFileShare>();
             services.AddTransient<ICianHttpClient, CianHttpClient>();
-            services.AddSingleton<IClientMessageSender, TelegramHttpClient>(x =>
+            services.AddSingleton<ITelegramMessageSender, TelegramMessageSender>(x =>
             {
-                return new TelegramHttpClient(Configuration.GetSection("ClientAppUrl").Get<string>());
+                return new TelegramMessageSender(Configuration.GetSection("ClientAppUrl").Get<string>());
             });
             services.AddTransient<IProxyManager, ProxyManager>();
           
@@ -89,29 +85,50 @@ namespace WepApp
 
             services.AddSingleton<IEventBus, InMemoryBus>();
 
+            services.AddScoped<ITelegramNotificationService, TelegramNotificationsService>();
+
+            //EventBustSubsribers
             services.AddHostedService<CianSubscribers>();
 
-            services.AddHostedService<JobsQueue>();
 
             //Jobs
             services.AddTransient<ParseCianRentFlatJob>();
+            services.AddTransient<SendEveryDayFlatsNotificationJob>();
+            services.AddTransient<SendEveryWeekFlatsNotificationJob>();
+            services.AddHostedService<JobsQueue>();
 
             //Managers
-            services.AddTransient<ISheduleJobManager, ParseCianJobManager>(x =>
+            //services.AddTransient<ISheduleJobManager, ParseCianJobManager>(x =>
+            //{
+            //    return new ParseCianJobManager(
+            //        x.GetRequiredService<ILoggerService>(),
+            //        x.GetRequiredService<IServiceScopeFactory>(),
+            //        Configuration.GetSection("Jobs:ParseCianJobManager").Get<int>());
+            //});
+
+            //services.AddTransient<ISheduleJobManager, SendEveryDayFlatsNotificationManager>(x =>
+            //{
+            //    return new SendEveryDayFlatsNotificationManager(
+            //        x.GetRequiredService<ILoggerService>(),
+            //        x.GetRequiredService<IServiceScopeFactory>(),
+            //        Configuration.GetSection("Jobs:SendEveryDayFlatsNotification").Get<int>());
+            //});
+
+            services.AddTransient<ISheduleJobManager, SendEveryWeekFlatsNotificationManager>(x =>
             {
-                return new ParseCianJobManager(
+                return new SendEveryWeekFlatsNotificationManager(
                     x.GetRequiredService<ILoggerService>(),
                     x.GetRequiredService<IServiceScopeFactory>(),
-                    TimeSpan.FromHours(Configuration.GetSection("Jobs:ParseCianJobManager").Get<int>()));
+                    Configuration.GetSection("Jobs:SendEveryWeekFlatsNotification").Get<int>());
             });
 
-            //Mediatr
-            services.AddMediatR(typeof(BaseUserRequest).Assembly);
             //EventHandlers
             services.AddTransient<HtmlDownloadHandler>();
             services.AddTransient<SendNotificationsHandler>();
 
+
             //frameworks
+            services.AddMediatR(typeof(BaseUserRequest).Assembly);
             services.AddControllers().AddNewtonsoftJson();
             services.AddAutoMapper(
                 typeof(ProxyProfile),

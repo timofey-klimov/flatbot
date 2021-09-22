@@ -15,8 +15,6 @@ namespace Entities.Models
 
         public bool IsActive { get; private set; }
 
-
-
         public NotificationContext(NotificationType notificationType, bool isActive)
         {
             NotificationType = notificationType;
@@ -38,9 +36,19 @@ namespace Entities.Models
             IsActive = false;
         }
 
-        public void ChangeLastNotifyDate(DateTime dateTime)
+        public void SetNextNotifyDate(int periodInHours)
         {
-            LastNotify = dateTime;
+            if (NextNotify == null)
+                NextNotify = DateTime.Now.AddHours(periodInHours);
+            else
+            {
+                NextNotify = NextNotify.Value.AddHours(periodInHours);
+            }
+        }
+
+        public void CreateLastNotifyDateNow()
+        {
+            LastNotify = DateTime.Now;
         }
     }
 }

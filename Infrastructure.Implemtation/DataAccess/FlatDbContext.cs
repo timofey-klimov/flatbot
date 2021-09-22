@@ -94,7 +94,7 @@ namespace Infrastructure.Implemtation.DataAccess
                 x.Property(x => x.PostedNotifications)
                     .HasColumnType("nvarchar(max)");
 
-                x.Ignore(x => x.Notifications);
+                x.Ignore(x => x.NotificationsList);
                 
             });
 

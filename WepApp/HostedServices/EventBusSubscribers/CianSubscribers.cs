@@ -18,7 +18,6 @@ namespace WepApp.HostedServices.EventBusSubscribers
             _bus = bus;
         }
 
-
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _bus.Subscribe<HtmlDownloadHandler, HtmlDownloadedEvent>();

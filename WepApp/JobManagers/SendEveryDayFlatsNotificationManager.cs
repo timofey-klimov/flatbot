@@ -1,18 +1,18 @@
 ﻿using Infrastructure.Interfaces.Logger;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using UseCases.Flats.BackgroundJobs;
+using UseCases.Notifications.Jobs;
 using WepApp.JobManagers.Base;
 
 namespace WepApp.JobManagers
 {
-    public class ParseCianJobManager : BaseSheduleJobManager<ParseCianRentFlatJob>
+    public class SendEveryDayFlatsNotificationManager : BaseSheduleJobManager<SendEveryDayFlatsNotificationJob>
     {
-        public ParseCianJobManager(
+        public SendEveryDayFlatsNotificationManager(
             ILoggerService logger,
-            IServiceScopeFactory serviceScopeFactory,
+            IServiceScopeFactory serviceScopeFactoy,
             int hours)
-            :base(logger, serviceScopeFactory, TimeSpan.FromHours(hours))
+            : base(logger, serviceScopeFactoy, TimeSpan.FromHours(hours))
         {
 
         }

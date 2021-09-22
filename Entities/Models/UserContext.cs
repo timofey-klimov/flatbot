@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Entities.Models
 {
@@ -21,11 +22,15 @@ namespace Entities.Models
 
         public string PostedNotifications { get; private set; }
 
-        public Lazy<List<long>> Notifications { get; private set; }
+        /// <summary>
+        /// Не использовать методы List для изменения коллекции.
+        /// Использовать внутренние методы класса NotificationContext
+        /// </summary>
+        public Lazy<List<long>> NotificationsList { get; private set; }
 
         private UserContext()
         {
-            Notifications = new Lazy<List<long>>(() => JsonConvert.DeserializeObject<List<long>>(PostedNotifications));
+            NotificationsList = new Lazy<List<long>>(() => JsonConvert.DeserializeObject<List<long>>(PostedNotifications));
         }
         public UserContext(RoomCountContext context, decimal maximumPrice, decimal minimumPrice, int timeToMetro)
         {
@@ -50,10 +55,20 @@ namespace Entities.Models
         {
             TimeToMetro = time;
         }
-
-        public void UpdatePostedNotifications()
+        public void AddNotifications(IEnumerable<long> cianIds)
         {
-            PostedNotifications = JsonConvert.SerializeObject(Notifications.Value);
+            if (NotificationsList.Value == null)
+                throw new ArgumentNullException(nameof(NotificationsList));
+
+            NotificationsList.Value.AddRange(cianIds);
+
+            UpdatePostedNotifications();
         }
+
+        private void UpdatePostedNotifications()
+        {
+            PostedNotifications = JsonConvert.SerializeObject(NotificationsList.Value);
+        }
+
     } 
 }

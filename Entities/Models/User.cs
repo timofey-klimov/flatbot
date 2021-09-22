@@ -3,10 +3,8 @@ using System;
 
 namespace Entities.Models
 {
-    public class User
+    public class User : Entity<int>
     {
-        public int Id { get; private set; }
-
         public long ChatId { get; private set; }
 
         public string UserName { get; private set; }

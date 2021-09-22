@@ -23,7 +23,7 @@ namespace UseCases.Flats.BackgroundJobs
             _cianMapManager = cianMapManager;
         }
 
-        public async Task Execute(CancellationToken token)
+        public async Task ExecuteAsync(CancellationToken token)
         {
             var cities = _cianMapManager.GetCities();
 

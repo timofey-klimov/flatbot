@@ -5,6 +5,6 @@ namespace Infrastructure.Interfaces.Jobs
 {
     public interface IJob
     {
-        Task Execute(CancellationToken token = default);
+        Task ExecuteAsync(CancellationToken token = default);
     }
 }

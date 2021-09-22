@@ -1,4 +1,5 @@
-﻿using Infrastructure.Interfaces.Bus;
+﻿using Infrastructure.Implemtation.Bus.Exceptions;
+using Infrastructure.Interfaces.Bus;
 using Infrastructure.Interfaces.Logger;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -50,6 +51,9 @@ namespace Infrastructure.Implemtation.Bus
             {
                 ///У обработчиков событий всегда есть метод HandleAsync, который принимает объект типа IEvent
                 object service = scope.ServiceProvider.GetService(handler);
+
+                if (service == null)
+                    throw new ServiceNotRegistredException(handler.GetTypeName());
 
                 var method = service.GetType()
                     .GetMethod("HandleAsync");

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using UseCases.Notifications.Commands.DisableNotifications;
 using UseCases.Notifications.Commands.EnableNotifications;
 using UseCases.Notifications.Commands.SelectNotificationType;
+using UseCases.Notifications.Queries.GetTelegramNotification;
 using WepApp.Dto;
 using WepApp.Dto.Request;
 
@@ -56,6 +57,14 @@ namespace WepApp.Controllers
             await _mediator.Send(new SelectNotificationTypeRequest(dto.ChatId, dto.Type));
 
             return ApiResponse.Success();
+        }
+
+        [HttpGet("telegram/{chatId}")]
+        public async Task<ApiResponse<string>> GetTelegramNotifications(long chatId)
+        {
+            var result = await _mediator.Send(new GetTelegramNotificationRequest(chatId));
+
+            return ApiResponse<string>.Success(result);
         }
     }
 }

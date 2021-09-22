@@ -1,12 +1,10 @@
 ﻿using Infrastructure.Interfaces.Bus;
 using Infrastructure.Interfaces.Cian.Events.FinishParseCian;
-using Infrastructure.Interfaces.Cian.HttpClient;
 using Infrastructure.Interfaces.DataAccess;
+using Infrastructure.Interfaces.Telegram;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using System;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Implemtation.Cian.EventHandlers
@@ -14,14 +12,17 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
     public class SendNotificationsHandler : IEventBusHandler<FinishParseCianEvent>
     {
         private readonly IDbContext _dbContext;
-        private readonly IClientMessageSender _messageSender;
+        private readonly ITelegramMessageSender _messageSender;
+        private readonly ITelegramNotificationService _tgNotifyService;
 
         public SendNotificationsHandler(
             IDbContext dbContext,
-            IClientMessageSender messageSender) 
+            ITelegramMessageSender messageSender,
+            ITelegramNotificationService tgNotifyService) 
         {
             _dbContext = dbContext;
             _messageSender = messageSender;
+            _tgNotifyService = tgNotifyService;
         }
 
         public async Task HandleAsync(FinishParseCianEvent @event)
@@ -38,50 +39,27 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
                     .Where(x => x.Price <= user.UserContext.MaximumPrice
                             && x.Price >= user.UserContext.MinimumPrice
                             && x.TimeToMetro <= user.UserContext.TimeToMetro
-                            && !user.UserContext.Notifications.Value.Contains(x.CianId))
+                            && !user.UserContext.NotificationsList.Value.Contains(x.CianId))
                     .AsNoTracking()
-                    .Take(70)
+                    .OrderBy(x => x.Price)
+                    .Take(45)
                     .ToListAsync();
 
                 if (!flats.Any())
                     continue;
 
-                int elementsInChunk = 15;
+                var messages = _tgNotifyService.CreateMany(flats, 15);
 
-                var chunks = (int)Math.Round((double)flats.Count / elementsInChunk);
-
-                if (chunks == 0)
-                    chunks = 1;
-
-                for (int i = 0; i < chunks; i++)
+                foreach (var message in messages)
                 {
-                    var flatsToSend = flats.Skip(i * elementsInChunk).Take(elementsInChunk);
-                    var builder = new StringBuilder();
-
-                    foreach (var item in flatsToSend)
-                    {
-                        var pledge = item.Pledge == null ? "Нет" : item.Pledge.ToString();
-                        var comission = item.Comission == null ? "Нет" : item.Comission.ToString();
-
-                        builder.AppendLine("Новая квартира")
-                            .AppendLine($"Цена {item.Price}")
-                            .AppendLine($"Залог {pledge}")
-                            .AppendLine($"Комиссия {comission}%")
-                            .AppendLine($"Метро: {item.Metro}")
-                            .AppendLine($"Адрес:{item.Address}")
-                            .AppendLine($"Этаж: {item.CurrentFloor}")
-                            .AppendLine($"Этажей в доме: {item.MaxFloor}")
-                            .AppendLine($"Ссылка: {item.CianReference}")
-                            .AppendLine(string.Empty);
-
-                        user.UserContext.Notifications.Value.Add(item.CianId);
-                    }
-
-                    await _messageSender.SendMessageAsync(builder.ToString(), user.ChatId);
+                    await _messageSender.SendMessageAsync(message, user.ChatId);
+                    await Task.Delay(1000);
                 }
 
-                user.NotificationContext.ChangeLastNotifyDate(DateTime.Now);
-                user.UserContext.UpdatePostedNotifications();
+                var ciandIds = flats.Select(x => x.CianId);
+
+                user.UserContext.AddNotifications(ciandIds);
+                user.NotificationContext.CreateLastNotifyDateNow();
 
                 await _dbContext.SaveChangesAsync();
             }

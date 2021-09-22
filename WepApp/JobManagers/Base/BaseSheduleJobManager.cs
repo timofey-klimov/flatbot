@@ -31,6 +31,8 @@ namespace WepApp.JobManagers.Base
             _period = period;
         }
 
+        public abstract bool CanExecute();
+
         public async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _timer = new Timer(InternalExecute, stoppingToken, TimeSpan.Zero, _period);
@@ -38,6 +40,9 @@ namespace WepApp.JobManagers.Base
 
         private void InternalExecute(object state)
         {
+            if (!CanExecute())
+                return;
+
             var cts = (CancellationToken)state;
             Logger.Info($"Start {typeof(T).Name}");
 
@@ -59,7 +64,7 @@ namespace WepApp.JobManagers.Base
                 try
                 {
                     var service = scope.ServiceProvider.GetRequiredService<T>();
-                    service.Execute(cts).Wait();
+                    service.ExecuteAsync(cts).Wait();
 
                     history.EndDate = DateTime.Now;
                     history.Status = Entities.Enums.JobStatus.Success;
