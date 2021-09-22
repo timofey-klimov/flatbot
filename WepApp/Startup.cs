@@ -98,21 +98,21 @@ namespace WepApp
             services.AddHostedService<JobsQueue>();
 
             //Managers
-            //services.AddTransient<ISheduleJobManager, ParseCianJobManager>(x =>
-            //{
-            //    return new ParseCianJobManager(
-            //        x.GetRequiredService<ILoggerService>(),
-            //        x.GetRequiredService<IServiceScopeFactory>(),
-            //        Configuration.GetSection("Jobs:ParseCianJobManager").Get<int>());
-            //});
+            services.AddTransient<ISheduleJobManager, ParseCianJobManager>(x =>
+            {
+                return new ParseCianJobManager(
+                    x.GetRequiredService<ILoggerService>(),
+                    x.GetRequiredService<IServiceScopeFactory>(),
+                    Configuration.GetSection("Jobs:ParseCianJobManager").Get<int>());
+            });
 
-            //services.AddTransient<ISheduleJobManager, SendEveryDayFlatsNotificationManager>(x =>
-            //{
-            //    return new SendEveryDayFlatsNotificationManager(
-            //        x.GetRequiredService<ILoggerService>(),
-            //        x.GetRequiredService<IServiceScopeFactory>(),
-            //        Configuration.GetSection("Jobs:SendEveryDayFlatsNotification").Get<int>());
-            //});
+            services.AddTransient<ISheduleJobManager, SendEveryDayFlatsNotificationManager>(x =>
+            {
+                return new SendEveryDayFlatsNotificationManager(
+                    x.GetRequiredService<ILoggerService>(),
+                    x.GetRequiredService<IServiceScopeFactory>(),
+                    Configuration.GetSection("Jobs:SendEveryDayFlatsNotification").Get<int>());
+            });
 
             services.AddTransient<ISheduleJobManager, SendEveryWeekFlatsNotificationManager>(x =>
             {
