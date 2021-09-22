@@ -3,6 +3,7 @@
     public enum WayToGo
     {
         Car,
-        Walk
+        Walk,
+        d
     }
 }
