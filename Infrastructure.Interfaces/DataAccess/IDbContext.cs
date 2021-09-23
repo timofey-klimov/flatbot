@@ -17,6 +17,8 @@ namespace Infrastructure.Interfaces.DataAccess
 
         DbSet<User> Users { get; }
 
+        DbSet<District> Districts { get; }
+
         DatabaseFacade Database { get; }
         Task<int> SaveChangesAsync(CancellationToken token = default);
     }

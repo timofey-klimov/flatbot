@@ -20,7 +20,7 @@ namespace Entities.Models
 
         public string PostedNotifications { get; private set; }
 
-        public ICollection<Disctrict> Disctricts { get; private set; }
+        public ICollection<District> Disctricts { get; private set; }
 
         /// <summary>
         /// Не использовать методы List для изменения коллекции.

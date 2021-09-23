@@ -24,7 +24,8 @@ namespace Infrastructure.Implemtation.DataAccess
 
         public DbSet<Proxy> Proxies { get; set; }
 
-        public DbSet<User> Users { get;set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<District> Districts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

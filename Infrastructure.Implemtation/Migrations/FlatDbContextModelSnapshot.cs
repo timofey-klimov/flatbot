@@ -19,7 +19,7 @@ namespace Infrastructure.Implemtation.Migrations
                 .HasAnnotation("ProductVersion", "5.0.10")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("DisctrictUserContext", b =>
+            modelBuilder.Entity("DistrictUserContext", b =>
                 {
                     b.Property<int>("DisctrictsId")
                         .HasColumnType("int");
@@ -31,10 +31,10 @@ namespace Infrastructure.Implemtation.Migrations
 
                     b.HasIndex("UserContextsId");
 
-                    b.ToTable("DisctrictUserContext");
+                    b.ToTable("DistrictUserContext");
                 });
 
-            modelBuilder.Entity("Entities.Models.Disctrict", b =>
+            modelBuilder.Entity("Entities.Models.District", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -47,7 +47,7 @@ namespace Infrastructure.Implemtation.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Disctrict");
+                    b.ToTable("Districts");
 
                     b.HasData(
                         new
@@ -78,11 +78,21 @@ namespace Infrastructure.Implemtation.Migrations
                         new
                         {
                             Id = 6,
-                            Name = "ЮВАО"
+                            Name = "САО"
                         },
                         new
                         {
                             Id = 7,
+                            Name = "ВАО"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "ЮВАО"
+                        },
+                        new
+                        {
+                            Id = 9,
                             Name = "ЮЗАО"
                         });
                 });
@@ -111,6 +121,9 @@ namespace Infrastructure.Implemtation.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("CurrentFloor")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DistrictId")
                         .HasColumnType("int");
 
                     b.Property<double>("FlatArea")
@@ -145,6 +158,8 @@ namespace Infrastructure.Implemtation.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DistrictId");
 
                     b.ToTable("Flats");
                 });
@@ -281,9 +296,9 @@ namespace Infrastructure.Implemtation.Migrations
                     b.ToTable("UserContext");
                 });
 
-            modelBuilder.Entity("DisctrictUserContext", b =>
+            modelBuilder.Entity("DistrictUserContext", b =>
                 {
-                    b.HasOne("Entities.Models.Disctrict", null)
+                    b.HasOne("Entities.Models.District", null)
                         .WithMany()
                         .HasForeignKey("DisctrictsId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -294,6 +309,15 @@ namespace Infrastructure.Implemtation.Migrations
                         .HasForeignKey("UserContextsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Entities.Models.Flat", b =>
+                {
+                    b.HasOne("Entities.Models.District", "District")
+                        .WithMany()
+                        .HasForeignKey("DistrictId");
+
+                    b.Navigation("District");
                 });
 
             modelBuilder.Entity("Entities.Models.NotificationContext", b =>

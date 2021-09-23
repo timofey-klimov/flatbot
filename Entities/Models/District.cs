@@ -2,7 +2,7 @@
 
 namespace Entities.Models
 {
-    public class Disctrict : Entity<int>
+    public class District : Entity<int>
     {
         public string Name { get; set; }
 

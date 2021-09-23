@@ -29,6 +29,8 @@ namespace Infrastructure.Implemtation.DataAccess.Configuration
 
             builder.Property(x => x.Comission)
                 .HasColumnType("int");
+
+            builder.HasOne(x => x.District);
         }
     }
 }

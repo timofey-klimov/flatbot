@@ -113,6 +113,8 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
                         .Select(x => x.TextContent)
                         .ToArray();
 
+                    var districtName = addressInfo.ElementAtOrDefault(1);
+
                     var address = string.Join(',', addressInfo);
 
                     var rentalFeeInformation = linkArea
@@ -134,6 +136,13 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
 
                     var price = priceInfo?.Replace(" ", "")?.Replace("₽/мес.", "")?.Trim().ToDecimal();
 
+                    var district = await _context.Districts.FirstOrDefaultAsync(x => x.Name == districtName);
+
+                    if (district == null)
+                    {
+
+                    }
+
                     var flat = new Flat
                     {
                         CianId = cianId,
@@ -149,7 +158,8 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
                         Pledge = formatPriceInfo.Pledge,
                         MoreThanYear = formatPriceInfo.MoreThanYear,
                         Price = price,
-                        CianReference = cianReference
+                        CianReference = cianReference,
+                        District = district
                     };
 
                     var entity = await _context.Flats.FirstOrDefaultAsync(x => x.CianId == flat.CianId);

@@ -24,6 +24,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using UseCases.District.Profiles;
 using UseCases.Flats.BackgroundJobs;
 using UseCases.Notifications.Jobs;
 using UseCases.User.Base;
@@ -133,7 +134,9 @@ namespace WepApp
             services.AddControllers().AddNewtonsoftJson();
             services.AddAutoMapper(
                 typeof(ProxyProfile),
-                typeof(UserProfile));
+                typeof(UserProfile),
+                typeof(DistrictProfile));
+
             services.AddSwaggerDi();
         }
 

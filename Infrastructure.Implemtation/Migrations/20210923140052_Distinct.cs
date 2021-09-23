@@ -2,15 +2,21 @@
 
 namespace Infrastructure.Implemtation.Migrations
 {
-    public partial class District : Migration
+    public partial class Distinct : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
                 name: "Metro");
 
+            migrationBuilder.AddColumn<int>(
+                name: "DistrictId",
+                table: "Flats",
+                type: "int",
+                nullable: true);
+
             migrationBuilder.CreateTable(
-                name: "Disctrict",
+                name: "Districts",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -19,35 +25,35 @@ namespace Infrastructure.Implemtation.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Disctrict", x => x.Id);
+                    table.PrimaryKey("PK_Districts", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "DisctrictUserContext",
+                name: "DistrictUserContext",
                 columns: table => new
                 {
-                    DisctrictId = table.Column<int>(type: "int", nullable: false),
-                    UserContextId = table.Column<int>(type: "int", nullable: false)
+                    DisctrictsId = table.Column<int>(type: "int", nullable: false),
+                    UserContextsId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DisctrictUserContext", x => new { x.DisctrictId, x.UserContextId });
+                    table.PrimaryKey("PK_DistrictUserContext", x => new { x.DisctrictsId, x.UserContextsId });
                     table.ForeignKey(
-                        name: "FK_DisctrictUserContext_Disctrict_DisctrictId",
-                        column: x => x.DisctrictId,
-                        principalTable: "Disctrict",
+                        name: "FK_DistrictUserContext_Districts_DisctrictsId",
+                        column: x => x.DisctrictsId,
+                        principalTable: "Districts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_DisctrictUserContext_UserContext_UserContextId",
-                        column: x => x.UserContextId,
+                        name: "FK_DistrictUserContext_UserContext_UserContextsId",
+                        column: x => x.UserContextsId,
                         principalTable: "UserContext",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
-                table: "Disctrict",
+                table: "Districts",
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
@@ -56,23 +62,50 @@ namespace Infrastructure.Implemtation.Migrations
                     { 3, "СЗАО" },
                     { 4, "ЮАО" },
                     { 5, "ЗАО" },
-                    { 6, "ЮВАО" },
-                    { 7, "ЮЗАО" }
+                    { 6, "САО" },
+                    { 7, "ВАО" },
+                    { 8, "ЮВАО" },
+                    { 9, "ЮЗАО" }
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_DisctrictUserContext_UserContextId",
-                table: "DisctrictUserContext",
-                column: "UserContextId");
+                name: "IX_Flats_DistrictId",
+                table: "Flats",
+                column: "DistrictId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DistrictUserContext_UserContextsId",
+                table: "DistrictUserContext",
+                column: "UserContextsId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Flats_Districts_DistrictId",
+                table: "Flats",
+                column: "DistrictId",
+                principalTable: "Districts",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "DisctrictUserContext");
+            migrationBuilder.DropForeignKey(
+                name: "FK_Flats_Districts_DistrictId",
+                table: "Flats");
 
             migrationBuilder.DropTable(
-                name: "Disctrict");
+                name: "DistrictUserContext");
+
+            migrationBuilder.DropTable(
+                name: "Districts");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Flats_DistrictId",
+                table: "Flats");
+
+            migrationBuilder.DropColumn(
+                name: "DistrictId",
+                table: "Flats");
 
             migrationBuilder.CreateTable(
                 name: "Metro",

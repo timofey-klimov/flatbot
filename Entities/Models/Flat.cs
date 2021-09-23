@@ -23,6 +23,8 @@ namespace Entities.Models
 
         public string Address { get; set; }
 
+        public District District { get; set; }
+
         public int? Comission { get; set; }
 
         public decimal? Pledge { get; set; }
