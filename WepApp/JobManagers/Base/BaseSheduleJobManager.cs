@@ -40,9 +40,6 @@ namespace WepApp.JobManagers.Base
 
         private void InternalExecute(object state)
         {
-            if (!CanExecute())
-                return;
-
             var cts = (CancellationToken)state;
             Logger.Info($"Start {typeof(T).Name}");
 
@@ -59,15 +56,18 @@ namespace WepApp.JobManagers.Base
                 };
 
                 dbContext.JobHistory.Add(history);
-                dbContext.SaveChangesAsync(cts).Wait();
+                dbContext.SaveChangesAsync(cts).Wait();  
 
                 try
                 {
-                    var service = scope.ServiceProvider.GetRequiredService<T>();
-                    service.ExecuteAsync(cts).Wait();
+                    if (CanExecute())
+                    {
+                        var service = scope.ServiceProvider.GetRequiredService<T>();
+                        service.ExecuteAsync(cts).Wait();
 
-                    history.EndDate = DateTime.Now;
-                    history.Status = Entities.Enums.JobStatus.Success;
+                        history.EndDate = DateTime.Now;
+                        history.Status = Entities.Enums.JobStatus.Success;
+                    }
                 }
                 catch (Exception ex)
                 {

@@ -12,8 +12,6 @@ namespace Entities.Models
 
         public RoomCountContext? RoomCountContext { get; private set; }
 
-        public ICollection<Metro> Metros { get; private set; }
-
         public decimal MinimumPrice { get; private set; }
 
         public decimal MaximumPrice { get; private set; }
@@ -21,6 +19,8 @@ namespace Entities.Models
         public int TimeToMetro { get; private set; }
 
         public string PostedNotifications { get; private set; }
+
+        public ICollection<Disctrict> Disctricts { get; private set; }
 
         /// <summary>
         /// Не использовать методы List для изменения коллекции.

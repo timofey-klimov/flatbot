@@ -65,7 +65,7 @@ namespace UseCases.Notifications.Jobs
 
                 user.NotificationContext.CreateLastNotifyDateNow();
 
-                await _dbContext.SaveChangesAsync();
+                await _dbContext.SaveChangesAsync(token);
             }
         }
     }

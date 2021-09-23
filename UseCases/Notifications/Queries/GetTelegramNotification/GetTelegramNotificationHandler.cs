@@ -32,6 +32,7 @@ namespace UseCases.Notifications.Queries.GetTelegramNotification
             var flats = await _dbContext.Flats
                 .Where(x => x.Price <= user.UserContext.MaximumPrice
                         && x.Price >= user.UserContext.MinimumPrice
+                        && x.TimeToMetro < user.UserContext.TimeToMetro
                         && !user.UserContext.NotificationsList.Value.Contains(x.CianId))
                 .OrderBy(x => x.Price)
                 .Take(15)

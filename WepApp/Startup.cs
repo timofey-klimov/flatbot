@@ -28,6 +28,7 @@ using UseCases.Flats.BackgroundJobs;
 using UseCases.Notifications.Jobs;
 using UseCases.User.Base;
 using UseCases.User.Queries.Profiles;
+using WepApp.Extensions;
 using WepApp.HostedServices.EventBusSubscribers;
 using WepApp.HostedServices.Queue;
 using WepApp.JobManagers;
@@ -133,6 +134,7 @@ namespace WepApp
             services.AddAutoMapper(
                 typeof(ProxyProfile),
                 typeof(UserProfile));
+            services.AddSwaggerDi();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -144,6 +146,16 @@ namespace WepApp
             }
 
             app.UseMiddleware<ExceptionHandler>();
+
+            app.UseSwagger(c =>
+            {
+                c.SerializeAsV2 = true;
+            });
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Bot Api");
+            });
 
             app.UseRouting();
 

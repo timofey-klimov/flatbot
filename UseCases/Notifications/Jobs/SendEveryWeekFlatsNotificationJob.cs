@@ -3,9 +3,7 @@ using Infrastructure.Interfaces.Jobs;
 using Infrastructure.Interfaces.Telegram;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -33,9 +31,9 @@ namespace UseCases.Notifications.Jobs
                 .Include(x => x.UserContext)
                 .Include(x => x.NotificationContext)
                 .Where(x => x.NotificationContext.IsActive
-                && x.NotificationContext.NotificationType == Entities.Enums.NotificationType.EveryWeek
-                && (x.NotificationContext.NextNotify == null || x.NotificationContext.NextNotify.Value.Day == DateTime.Now.Day))
-                .ToListAsync();
+                    && x.NotificationContext.NotificationType == Entities.Enums.NotificationType.EveryWeek
+                    && (x.NotificationContext.NextNotify == null || x.NotificationContext.NextNotify.Value.Day == DateTime.Now.Day))
+                .ToListAsync(token);
 
             foreach (var user in users)
             {
@@ -46,7 +44,7 @@ namespace UseCases.Notifications.Jobs
                     .AsNoTracking()
                     .OrderBy(x => x.Price)
                     .Take(45)
-                    .ToListAsync();
+                    .ToListAsync(token);
 
                 var messages = _tgNotifyService.CreateMany(flats, 15);
 
@@ -67,7 +65,7 @@ namespace UseCases.Notifications.Jobs
                 ///неделя
                 user.NotificationContext.SetNextNotifyDate(168);
 
-                await _dbContext.SaveChangesAsync();
+                await _dbContext.SaveChangesAsync(token);
 
             }
         }
