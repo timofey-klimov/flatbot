@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
 using System.Threading.Tasks;
+using UseCases.User.Exceptions;
 
 namespace UseCases.User.Commands.SetFlatMinumPrice
 {
@@ -20,7 +21,10 @@ namespace UseCases.User.Commands.SetFlatMinumPrice
                 .Include(x => x.UserContext)
                 .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
 
-            user.ChangeMinimumPrice(request.MinimumPrice);
+            if (user == null)
+                throw new UserIsNullException("No such user");
+
+            user.UserContext.ChangeMinimumPrice(request.MinimumPrice);
 
             await _dbContext.SaveChangesAsync();
 

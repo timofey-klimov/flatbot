@@ -5,17 +5,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using UseCases.User.Exceptions;
 
-namespace UseCases.User.Commands.SetMaximumPrice
+namespace UseCases.User.Commands.SetMinimumFloor
 {
-    public class SetFlatMaximumPriceHandler : IRequestHandler<SetFlatMaximumPriceRequest>
+    public class SetMinimumFloorHandler : IRequestHandler<SetMinimumFloorRequest>
     {
         private IDbContext _dbContext;
-        public SetFlatMaximumPriceHandler(IDbContext dbContext)
+        public SetMinimumFloorHandler(IDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
-        public async Task<Unit> Handle(SetFlatMaximumPriceRequest request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(SetMinimumFloorRequest request, CancellationToken cancellationToken)
         {
             var user = await _dbContext.Users
                 .Include(x => x.UserContext)
@@ -24,7 +24,7 @@ namespace UseCases.User.Commands.SetMaximumPrice
             if (user == null)
                 throw new UserIsNullException("No such user");
 
-            user.UserContext.ChangeMaximumPrice(request.MaximumPrice);
+            user.UserContext.ChangeMinimumFloor(request.MinimumFloor);
 
             await _dbContext.SaveChangesAsync();
 
