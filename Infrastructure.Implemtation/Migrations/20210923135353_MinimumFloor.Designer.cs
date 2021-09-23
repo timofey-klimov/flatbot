@@ -4,14 +4,16 @@ using Infrastructure.Implemtation.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Infrastructure.Implemtation.Migrations
 {
     [DbContext(typeof(FlatDbContext))]
-    partial class FlatDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210923135353_MinimumFloor")]
+    partial class MinimumFloor
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -19,7 +21,7 @@ namespace Infrastructure.Implemtation.Migrations
                 .HasAnnotation("ProductVersion", "5.0.10")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("DistrictUserContext", b =>
+            modelBuilder.Entity("DisctrictUserContext", b =>
                 {
                     b.Property<int>("DisctrictsId")
                         .HasColumnType("int");
@@ -31,10 +33,10 @@ namespace Infrastructure.Implemtation.Migrations
 
                     b.HasIndex("UserContextsId");
 
-                    b.ToTable("DistrictUserContext");
+                    b.ToTable("DisctrictUserContext");
                 });
 
-            modelBuilder.Entity("Entities.Models.District", b =>
+            modelBuilder.Entity("Entities.Models.Disctrict", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -47,7 +49,7 @@ namespace Infrastructure.Implemtation.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Districts");
+                    b.ToTable("Disctrict");
 
                     b.HasData(
                         new
@@ -78,21 +80,11 @@ namespace Infrastructure.Implemtation.Migrations
                         new
                         {
                             Id = 6,
-                            Name = "САО"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Name = "ВАО"
-                        },
-                        new
-                        {
-                            Id = 8,
                             Name = "ЮВАО"
                         },
                         new
                         {
-                            Id = 9,
+                            Id = 7,
                             Name = "ЮЗАО"
                         });
                 });
@@ -121,9 +113,6 @@ namespace Infrastructure.Implemtation.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("CurrentFloor")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("DistrictId")
                         .HasColumnType("int");
 
                     b.Property<double>("FlatArea")
@@ -158,8 +147,6 @@ namespace Infrastructure.Implemtation.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DistrictId");
 
                     b.ToTable("Flats");
                 });
@@ -299,9 +286,9 @@ namespace Infrastructure.Implemtation.Migrations
                     b.ToTable("UserContext");
                 });
 
-            modelBuilder.Entity("DistrictUserContext", b =>
+            modelBuilder.Entity("DisctrictUserContext", b =>
                 {
-                    b.HasOne("Entities.Models.District", null)
+                    b.HasOne("Entities.Models.Disctrict", null)
                         .WithMany()
                         .HasForeignKey("DisctrictsId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -312,15 +299,6 @@ namespace Infrastructure.Implemtation.Migrations
                         .HasForeignKey("UserContextsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Entities.Models.Flat", b =>
-                {
-                    b.HasOne("Entities.Models.District", "District")
-                        .WithMany()
-                        .HasForeignKey("DistrictId");
-
-                    b.Navigation("District");
                 });
 
             modelBuilder.Entity("Entities.Models.NotificationContext", b =>

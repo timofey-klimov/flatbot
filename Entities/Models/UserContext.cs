@@ -18,6 +18,8 @@ namespace Entities.Models
 
         public int TimeToMetro { get; private set; }
 
+        public int MinimumFloor { get; private set; }
+
         public string PostedNotifications { get; private set; }
 
         public ICollection<District> Disctricts { get; private set; }
@@ -32,12 +34,13 @@ namespace Entities.Models
         {
             NotificationsList = new Lazy<List<long>>(() => JsonConvert.DeserializeObject<List<long>>(PostedNotifications));
         }
-        public UserContext(RoomCountContext context, decimal maximumPrice, decimal minimumPrice, int timeToMetro)
+        public UserContext(RoomCountContext context, decimal maximumPrice, decimal minimumPrice, int timeToMetro, int minimumFloor)
         {
             RoomCountContext = context;
             MaximumPrice = maximumPrice;
             MinimumPrice = minimumPrice;
             TimeToMetro = timeToMetro;
+            MinimumFloor = minimumFloor;
             PostedNotifications = JsonConvert.SerializeObject(new List<long>());
         }
 
@@ -55,6 +58,12 @@ namespace Entities.Models
         {
             TimeToMetro = time;
         }
+
+        public void ChangeMinimumFloor(int number)
+        {
+            MinimumFloor = number;
+        }
+
         public void AddNotifications(IEnumerable<long> cianIds)
         {
             if (NotificationsList.Value == null)

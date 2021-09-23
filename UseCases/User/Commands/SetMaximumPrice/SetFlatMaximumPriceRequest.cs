@@ -9,11 +9,11 @@ namespace UseCases.User.Commands.SetMaximumPrice
 {
     public class SetFlatMaximumPriceRequest : BaseUserRequest
     {
-        public decimal Price { get; }
+        public decimal MaximumPrice { get; }
         public SetFlatMaximumPriceRequest(long chatId, decimal price)
             : base(chatId)
         {
-            Price = price;
+            MaximumPrice = price;
         }
     }
 }
