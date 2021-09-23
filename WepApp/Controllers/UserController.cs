@@ -6,6 +6,7 @@ using UseCases.User.Commands.CreateUser;
 using UseCases.User.Commands.SetFlatMinumPrice;
 using UseCases.User.Commands.SetMaximumPrice;
 using UseCases.User.Commands.SetTimeToMetro;
+using UseCases.User.Commands.SetMinimumFloor;
 using UseCases.User.Queries.Dto;
 using UseCases.User.Queries.GetUser;
 using UseCases.User.Queries.GetUserProfile;
@@ -40,6 +41,13 @@ namespace WepApp.Controllers
         public async Task<ApiResponse> SetFlatMaximumPrice(long chatId, decimal price, CancellationToken token)
         {
             await _mediator.Send(new SetFlatMaximumPriceRequest(chatId, price), token);
+            return ApiResponse.Success();
+        }
+
+        [HttpPut("{chatId}/{number}/minimum-floor")]
+        public async Task<ApiResponse> SetMinimumFloor(long chatId, int number, CancellationToken token)
+        {
+            await _mediator.Send(new SetMinimumFloorRequest(chatId, number), token);
             return ApiResponse.Success();
         }
 
