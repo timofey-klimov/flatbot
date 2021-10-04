@@ -24,6 +24,8 @@ namespace Entities.Models
 
         public ICollection<District> Disctricts { get; private set; }
 
+        public UserState State { get; private set; }
+
         /// <summary>
         /// Не использовать методы List для изменения коллекции.
         /// Использовать внутренние методы класса NotificationContext
@@ -42,6 +44,7 @@ namespace Entities.Models
             TimeToMetro = timeToMetro;
             MinimumFloor = minimumFloor;
             PostedNotifications = JsonConvert.SerializeObject(new List<long>());
+            State = new UserState(UserStates.MainMenu);
         }
 
         public void ChangeMaximumPrice(decimal price)
@@ -73,11 +76,16 @@ namespace Entities.Models
 
             UpdatePostedNotifications();
         }
+        public void ChangeState(UserStates state)
+        {
+            State.ChangeState(state);
+        }
 
         private void UpdatePostedNotifications()
         {
             PostedNotifications = JsonConvert.SerializeObject(NotificationsList.Value);
         }
+
 
     } 
 }

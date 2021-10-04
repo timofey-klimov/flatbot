@@ -11,11 +11,16 @@ using UseCases.User.Queries.Dto;
 using UseCases.User.Queries.GetUser;
 using UseCases.User.Queries.GetUserProfile;
 using WepApp.Dto;
+using WepApp.Dto.Request;
+using UseCases.User.Commands.ChangeUserState;
+using WepApp.Controllers.Base;
+using UseCases.User.Queries.GetUserState;
+using UseCases.User.Dto;
 
 namespace WepApp.Controllers
 {
     [Route("api/user")]
-    public class UserController : ControllerBase
+    public class UserController : BaseApiController
     {
         public IMediator _mediator;
         public UserController(IMediator mediator)
@@ -27,28 +32,28 @@ namespace WepApp.Controllers
         public async Task<ApiResponse> SetFlatMinimumPrice(long chatId, decimal price, CancellationToken token)
         {
             await _mediator.Send(new SetFlatMinimumPriceRequest(chatId, price), token);
-            return ApiResponse.Success();
+            return Ok();
         }
 
         [HttpPost("{chatId}/{userName}/create")]
         public async Task<ApiResponse> CreateUser(long chatId, string userName, CancellationToken token)
         {
             await _mediator.Send(new CreateUserRequest(chatId, userName), token);
-            return ApiResponse.Success();
+            return Ok();
         }
 
         [HttpPut("{chatId}/{price}/maximum-price")]
         public async Task<ApiResponse> SetFlatMaximumPrice(long chatId, decimal price, CancellationToken token)
         {
             await _mediator.Send(new SetFlatMaximumPriceRequest(chatId, price), token);
-            return ApiResponse.Success();
+            return Ok();
         }
 
         [HttpPut("{chatId}/{number}/minimum-floor")]
         public async Task<ApiResponse> SetMinimumFloor(long chatId, int number, CancellationToken token)
         {
             await _mediator.Send(new SetMinimumFloorRequest(chatId, number), token);
-            return ApiResponse.Success();
+            return Ok();
         }
 
         [HttpPost("{chatId}/{timeToMetro}/set-time-to-metro")]
@@ -56,7 +61,7 @@ namespace WepApp.Controllers
         {
             await _mediator.Send(new SetTimeToMetroRequest(chatId, timeToMetro), token);
 
-            return ApiResponse.Success();
+            return Ok();
         }
 
         [HttpGet("{chatId}/profile")]
@@ -64,7 +69,7 @@ namespace WepApp.Controllers
         {
             var result = await _mediator.Send(new GetUserProfileRequest(chatId), token);
 
-            return ApiResponse<string>.Success(result, string.Empty);
+            return Ok(result);
         }
 
         [HttpGet("{chatId}")]
@@ -72,7 +77,22 @@ namespace WepApp.Controllers
         {
             var result = await _mediator.Send(new GetUserRequest(chatId), token);
 
-            return ApiResponse<UserDto>.Success(result);
+            return Ok(result);
+        }
+
+        [HttpPost("state/{chatId}/change")]
+        public async Task<ApiResponse> ChangeState([FromBody] UserStateDto userStateDto, long chatId, CancellationToken token)
+        {
+            var result = await _mediator.Send(new ChangeUserStateRequest(chatId, userStateDto.UserState), token);
+
+            return Ok();
+        }
+
+        [HttpGet("state/{chatId}/get")]
+        public async Task<ApiResponse<UserStates>> GetUserState(long chatId, CancellationToken token)
+        {
+            var result = await _mediator.Send(new GetUserStateRequest(chatId), token);
+            return Ok(result);
         }
     }
 }

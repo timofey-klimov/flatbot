@@ -29,6 +29,7 @@ namespace UseCases.Notifications.Jobs
         {
             var users = await _dbContext.Users
                 .Include(x => x.UserContext)
+                .ThenInclude(x => x.Disctricts)
                 .Include(x => x.NotificationContext)
                 .Where(x => x.NotificationContext.IsActive
                     && x.NotificationContext.NotificationType == Entities.Enums.NotificationType.EveryWeek
@@ -40,7 +41,10 @@ namespace UseCases.Notifications.Jobs
                 var flats = await _dbContext.Flats
                     .Where(x => x.Price <= user.UserContext.MaximumPrice
                             && x.Price >= user.UserContext.MinimumPrice
-                            && x.TimeToMetro <= user.UserContext.TimeToMetro)
+                            && x.TimeToMetro <= user.UserContext.TimeToMetro
+                            && x.CurrentFloor >= user.UserContext.MinimumFloor
+                            && user.UserContext.NotificationsList.Value.Contains(x.CianId)
+                            && user.UserContext.Disctricts.Contains(x.District))
                     .AsNoTracking()
                     .OrderBy(x => x.Price)
                     .Take(45)
@@ -57,6 +61,7 @@ namespace UseCases.Notifications.Jobs
                 foreach (var message in messages)
                 {
                     await _tgMessageSender.SendMessageAsync(message, user.ChatId);
+                    await Task.Delay(1000);
                 }
 
                 user.UserContext.AddNotifications(flats.Select(x => x.CianId));

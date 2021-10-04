@@ -7,22 +7,20 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using UseCases.Common.Exceptions;
 using UseCases.District.Exceptions;
-using UseCases.User.Exceptions;
 
-namespace UseCases.Distincts.Commands.UpdateUsersDistincts
+namespace UseCases.District.Commands.RemoveUserDistrict
 {
-    public class UpdateUserDistrictsHandler : IRequestHandler<UpdateUsersDistrictsRequest>
+    public class RemoveUserDictrictHandler : IRequestHandler<RemoveUserDictrictRequest>
     {
-        private IDbContext _dbContext;
+        private readonly IDbContext _dbContext;
 
-        public UpdateUserDistrictsHandler(IDbContext dbContext)
+        public RemoveUserDictrictHandler(IDbContext dbContext)
         {
             _dbContext = dbContext;
         }
-
-
-        public async Task<Unit> Handle(UpdateUsersDistrictsRequest request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(RemoveUserDictrictRequest request, CancellationToken cancellationToken)
         {
             var user = await _dbContext.Users
                 .Include(x => x.UserContext)
@@ -30,14 +28,14 @@ namespace UseCases.Distincts.Commands.UpdateUsersDistincts
                 .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
 
             if (user == null)
-                throw new UserIsNullException("No such user");
+                throw new UserIsNullException(request.ChatId);
 
             var district = await _dbContext.Districts.FirstOrDefaultAsync(x => x.Name == request.DistrictName);
 
             if (district == null)
                 throw new DistrictNotFoundException("No such district");
 
-            user.UserContext.Disctricts.Add(district);
+            user.UserContext.Disctricts.Remove(district);
 
             await _dbContext.SaveChangesAsync();
 

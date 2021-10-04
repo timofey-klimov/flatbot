@@ -4,15 +4,18 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using UseCases.Distincts.Commands.UpdateUsersDistincts;
+using UseCases.District.Commands.RemoveUserDistrict;
 using UseCases.District.Dto;
 using UseCases.District.Queries;
+using UseCases.District.Queries.GetDistricts;
+using WepApp.Controllers.Base;
 using WepApp.Dto;
 using WepApp.Dto.Request;
 
 namespace WepApp.Controllers
 {
     [Route("api/districts")]
-    public class DistrictController : ControllerBase
+    public class DistrictController : BaseApiController
     {
         private readonly IMediator _mediator;
 
@@ -22,19 +25,35 @@ namespace WepApp.Controllers
         }
 
         [HttpPost("add/{chatId}")]
-        public async Task<ApiResponse> UpdateUsersDistricts(long chatId, [FromBody] DistrictDto distinctDto, CancellationToken token)
+        public async Task<ApiResponse> AddUserDistrict(long chatId, [FromBody] DistrictDto districtDto, CancellationToken token)
         {
-            await _mediator.Send(new UpdateUsersDistrictsRequest(chatId, distinctDto.Name), token);
+            await _mediator.Send(new AddUserDistrictRequest(chatId, districtDto.Name), token);
 
-            return ApiResponse.Success();
+            return Ok();
+        }
+
+        [HttpPost("remove/{chatId}")]
+        public async Task<ApiResponse> RemoveUserDistrict(long chatId, [FromBody] DistrictDto districtDto, CancellationToken token)
+        {
+            await _mediator.Send(new RemoveUserDictrictRequest(chatId, districtDto.Name), token);
+
+            return Ok();
         }
 
         [HttpGet("{chatId}")]
-        public async Task<ApiResponse<ICollection<DistinctMenuDto>>> GetUsersDistricts(long chatId)
+        public async Task<ApiResponse<ICollection<DistrictMenuDto>>> GetUsersDistricts(long chatId)
         {
             var result = await _mediator.Send(new GetUsersDistrictsRequest(chatId));
 
-            return ApiResponse<ICollection<DistinctMenuDto>>.Success(result);
+            return Ok(result);
+        }
+
+        [HttpGet]
+        public async Task<ApiResponse<ICollection<DistrictDto>>> GetDistricts()
+        {
+            var result = await _mediator.Send(new GetDistrictsRequest());
+
+            return Ok(result);
         }
     }
 }

@@ -8,7 +8,7 @@ using UseCases.User.Base;
 
 namespace UseCases.District.Queries
 {
-    public class GetUsersDistrictsRequest : BaseUserRequest<ICollection<DistinctMenuDto>>
+    public class GetUsersDistrictsRequest : BaseUserRequest<ICollection<DistrictMenuDto>>
     {
         public GetUsersDistrictsRequest(long chatId)
             : base(chatId)

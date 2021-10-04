@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using UseCases.User.Exceptions;
+using UseCases.Common.Exceptions;
 
 namespace UseCases.User.Queries.GetUserProfile
 {
@@ -26,7 +26,7 @@ namespace UseCases.User.Queries.GetUserProfile
                 .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
 
             if (user == null)
-                throw new UserIsNullException("No such user");
+                throw new UserIsNullException(request.ChatId);
 
             var userContext = user.UserContext;
 

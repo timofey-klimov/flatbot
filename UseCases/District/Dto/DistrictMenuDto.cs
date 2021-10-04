@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UseCases.District.Dto
 {
-    public class DistinctMenuDto
+    public class DistrictMenuDto
     {
         public int Id { get; set; }
 

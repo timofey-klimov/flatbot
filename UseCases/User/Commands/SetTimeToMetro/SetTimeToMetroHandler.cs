@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
 using System.Threading.Tasks;
-using UseCases.User.Exceptions;
+using UseCases.Common.Exceptions;
 
 namespace UseCases.User.Commands.SetTimeToMetro
 {
@@ -23,7 +23,7 @@ namespace UseCases.User.Commands.SetTimeToMetro
                 .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
 
             if (user == null)
-                throw new UserIsNullException("No such user");
+                throw new UserIsNullException(request.ChatId);
 
             user.UserContext.ChangeTimeToMetro(request.TimeToMetro);
 

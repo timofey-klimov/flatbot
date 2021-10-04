@@ -1,13 +1,9 @@
 ﻿using Infrastructure.Interfaces.DataAccess;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using UseCases.User.Exceptions;
+using UseCases.Common.Exceptions;
 
 namespace UseCases.Notifications.Commands.EnableNotifications
 {
@@ -26,7 +22,7 @@ namespace UseCases.Notifications.Commands.EnableNotifications
                 .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
 
             if (user == null)
-                throw new UserIsNullException("No such user");
+                throw new UserIsNullException(request.ChatId);
 
             user.EnableNotifications();
 

@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UseCases.User.Exceptions
+namespace UseCases.Common.Exceptions
 {
     public class UserIsNullException : ExceptionBase
     {
-        public UserIsNullException(string message)
-            : base(message)
+        public UserIsNullException(long chatId)
+            : base($"No such user: {chatId}")
         {
 
         }

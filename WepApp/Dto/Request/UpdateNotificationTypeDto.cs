@@ -7,10 +7,8 @@ using UseCases.Notifications.Dto;
 
 namespace WepApp.Dto.Request
 {
-    public class SelectNotificationTypeDto
+    public class UpdateNotificationTypeDto
     {
-        public long ChatId { get; set; }
-
         public NotificationTypeDto Type { get; set; }
     }
 }

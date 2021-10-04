@@ -13,7 +13,7 @@ using UseCases.District.Dto;
 
 namespace UseCases.District.Queries
 {
-    public class GetUsersDistrictsHandler : IRequestHandler<GetUsersDistrictsRequest, ICollection<DistinctMenuDto>>
+    public class GetUsersDistrictsHandler : IRequestHandler<GetUsersDistrictsRequest, ICollection<DistrictMenuDto>>
     {
         private readonly IDbContext _dbContext;
         private readonly IMapper _mapper;
@@ -25,7 +25,7 @@ namespace UseCases.District.Queries
             _mapper = mapper;
         }
 
-        public async Task<ICollection<DistinctMenuDto>> Handle(GetUsersDistrictsRequest request, CancellationToken cancellationToken)
+        public async Task<ICollection<DistrictMenuDto>> Handle(GetUsersDistrictsRequest request, CancellationToken cancellationToken)
         {
             var districts = _dbContext.Districts
                 .ProjectTo<DistrictDto>(_mapper.ConfigurationProvider)
@@ -38,25 +38,25 @@ namespace UseCases.District.Queries
                 .Select(x => x.UserContext.Disctricts)
                 .FirstOrDefaultAsync();
 
-            var collection = _mapper.Map<DistrictDto[]>(userDistricts);
+            var userCollection = _mapper.Map<DistrictDto[]>(userDistricts);
 
             var unabledDistricts = from d in districts
-                                   join u in collection
+                                   join u in userCollection
                                    on d.Name equals u.Name into ps
                                    from p in ps.DefaultIfEmpty()
                                    where p == null
                                    select d;                
 
-            var list = new List<DistinctMenuDto>();
+            var list = new List<DistrictMenuDto>();
 
-            foreach (var userDistrict in userDistricts)
+            foreach (var userDistrict in userCollection)
             {
-                list.Add(new DistinctMenuDto() { Id = userDistrict.Id, Name = userDistrict.Name, IsSelected = true });
+                list.Add(new DistrictMenuDto() { Id = userDistrict.Id, Name = userDistrict.Name, IsSelected = true });
             }
 
             foreach (var unableDistrict in unabledDistricts)
             {
-                list.Add(new DistinctMenuDto() { Id = unableDistrict.Id, Name = unableDistrict.Name, IsSelected = false });
+                list.Add(new DistrictMenuDto() { Id = unableDistrict.Id, Name = unableDistrict.Name, IsSelected = false });
             }
 
             return list.OrderBy(x => x.Id).ToList();

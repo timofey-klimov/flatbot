@@ -26,6 +26,7 @@ namespace UseCases.Notifications.Queries.GetTelegramNotification
             var user = await _dbContext
                 .Users
                 .Include(x => x.UserContext)
+                .ThenInclude(x => x.Disctricts)
                 .Include(x => x.NotificationContext)
                 .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
 
@@ -33,6 +34,8 @@ namespace UseCases.Notifications.Queries.GetTelegramNotification
                 .Where(x => x.Price <= user.UserContext.MaximumPrice
                         && x.Price >= user.UserContext.MinimumPrice
                         && x.TimeToMetro < user.UserContext.TimeToMetro
+                        && x.CurrentFloor >= user.UserContext.MinimumFloor
+                        && user.UserContext.Disctricts.Contains(x.District)
                         && !user.UserContext.NotificationsList.Value.Contains(x.CianId))
                 .OrderBy(x => x.Price)
                 .Take(15)
@@ -40,7 +43,7 @@ namespace UseCases.Notifications.Queries.GetTelegramNotification
 
             if (!flats.Any())
             {
-                return "Объявлений по твоим фильтам не найдено";
+                return "Объявлений по твоим фильтрам не найдено";
             }
 
             var messages = _tgNotifyService.CreateMany(flats, flats.Count);

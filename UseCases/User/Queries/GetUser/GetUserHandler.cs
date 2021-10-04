@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
 using System.Threading.Tasks;
-using UseCases.User.Exceptions;
+using UseCases.Common.Exceptions;
 using UseCases.User.Queries.Dto;
 
 namespace UseCases.User.Queries.GetUser
@@ -29,7 +29,7 @@ namespace UseCases.User.Queries.GetUser
                 .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
 
             if (user == null)
-                throw new UserIsNullException("No such user");
+                throw new UserIsNullException(request.ChatId);
 
             return _mapper.Map<UserDto>(user);
         }

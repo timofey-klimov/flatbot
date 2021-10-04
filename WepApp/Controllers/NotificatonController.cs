@@ -5,13 +5,14 @@ using UseCases.Notifications.Commands.DisableNotifications;
 using UseCases.Notifications.Commands.EnableNotifications;
 using UseCases.Notifications.Commands.SelectNotificationType;
 using UseCases.Notifications.Queries.GetTelegramNotification;
+using WepApp.Controllers.Base;
 using WepApp.Dto;
 using WepApp.Dto.Request;
 
 namespace WepApp.Controllers
 {
     [Route("api/notify")]
-    public class NotificatonController : ControllerBase
+    public class NotificatonController : BaseApiController
     {
         private IMediator _mediator;
         public NotificatonController(IMediator mediator)
@@ -24,7 +25,7 @@ namespace WepApp.Controllers
         public async Task<ApiResponse> EnableNotifications(long chatId)
         {
             await _mediator.Send(new EnableNotificationsRequest(chatId));
-            return ApiResponse.Success();
+            return Ok();
         }
 
         [HttpPut("{chatId}/disable")]
@@ -32,31 +33,16 @@ namespace WepApp.Controllers
         {
             await _mediator.Send(new DisableNotificationsRequest(chatId));
 
-            return ApiResponse.Success();
+            return Ok();
         }
 
-        [HttpPut("default-type")]
-        public async Task<ApiResponse> SelectDefaultTypeNotification([FromBody] SelectNotificationTypeDto dto)
+        [HttpPost("change-type/{chatId}")]
+
+        public async Task<ApiResponse> UpdateNotificationType(long chatId, [FromBody] UpdateNotificationTypeDto dto)
         {
-            await _mediator.Send(new SelectNotificationTypeRequest(dto.ChatId, dto.Type));
+            await _mediator.Send(new SelectNotificationTypeRequest(chatId, dto.Type));
 
-            return ApiResponse.Success();
-        }
-
-        [HttpPut("every-day")]
-        public async Task<ApiResponse> SelectEveryDayTypeNotification([FromBody] SelectNotificationTypeDto dto)
-        {
-            await _mediator.Send(new SelectNotificationTypeRequest(dto.ChatId, dto.Type));
-
-            return ApiResponse.Success();
-        }
-
-        [HttpPut("every-week")]
-        public async Task<ApiResponse> SelectEveryWeekTypeNotification([FromBody] SelectNotificationTypeDto dto)
-        {
-            await _mediator.Send(new SelectNotificationTypeRequest(dto.ChatId, dto.Type));
-
-            return ApiResponse.Success();
+            return Ok();
         }
 
         [HttpGet("telegram/{chatId}")]
@@ -64,7 +50,7 @@ namespace WepApp.Controllers
         {
             var result = await _mediator.Send(new GetTelegramNotificationRequest(chatId));
 
-            return ApiResponse<string>.Success(result);
+            return Ok(result);
         }
     }
 }

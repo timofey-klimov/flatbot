@@ -18,7 +18,7 @@ namespace WepApp.JobManagers
         }
         public override bool CanExecute()
         {
-            return (DateTime.Now.Hour > 8);
+            return (DateTime.Now.AddHours(3).Hour > 8);
         }
     }
 }

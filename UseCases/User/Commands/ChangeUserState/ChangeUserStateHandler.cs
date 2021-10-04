@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Entities.Enums;
 using Infrastructure.Interfaces.DataAccess;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -7,33 +6,33 @@ using System.Threading;
 using System.Threading.Tasks;
 using UseCases.Common.Exceptions;
 
-namespace UseCases.Notifications.Commands.SelectNotificationType
+namespace UseCases.User.Commands.ChangeUserState
 {
-    public class SelectNotificationTypeHandler : IRequestHandler<SelectNotificationTypeRequest>
+    public class ChangeUserStateHandler : IRequestHandler<ChangeUserStateRequest>
     {
         private readonly IDbContext _dbContext;
         private readonly IMapper _mapper;
 
-        public SelectNotificationTypeHandler(
+        public ChangeUserStateHandler(
             IDbContext dbContext,
             IMapper mapper)
         {
             _dbContext = dbContext;
             _mapper = mapper;
         }
-
-        public async Task<Unit> Handle(SelectNotificationTypeRequest request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(ChangeUserStateRequest request, CancellationToken cancellationToken)
         {
             var user = await _dbContext.Users
-                .Include(x => x.NotificationContext)
+                .Include(x => x.UserContext)
+                .ThenInclude(x => x.State)
                 .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
 
             if (user == null)
                 throw new UserIsNullException(request.ChatId);
 
-            var notType = _mapper.Map<NotificationType>(request.NotificationType);
+            var state = _mapper.Map<Entities.Enums.UserStates>(request.UserState);
 
-            user.ChangeNotificationType(notType);
+            user.UserContext.ChangeState(state);
 
             await _dbContext.SaveChangesAsync();
 

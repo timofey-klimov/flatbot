@@ -30,6 +30,7 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
             var users = await _dbContext.Users
                 .Include(x => x.NotificationContext)
                 .Include(x => x.UserContext)
+                .ThenInclude(x => x.Disctricts)
                 .Where(x => x.NotificationContext.IsActive == true && x.NotificationContext.NotificationType == Entities.Enums.NotificationType.Default)
                 .ToListAsync();
 
@@ -39,10 +40,12 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
                     .Where(x => x.Price <= user.UserContext.MaximumPrice
                             && x.Price >= user.UserContext.MinimumPrice
                             && x.TimeToMetro <= user.UserContext.TimeToMetro
+                            && x.CurrentFloor >= user.UserContext.MinimumFloor
+                            && user.UserContext.Disctricts.Contains(x.District)
                             && !user.UserContext.NotificationsList.Value.Contains(x.CianId))
                     .AsNoTracking()
                     .OrderBy(x => x.Price)
-                    .Take(45)
+                    .Take(30)
                     .ToListAsync();
 
                 if (!flats.Any())
