@@ -92,5 +92,15 @@ namespace Infrastructure.Implemtation.Polly
 
             return default;
         }
+
+        public PollResult<T> Fail<T>(string message)
+        {
+            return PollResult<T>.Fail(message);
+        }
+
+        public PollResult<T> Ok<T>(T data)
+        {
+            return PollResult<T>.Success(data);
+        }
     }
 }

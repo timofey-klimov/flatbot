@@ -1,9 +1,13 @@
 ﻿using Entities.Enums;
+using Entities.Models.Base;
+using Newtonsoft.Json;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Entities.Models
 {
-    public class Flat : Entity<int>
+    public class Flat : JsonPropertyEntity
     {
         public long CianId { get; set; }
 
@@ -39,10 +43,40 @@ namespace Entities.Models
 
         public DateTime? UpdateDate { get; set; }
 
+        public string Images { get; set; }
+
+        public string PdfReference { get; set; }
+
+        public Lazy<List<string>> ImagesCollections { get; set; }
 
         public Flat()
         {
             CreateDate = DateTime.Now;
+            Images = JsonConvert.SerializeObject(new List<string>());
+            ImagesCollections = new Lazy<List<string>>(() => JsonConvert.DeserializeObject<List<string>>(Images));
+        }
+
+        public override void UpdateJsonEntity()
+        {
+            Images = JsonConvert.SerializeObject(ImagesCollections.Value);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Flat flat)
+                return this.CianId == flat.CianId;
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 17;
+            // Suitable nullity checks etc, of course :)
+            hash = hash * 23 + CianId.GetHashCode();
+            hash = hash * 23 + Price.GetHashCode();
+            hash = hash * 23 + CreateDate.GetHashCode();
+            return hash;
         }
     }
 }

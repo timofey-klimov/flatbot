@@ -14,11 +14,12 @@ namespace UseCases.Flats.BackgroundJobs
     {
         private ICianMapManager _cianMapManager;
         public ParseCianRentFlatJob(
-            ICianService cianService,
+            IParseCianManager parseManager,
             ICianMapManager cianMapManager,
             ILoggerService logger,
-            IEventBus eventBus)
-            : base(cianService, logger, eventBus)
+            IEventBus eventBus,
+            ICianUrlBuilder urlBuilder)
+            : base(parseManager, logger, eventBus, urlBuilder)
         {
             _cianMapManager = cianMapManager;
         }

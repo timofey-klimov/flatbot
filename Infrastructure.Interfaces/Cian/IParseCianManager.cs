@@ -1,9 +1,10 @@
 ﻿using Infrastructure.Interfaces.Cian.Enums;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Interfaces.Cian
 {
-    public interface ICianService
+    public interface IParseCianManager
     {
         Task<int> GetPagesCountAsync(City city);
 
@@ -14,5 +15,7 @@ namespace Infrastructure.Interfaces.Cian
         Task<bool> CheckAnnouncement(string url);
 
         Task ClearDatabase();
+
+        Task<ICollection<string>> GetCianImagesAsync(string url);
     }
 }

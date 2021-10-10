@@ -1,5 +1,6 @@
 ﻿using Infrastructure.Interfaces.Bus;
 using Infrastructure.Interfaces.Cian.Events.FinishParseCian;
+using Infrastructure.Interfaces.Common;
 using Infrastructure.Interfaces.DataAccess;
 using Infrastructure.Interfaces.Telegram;
 using Microsoft.EntityFrameworkCore;
@@ -13,16 +14,22 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
     {
         private readonly IDbContext _dbContext;
         private readonly ITelegramMessageSender _messageSender;
-        private readonly ITelegramNotificationService _tgNotifyService;
+        private readonly ITelegramNotificationCreator _tgNotifyService;
+        private readonly IFilterFlatService _filter;
+        private readonly IFlatCountInMessageManager _countManager;
 
         public SendNotificationsHandler(
             IDbContext dbContext,
             ITelegramMessageSender messageSender,
-            ITelegramNotificationService tgNotifyService) 
+            ITelegramNotificationCreator tgNotifyService,
+            IFilterFlatService filter,
+            IFlatCountInMessageManager countManager) 
         {
             _dbContext = dbContext;
             _messageSender = messageSender;
             _tgNotifyService = tgNotifyService;
+            _filter = filter;
+            _countManager = countManager;
         }
 
         public async Task HandleAsync(FinishParseCianEvent @event)
@@ -32,32 +39,19 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
                 .Include(x => x.UserContext)
                 .ThenInclude(x => x.Disctricts)
                 .Where(x => x.NotificationContext.IsActive == true && x.NotificationContext.NotificationType == Entities.Enums.NotificationType.Default)
+                .AsNoTracking()
                 .ToListAsync();
 
             foreach (var user in users)
             {
-                var flats = await _dbContext.Flats
-                    .Where(x => x.Price <= user.UserContext.MaximumPrice
-                            && x.Price >= user.UserContext.MinimumPrice
-                            && x.TimeToMetro <= user.UserContext.TimeToMetro
-                            && x.CurrentFloor >= user.UserContext.MinimumFloor
-                            && user.UserContext.Disctricts.Contains(x.District)
-                            && !user.UserContext.NotificationsList.Value.Contains(x.CianId))
-                    .AsNoTracking()
-                    .OrderBy(x => x.Price)
-                    .Take(30)
-                    .ToListAsync();
+                var flats = await _filter.GetFlatsByUserContextAsync(user.UserContext, _countManager.FlatCount);
 
                 if (!flats.Any())
                     continue;
 
-                var messages = _tgNotifyService.CreateMany(flats, 15);
+                var messages = await _tgNotifyService.CreateObjectsAsync(flats);
 
-                foreach (var message in messages)
-                {
-                    await _messageSender.SendMessageAsync(message, user.ChatId);
-                    await Task.Delay(1000);
-                }
+                await _messageSender.SendMessagesAsync(messages, user.ChatId);
 
                 var ciandIds = flats.Select(x => x.CianId);
 

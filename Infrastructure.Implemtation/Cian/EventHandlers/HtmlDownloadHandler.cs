@@ -138,10 +138,18 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
 
                     var district = await _context.Districts.FirstOrDefaultAsync(x => x.Name == districtName);
 
-                    if (district == null)
-                    {
+                    var images = card
+                         ?.QuerySelectorAll("img")
+                         .Select(x => x.GetAttribute("src"))
+                         .Where(x => x.Contains("cdn-p.cian.site/images"))
+                         .Take(2)
+                         .ToList();
 
-                    }
+                    var pdf = card
+                        ?.QuerySelectorAll("a")
+                        ?.Where(x => x.GetAttribute("data-mark") == "DownloadPDFControl")
+                        ?.FirstOrDefault()
+                        ?.GetAttribute("href");
 
                     var flat = new Flat
                     {
@@ -159,8 +167,11 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
                         MoreThanYear = formatPriceInfo.MoreThanYear,
                         Price = price,
                         CianReference = cianReference,
-                        District = district
+                        District = district,
+                        PdfReference = pdf
                     };
+
+                    flat.ImagesCollections.Value.AddRange(images);
 
                     var entity = await _context.Flats.FirstOrDefaultAsync(x => x.CianId == flat.CianId);
 

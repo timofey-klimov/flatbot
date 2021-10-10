@@ -30,6 +30,9 @@ namespace Infrastructure.Implemtation.DataAccess.Configuration
             builder.Property(x => x.Comission)
                 .HasColumnType("int");
 
+            builder.Ignore(x => x.ImagesCollections);
+
+
             builder.HasOne(x => x.District);
         }
     }

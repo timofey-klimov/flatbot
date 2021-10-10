@@ -30,7 +30,7 @@ namespace Infrastructure.Implemtation.Cian
             stringBuilder.Append("&type=4");
 
             stringBuilder.Append("&engine_version=2");
-            stringBuilder.Append("&maxprice=40000");
+            stringBuilder.Append("&maxprice=45000");
             stringBuilder.Append("&offer_type=flat");
             stringBuilder.Append($"&region={map.Region}");
             stringBuilder.Append($"&p={page}");

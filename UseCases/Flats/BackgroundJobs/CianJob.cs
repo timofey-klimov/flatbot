@@ -3,6 +3,7 @@ using Infrastructure.Interfaces.Cian;
 using Infrastructure.Interfaces.Cian.Enums;
 using Infrastructure.Interfaces.Cian.Events.ExcelDownloaded;
 using Infrastructure.Interfaces.Cian.Events.FinishParseCian;
+using Infrastructure.Interfaces.DataAccess;
 using Infrastructure.Interfaces.Logger;
 using System;
 using System.Threading;
@@ -13,29 +14,33 @@ namespace UseCases.Flats.BackgroundJobs
 {
     public abstract class CianJob
     {
-        protected ICianService CianService;
+        protected IParseCianManager ParseCianManager;
         protected ILoggerService Logger;
         protected IEventBus Bus;
+        protected IDbContext DbContext;
+        protected 
 
         public CianJob(
-            ICianService cianService,
+            IParseCianManager cianService,
             ILoggerService logger,
-            IEventBus eventBus)
+            IEventBus eventBus,
+            IDbContext dbContext)
         {
-            CianService = cianService;
+            ParseCianManager = cianService;
             Logger = logger;
             Bus = eventBus;
+            DbContext = dbContext;
         }
         protected async Task Execute(City city, CancellationToken token)
         {
-            var pagesCount = await CianService.GetPagesCountAsync(city);
+            var pagesCount = await ParseCianManager.GetPagesCountAsync(city);
 
             Logger.Info($"Find {pagesCount} pages");
 
             if (pagesCount == 0)
                 throw new FindZeroPagesException("Cant find count of pages");
 
-            await CianService.ClearDatabase();
+            await DbContext.ClearTableFlats(token);
 
             for (int i = 0; i < pagesCount; i++)
             {
@@ -46,8 +51,8 @@ namespace UseCases.Flats.BackgroundJobs
                     if (token.IsCancellationRequested)
                         break;
 
-                    var url = CianService.BuildCianUrl(city, i);
-                    var html = await CianService.GetHtmlAsync(url);
+                    var url = ParseCianManager.BuildCianUrl(city, i);
+                    var html = await ParseCianManager.GetHtmlAsync(url);
                     Bus.Publish(new HtmlDownloadedEvent(html));
 
                     await Task.Delay(6000);

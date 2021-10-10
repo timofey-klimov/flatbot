@@ -64,10 +64,9 @@ namespace WepApp.JobManagers.Base
                     {
                         var service = scope.ServiceProvider.GetRequiredService<T>();
                         service.ExecuteAsync(cts).Wait();
-
-                        history.EndDate = DateTime.Now;
-                        history.Status = Entities.Enums.JobStatus.Success;
                     }
+
+                    history.Status = Entities.Enums.JobStatus.Success;
                 }
                 catch (Exception ex)
                 {
@@ -89,6 +88,7 @@ namespace WepApp.JobManagers.Base
                 }
                 finally
                 {
+                    history.EndDate = DateTime.Now;
                     history.NextFireAt = DateTime.Now.Add(_period);
                     dbContext.SaveChangesAsync(cts).Wait();
 

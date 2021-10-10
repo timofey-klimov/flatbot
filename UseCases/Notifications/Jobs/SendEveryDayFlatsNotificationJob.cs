@@ -1,4 +1,5 @@
-﻿using Infrastructure.Interfaces.DataAccess;
+﻿using Infrastructure.Interfaces.Common;
+using Infrastructure.Interfaces.DataAccess;
 using Infrastructure.Interfaces.Jobs;
 using Infrastructure.Interfaces.Telegram;
 using Microsoft.EntityFrameworkCore;
@@ -12,17 +13,23 @@ namespace UseCases.Notifications.Jobs
     public class SendEveryDayFlatsNotificationJob : IJob
     {
         private readonly IDbContext _dbContext;
-        private readonly ITelegramNotificationService _tgNotifyService;
+        private readonly ITelegramNotificationCreator _tgNotifyService;
         private readonly ITelegramMessageSender _tgMessageSender;
+        private readonly IFilterFlatService _filter;
+        private readonly IFlatCountInMessageManager _countManager;
 
         public SendEveryDayFlatsNotificationJob(
             IDbContext dbContext,
-            ITelegramNotificationService tgNotifyService,
-            ITelegramMessageSender tgMessageSender)
+            ITelegramNotificationCreator tgNotifyService,
+            ITelegramMessageSender tgMessageSender,
+            IFilterFlatService filter,
+            IFlatCountInMessageManager countManager)
         {
             _dbContext = dbContext;
             _tgNotifyService = tgNotifyService;
             _tgMessageSender = tgMessageSender;
+            _filter = filter;
+            _countManager = countManager;
         }
 
         public async Task ExecuteAsync(CancellationToken token = default)
@@ -38,30 +45,19 @@ namespace UseCases.Notifications.Jobs
 
             foreach (var user in users)
             {
-                var flats = await _dbContext.Flats
-                    .Where(x => x.Price <= user.UserContext.MaximumPrice
-                            && x.Price >= user.UserContext.MinimumPrice
-                            && x.TimeToMetro <= user.UserContext.TimeToMetro
-                            && x.CurrentFloor >= user.UserContext.MinimumFloor
-                            && !user.UserContext.NotificationsList.Value.Contains(x.CianId)
-                            && user.UserContext.Disctricts.Contains(x.District))
-                    .AsNoTracking()
-                    .OrderBy(x => x.Price)
-                    .Take(45)
-                    .ToListAsync(token);
+                var flats = await _filter.GetFlatsByUserContextAsync(user.UserContext, _countManager.FlatCount, token);
 
-                var messages = _tgNotifyService.CreateMany(flats, 15);
-
-                if (!messages.Any())
-                {
-                    await _tgMessageSender.SendMessageAsync("Сегодня не нашлось объявлений по твоим фильтрам", user.ChatId);
-                    continue;
-                }
+                var messages = _tgNotifyService.CreateMessages(flats, flats.Count);
 
                 foreach (var message in messages)
                 {
                     await _tgMessageSender.SendMessageAsync(message, user.ChatId);
                     await Task.Delay(1000);
+                }
+
+                if (!messages.Any())
+                {
+                    await _tgMessageSender.SendMessageAsync("Сегодня не нашлось объявлений по твоим фильтрам", user.ChatId);
                 }
 
                 user.UserContext.AddNotifications(flats.Select(x => x.CianId));

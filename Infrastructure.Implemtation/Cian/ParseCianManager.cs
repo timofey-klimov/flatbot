@@ -11,10 +11,11 @@ using System;
 using Infrastructure.Interfaces.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Infrastructure.Interfaces.Logger;
+using System.Collections.Generic;
 
 namespace Infrastructure.Implemtation.Cian
 {
-    public class CianService : ICianService
+    public class ParseCianManager : IParseCianManager
     {
         private ICianUrlBuilder _cianUrlBuilder;
         private ICianHttpClient _cianClient;
@@ -22,7 +23,7 @@ namespace Infrastructure.Implemtation.Cian
         private IDbContext _dbContext;
         private ILoggerService _logger;
 
-        public CianService(
+        public ParseCianManager(
             ICianUrlBuilder cianUrlBuilder,
             ICianHttpClient httpCLient,
             IPollService pollService,
@@ -36,6 +37,12 @@ namespace Infrastructure.Implemtation.Cian
             _logger = logger;
         }
 
+        /// <summary>
+        /// Вынести
+        /// </summary>
+        /// <param name="city"></param>
+        /// <param name="page"></param>
+        /// <returns></returns>
         public string BuildCianUrl(City city, int page)
         {
             return _cianUrlBuilder.BuildCianUrl(city, page);
@@ -50,6 +57,10 @@ namespace Infrastructure.Implemtation.Cian
             });
         }
 
+        /// <summary>
+        /// Вынести
+        /// </summary>
+        /// <returns></returns>
         public async Task ClearDatabase()
         {
             var count = await _dbContext.Flats.CountAsync();
@@ -57,6 +68,15 @@ namespace Infrastructure.Implemtation.Cian
             _logger.Info($"Delete {count} entities");
 
             _dbContext.Database.ExecuteSqlRaw("TRUNCATE TABLE dbo.Flats");
+        }
+
+        public async Task<ICollection<string>> GetCianImagesAsync(string url)
+        {
+            return await _pollService.Execute(GetCianImagesPoll, url, () =>
+            {
+                _cianClient.CreateClientWithProxy();
+                return Task.CompletedTask;
+            });
         }
 
         public async Task<string> GetHtmlAsync(string url)
@@ -78,6 +98,21 @@ namespace Infrastructure.Implemtation.Cian
         }
 
         #region polls
+
+        private async Task<PollResult<ICollection<string>>> GetCianImagesPoll(string url)
+        {
+            string html = await GetHtmlAsync(url);
+
+            var document = await new HtmlParser().ParseDocumentAsync(html);
+
+            var images = document
+                .QuerySelectorAll("div")
+                .Where(x => x.GetAttribute("data-name") == "PrintPhoto")
+                .Select(x => x.Children.First().GetAttribute("src"))
+                .ToArray();
+
+            return PollResult<ICollection<string>>.Success(images);
+        }
 
         private async Task<PollResult<bool>> CheckAnnouncementPolls(string url)
         {

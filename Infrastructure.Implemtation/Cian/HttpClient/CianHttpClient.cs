@@ -3,6 +3,7 @@ using Infrastructure.Interfaces.Cian;
 using Infrastructure.Interfaces.Cian.HttpClient;
 using MihaZupan;
 using System;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -35,7 +36,6 @@ namespace Infrastructure.Implemtation.Cian.HttpClient
             _client = new System.Net.Http.HttpClient(handler);
 
         }
-
         public async Task<byte[]> GetExcelFromCianAsync(string url)
         {
             var response = await _client.GetAsync(url);
@@ -55,6 +55,26 @@ namespace Infrastructure.Implemtation.Cian.HttpClient
 
             return await response.Content.ReadAsStringAsync();
 
+        }
+
+        public async Task<byte[]> GetFileInBytesAsync(string url)
+        {
+            var response = await _client.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode)
+                throw new HttpException(nameof(HttpException));
+
+            return await response.Content.ReadAsByteArrayAsync();
+        }
+
+        public async Task<Stream> GetFileInStreamAsync(string url)
+        {
+            var response = await _client.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode)
+                throw new HttpException(nameof(HttpException));
+
+            return await response.Content.ReadAsStreamAsync();
         }
     }
 }

@@ -2,9 +2,9 @@
 
 namespace UseCases.Notifications.Queries.GetTelegramNotification
 {
-    public class GetTelegramNotificationRequest : BaseUserRequest<string>
+    public class GetTelegramMessagesNotificationRequest : BaseUserRequest<string>
     {
-        public GetTelegramNotificationRequest(long chatId)
+        public GetTelegramMessagesNotificationRequest(long chatId)
             : base(chatId)
         {
 

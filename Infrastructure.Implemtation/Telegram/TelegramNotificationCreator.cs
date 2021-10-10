@@ -1,15 +1,40 @@
 ﻿using Entities.Models;
+using Infrastructure.Interfaces.BitmapManager;
+using Infrastructure.Interfaces.Cian.FileService;
+using Infrastructure.Interfaces.Logger;
 using Infrastructure.Interfaces.Telegram;
+using Infrastructure.Interfaces.Telegram.Dto;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using Utils;
 
 namespace Infrastructure.Implemtation.Telegram
 {
-    public class TelegramNotificationsService : ITelegramNotificationService
+    public class TelegramNotificationCreator : ITelegramNotificationCreator
     {
-        public ICollection<string> CreateMany(ICollection<Flat> flats, int elementsInMessage)
+        private readonly string _tgClientUrl;
+        private readonly ICianFileService _fileService;
+        private readonly ILoggerService _logger;
+        private readonly IImageManager _imageManager;
+
+        public TelegramNotificationCreator(
+            IConfiguration configuration, 
+            ICianFileService fileService,
+            ILoggerService loggerService,
+            IImageManager imageManager)
+        {
+            _tgClientUrl = configuration.GetSection("ClientAppUrl").Value;
+            _fileService = fileService;
+            _logger = loggerService;
+            _imageManager = imageManager;
+        }
+        public ICollection<string> CreateMessages(ICollection<Flat> flats, int elementsInMessage)
         {
             if (!flats.Any())
                 throw new ArgumentException(nameof(flats));
@@ -33,14 +58,16 @@ namespace Infrastructure.Implemtation.Telegram
                 {
                     var pledge = item.Pledge == null ? "Нет" : item.Pledge.ToString();
                     var comission = item.Comission == null ? "Нет" : $"{item.Comission}%";
+                    var price = item.Price.HasValue ? "Неизвестно" : $"{item.Price.To<int>()}";
                     var wayToGo = item.WayToGo == Entities.Enums.WayToGo.Car ? "на транспорте" : "пешком";
 
                     builder.AppendLine("Новая квартира")
-                        .AppendLine($"Цена {item.Price}")
-                        .AppendLine($"Залог {pledge}")
-                        .AppendLine($"Комиссия {comission}")
+                        .AppendLine($"Цена: {price}")
+                        .AppendLine($"Залог: {pledge}")
+                        .AppendLine($"Комиссия: {comission}")
                         .AppendLine($"Метро: {item.Metro}")
                         .AppendLine($"Адрес:{item.Address}")
+                        .AppendLine($"Площадь:{item.FlatArea} кв.м")
                         .AppendLine($"Этаж: {item.CurrentFloor}")
                         .AppendLine($"Этажей в доме: {item.MaxFloor}")
                         .AppendLine($"Время до метро: {item.TimeToMetro} минут {wayToGo}")
@@ -54,7 +81,47 @@ namespace Infrastructure.Implemtation.Telegram
             return notifications;
         }
 
-        public string CreateOne(Flat flat)
+        public async Task<ICollection<NotificationDto>> CreateObjectsAsync(ICollection<Flat> flats)
+        {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var items = new List<NotificationDto>(flats.Count);
+            var tasks = new List<Task>();
+            foreach (var flat in flats)
+            {
+                var task = Task.Run(async () =>
+                {
+                    var item = new NotificationDto();
+
+                    item.Message = CreateMessage(flat);
+
+                    var images = await _fileService.GetCianFlatImagesAsync(flat);
+
+                    Stream image = default;
+
+                    if (images.Count >= 2)
+                        image = _imageManager.GlueImages(images.First(), images.Last());
+                    else
+                        image = images.FirstOrDefault();
+
+                    item.HasImage = image == null ? false : true;
+
+                    item.Image = image.ToByteArray();
+
+                    items.Add(item);
+                });
+                tasks.Add(task);
+            }
+
+            await Task.WhenAll(tasks);
+            var time = stopwatch.Elapsed.TotalSeconds;
+
+            _logger.Info($"Время выполнения: {time}");
+
+            return items;
+        }
+
+        public string CreateMessage(Flat flat)
         {
             if (flat == null)
                 throw new ArgumentException(nameof(flat));

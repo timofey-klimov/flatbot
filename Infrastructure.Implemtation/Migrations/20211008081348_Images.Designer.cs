@@ -4,14 +4,16 @@ using Infrastructure.Implemtation.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Infrastructure.Implemtation.Migrations
 {
     [DbContext(typeof(FlatDbContext))]
-    partial class FlatDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211008081348_Images")]
+    partial class Images
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -141,9 +143,6 @@ namespace Infrastructure.Implemtation.Migrations
 
                     b.Property<bool?>("MoreThanYear")
                         .HasColumnType("bit");
-
-                    b.Property<string>("PdfReference")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("Pledge")
                         .HasColumnType("decimal(18,2)");

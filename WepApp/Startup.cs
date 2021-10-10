@@ -1,18 +1,23 @@
+using Infrastructure.Implemtation.BitmapManger;
 using Infrastructure.Implemtation.Bus;
 using Infrastructure.Implemtation.Cian;
 using Infrastructure.Implemtation.Cian.EventHandlers;
+using Infrastructure.Implemtation.Cian.FileService;
 using Infrastructure.Implemtation.Cian.HttpClient;
 using Infrastructure.Implemtation.Cian.Profiles;
+using Infrastructure.Implemtation.Common;
 using Infrastructure.Implemtation.DataAccess;
-using Infrastructure.Implemtation.FileService;
+using Infrastructure.Implemtation.JsonConverters;
 using Infrastructure.Implemtation.Logger;
 using Infrastructure.Implemtation.Polly;
 using Infrastructure.Implemtation.Telegram;
+using Infrastructure.Interfaces.BitmapManager;
 using Infrastructure.Interfaces.Bus;
 using Infrastructure.Interfaces.Cian;
+using Infrastructure.Interfaces.Cian.FileService;
 using Infrastructure.Interfaces.Cian.HttpClient;
+using Infrastructure.Interfaces.Common;
 using Infrastructure.Interfaces.DataAccess;
-using Infrastructure.Interfaces.FileService;
 using Infrastructure.Interfaces.Jobs;
 using Infrastructure.Interfaces.Logger;
 using Infrastructure.Interfaces.Poll;
@@ -70,7 +75,7 @@ namespace WepApp
             {
                 return serviceFactory.CreateLogger(x);
             });
-            services.AddScoped<IFIleShare, LocalFileShare>();
+            services.AddTransient<ICianFileService, CianFileService>();
             services.AddTransient<ICianHttpClient, CianHttpClient>();
             services.AddSingleton<ITelegramMessageSender, TelegramMessageSender>(x =>
             {
@@ -78,7 +83,7 @@ namespace WepApp
             });
             services.AddTransient<IProxyManager, ProxyManager>();
           
-            services.AddTransient<ICianService, CianService>();
+            services.AddTransient<IParseCianManager, ParseCianManager>();
             services.AddScoped<IPollService, PollingService>(x =>
             {
                 return new PollingService(Configuration.GetSection("RetryCount").Get<int>(), 
@@ -87,7 +92,13 @@ namespace WepApp
 
             services.AddSingleton<IEventBus, InMemoryBus>();
 
-            services.AddScoped<ITelegramNotificationService, TelegramNotificationsService>();
+            services.AddScoped<ITelegramNotificationCreator, TelegramNotificationCreator>();
+            services.AddScoped<IFilterFlatService, FilterFlatService>();
+            services.AddSingleton<IFlatCountInMessageManager, FlatCountInMessageManager>(x =>
+            {
+                return new FlatCountInMessageManager() { FlatCount = Configuration.GetSection("FlatCountInMessage").Get<int>() };
+            });
+            services.AddScoped<IImageManager, ImageManager>();
 
             //EventBustSubsribers
             services.AddHostedService<CianSubscribers>();
@@ -131,11 +142,14 @@ namespace WepApp
 
             //frameworks
             services.AddMediatR(typeof(BaseUserRequest).Assembly);
-            services.AddControllers().AddNewtonsoftJson();
+            services.AddControllers()
+                .AddNewtonsoftJson(x => x.SerializerSettings.Converters.Add(new MemoryStreamJsonConverter()));
+                
             services.AddAutoMapper(
                 typeof(ProxyProfile),
                 typeof(UserProfile),
                 typeof(DistrictProfile));
+            services.AddMemoryCache();
 
             services.AddSwaggerDi();
         }

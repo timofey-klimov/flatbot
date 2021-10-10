@@ -1,4 +1,5 @@
 ﻿using Entities.Enums;
+using Entities.Models.Base;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Linq;
 
 namespace Entities.Models
 {
-    public class UserContext : Entity<int>
+    public class UserContext : JsonPropertyEntity
     {
         public int UserId { get; private set; }
 
@@ -73,19 +74,16 @@ namespace Entities.Models
                 throw new ArgumentNullException(nameof(NotificationsList));
 
             NotificationsList.Value.AddRange(cianIds);
-
-            UpdatePostedNotifications();
         }
         public void ChangeState(UserStates state)
         {
             State.ChangeState(state);
         }
 
-        private void UpdatePostedNotifications()
+        public override void UpdateJsonEntity()
         {
-            PostedNotifications = JsonConvert.SerializeObject(NotificationsList.Value);
+            if (NotificationsList != null)
+                PostedNotifications = JsonConvert.SerializeObject(NotificationsList.Value);
         }
-
-
     } 
 }

@@ -13,5 +13,9 @@ namespace Infrastructure.Interfaces.Poll
 
         Task<T> Execute<T, V>(Func<V, Task<PollResult<T>>> action, V arg,
             Func<Task> retryAction);
+
+        PollResult<T> Ok<T>(T data);
+
+        PollResult<T> Fail<T>(string message);
     }
 }

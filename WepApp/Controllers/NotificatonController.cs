@@ -1,10 +1,14 @@
-﻿using MediatR;
+﻿using Infrastructure.Interfaces.Telegram.Dto;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UseCases.Notifications.Commands.DisableNotifications;
 using UseCases.Notifications.Commands.EnableNotifications;
 using UseCases.Notifications.Commands.SelectNotificationType;
 using UseCases.Notifications.Queries.GetTelegramNotification;
+using UseCases.Notifications.Queries.GetTelegramObjectsNotification;
 using WepApp.Controllers.Base;
 using WepApp.Dto;
 using WepApp.Dto.Request;
@@ -45,10 +49,18 @@ namespace WepApp.Controllers
             return Ok();
         }
 
-        [HttpGet("telegram/{chatId}")]
-        public async Task<ApiResponse<string>> GetTelegramNotifications(long chatId)
+        [HttpGet("telegram/{chatId}/messages")]
+        public async Task<ApiResponse<string>> GetTelegramMessagesNotifications(long chatId)
         {
-            var result = await _mediator.Send(new GetTelegramNotificationRequest(chatId));
+            var result = await _mediator.Send(new GetTelegramMessagesNotificationRequest(chatId));
+
+            return Ok(result);
+        }
+
+        [HttpGet("telegram/{chatId}/objects")]
+        public async Task<ApiResponse<ICollection<NotificationDto>>> GetTelegramObjectsNotifications(long chatId)
+        {
+            var result = await _mediator.Send(new GetTelegramObjectNotificationRequest(chatId));
 
             return Ok(result);
         }
