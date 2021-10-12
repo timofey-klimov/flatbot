@@ -17,35 +17,21 @@ namespace Infrastructure.Implemtation.Cian
 {
     public class ParseCianManager : IParseCianManager
     {
-        private ICianUrlBuilder _cianUrlBuilder;
-        private ICianHttpClient _cianClient;
-        private IPollService _pollService;
-        private IDbContext _dbContext;
-        private ILoggerService _logger;
+        private readonly ICianHttpClient _cianClient;
+        private readonly IPollService _pollService;
+        private readonly ILoggerService _logger;
+        private readonly ICianUrlBuilder _cianUrlBuilder;
 
         public ParseCianManager(
-            ICianUrlBuilder cianUrlBuilder,
             ICianHttpClient httpCLient,
             IPollService pollService,
-            IDbContext dbContext,
-            ILoggerService logger)
+            ILoggerService logger,
+            ICianUrlBuilder cianUrlBuilder)
         {
-            _cianUrlBuilder = cianUrlBuilder;
             _cianClient = httpCLient;
             _pollService = pollService;
-            _dbContext = dbContext;
             _logger = logger;
-        }
-
-        /// <summary>
-        /// Вынести
-        /// </summary>
-        /// <param name="city"></param>
-        /// <param name="page"></param>
-        /// <returns></returns>
-        public string BuildCianUrl(City city, int page)
-        {
-            return _cianUrlBuilder.BuildCianUrl(city, page);
+            _cianUrlBuilder = cianUrlBuilder;
         }
 
         public async Task<bool> CheckAnnouncement(string url)
@@ -57,20 +43,7 @@ namespace Infrastructure.Implemtation.Cian
             });
         }
 
-        /// <summary>
-        /// Вынести
-        /// </summary>
-        /// <returns></returns>
-        public async Task ClearDatabase()
-        {
-            var count = await _dbContext.Flats.CountAsync();
-
-            _logger.Info($"Delete {count} entities");
-
-            _dbContext.Database.ExecuteSqlRaw("TRUNCATE TABLE dbo.Flats");
-        }
-
-        public async Task<ICollection<string>> GetCianImagesAsync(string url)
+        public async Task<string> GetCianImageSourceAsync(string url)
         {
             return await _pollService.Execute(GetCianImagesPoll, url, () =>
             {
@@ -99,7 +72,7 @@ namespace Infrastructure.Implemtation.Cian
 
         #region polls
 
-        private async Task<PollResult<ICollection<string>>> GetCianImagesPoll(string url)
+        private async Task<PollResult<string>> GetCianImagesPoll(string url)
         {
             string html = await GetHtmlAsync(url);
 
@@ -109,9 +82,9 @@ namespace Infrastructure.Implemtation.Cian
                 .QuerySelectorAll("div")
                 .Where(x => x.GetAttribute("data-name") == "PrintPhoto")
                 .Select(x => x.Children.First().GetAttribute("src"))
-                .ToArray();
+                .FirstOrDefault();
 
-            return PollResult<ICollection<string>>.Success(images);
+            return PollResult<string>.Success(images);
         }
 
         private async Task<PollResult<bool>> CheckAnnouncementPolls(string url)

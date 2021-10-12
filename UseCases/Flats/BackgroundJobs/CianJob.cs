@@ -18,18 +18,20 @@ namespace UseCases.Flats.BackgroundJobs
         protected ILoggerService Logger;
         protected IEventBus Bus;
         protected IDbContext DbContext;
-        protected 
+        protected ICianUrlBuilder UrlBuilder;
 
         public CianJob(
             IParseCianManager cianService,
             ILoggerService logger,
             IEventBus eventBus,
-            IDbContext dbContext)
+            IDbContext dbContext,
+            ICianUrlBuilder urlBuilder)
         {
             ParseCianManager = cianService;
             Logger = logger;
             Bus = eventBus;
             DbContext = dbContext;
+            UrlBuilder = urlBuilder;
         }
         protected async Task Execute(City city, CancellationToken token)
         {
@@ -51,7 +53,7 @@ namespace UseCases.Flats.BackgroundJobs
                     if (token.IsCancellationRequested)
                         break;
 
-                    var url = ParseCianManager.BuildCianUrl(city, i);
+                    var url = UrlBuilder.BuildCianUrl(city, i);
                     var html = await ParseCianManager.GetHtmlAsync(url);
                     Bus.Publish(new HtmlDownloadedEvent(html));
 
@@ -61,7 +63,6 @@ namespace UseCases.Flats.BackgroundJobs
                 {
                     Logger.Error($"{ex.GetType().Name} {ex.Message}");
                 }
-
             }
 
             Bus.Publish(new FinishParseCianEvent());

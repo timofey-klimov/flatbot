@@ -1,4 +1,5 @@
-﻿using Infrastructure.Interfaces.Common;
+﻿using Infrastructure.Implemtation.Telegram.Factory;
+using Infrastructure.Interfaces.Common;
 using Infrastructure.Interfaces.DataAccess;
 using Infrastructure.Interfaces.Telegram;
 using MediatR;
@@ -10,21 +11,22 @@ using System.Threading.Tasks;
 
 namespace UseCases.Notifications.Queries.GetTelegramNotification
 {
+    [Obsolete]
     public class GetTelegramMessagesNotificationHandler : IRequestHandler<GetTelegramMessagesNotificationRequest, string>
     {
         private readonly IDbContext _dbContext;
-        private readonly ITelegramNotificationCreator _tgNotifyService;
+        private readonly INotificationCreatorFactory _creatorFactory;
         private readonly IFilterFlatService _filter;
         private readonly IFlatCountInMessageManager _flatCountManager;
 
         public GetTelegramMessagesNotificationHandler(
             IDbContext dbContext,
-            ITelegramNotificationCreator tgNofifyService,
+            INotificationCreatorFactory creatorFactory,
             IFilterFlatService filter,
             IFlatCountInMessageManager flatCountManger)
         {
             _dbContext = dbContext;
-            _tgNotifyService = tgNofifyService;
+            _creatorFactory = creatorFactory;
             _filter = filter;
             _flatCountManager = flatCountManger;
         }
@@ -44,14 +46,17 @@ namespace UseCases.Notifications.Queries.GetTelegramNotification
                 return "Объявлений по твоим фильтрам не найдено";
             }
 
-            var messages = _tgNotifyService.CreateMessages(flats, flats.Count);
+            var notificationCreator = _creatorFactory.Create(Infrastructure.Interfaces.Telegram.Model.NotificationCreationType.Default);
+
+            var messages = await notificationCreator.CreateAsync(flats);
+
 
             user.NotificationContext.CreateLastNotifyDateNow();
             user.UserContext.AddNotifications(flats.Select(x => x.CianId));
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
-            return messages.FirstOrDefault();
+            return messages.FirstOrDefault()?.Message;
         }
     }
 }

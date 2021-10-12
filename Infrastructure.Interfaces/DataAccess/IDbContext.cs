@@ -11,15 +11,19 @@ namespace Infrastructure.Interfaces.DataAccess
     {
         DbSet<Flat> Flats { get; }
 
-        DbSet<JobHistory> JobHistory { get; }
-
         DbSet<Proxy> Proxies { get; }
 
         DbSet<User> Users { get; }
 
         DbSet<District> Districts { get; }
 
+        DbSet<Image> Images { get; }
+
+        DbSet<SheduleJobManager> SheduleJobManagers { get; }
+
         DatabaseFacade Database { get; }
         Task<int> SaveChangesAsync(CancellationToken token = default);
+
+        Task ClearTableFlats(CancellationToken token = default);
     }
 }

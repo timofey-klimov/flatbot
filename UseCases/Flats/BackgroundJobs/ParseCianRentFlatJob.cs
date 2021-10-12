@@ -1,10 +1,8 @@
 ﻿using Infrastructure.Interfaces.Bus;
 using Infrastructure.Interfaces.Cian;
-using Infrastructure.Interfaces.Cian.Enums;
-using Infrastructure.Interfaces.Cian.HttpClient;
+using Infrastructure.Interfaces.DataAccess;
 using Infrastructure.Interfaces.Jobs;
 using Infrastructure.Interfaces.Logger;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,8 +16,9 @@ namespace UseCases.Flats.BackgroundJobs
             ICianMapManager cianMapManager,
             ILoggerService logger,
             IEventBus eventBus,
-            ICianUrlBuilder urlBuilder)
-            : base(parseManager, logger, eventBus, urlBuilder)
+            ICianUrlBuilder urlBuilder,
+            IDbContext dbContext)
+            : base(parseManager, logger, eventBus, dbContext, urlBuilder)
         {
             _cianMapManager = cianMapManager;
         }

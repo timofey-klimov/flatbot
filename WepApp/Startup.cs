@@ -2,19 +2,21 @@ using Infrastructure.Implemtation.BitmapManger;
 using Infrastructure.Implemtation.Bus;
 using Infrastructure.Implemtation.Cian;
 using Infrastructure.Implemtation.Cian.EventHandlers;
-using Infrastructure.Implemtation.Cian.FileService;
+using Infrastructure.Implemtation.Cian.FileManager;
 using Infrastructure.Implemtation.Cian.HttpClient;
 using Infrastructure.Implemtation.Cian.Profiles;
 using Infrastructure.Implemtation.Common;
 using Infrastructure.Implemtation.DataAccess;
+using Infrastructure.Implemtation.Jobs;
 using Infrastructure.Implemtation.JsonConverters;
 using Infrastructure.Implemtation.Logger;
 using Infrastructure.Implemtation.Polly;
 using Infrastructure.Implemtation.Telegram;
+using Infrastructure.Implemtation.Telegram.Factory;
 using Infrastructure.Interfaces.BitmapManager;
 using Infrastructure.Interfaces.Bus;
 using Infrastructure.Interfaces.Cian;
-using Infrastructure.Interfaces.Cian.FileService;
+using Infrastructure.Interfaces.Cian.FileManager;
 using Infrastructure.Interfaces.Cian.HttpClient;
 using Infrastructure.Interfaces.Common;
 using Infrastructure.Interfaces.DataAccess;
@@ -36,8 +38,9 @@ using UseCases.User.Base;
 using UseCases.User.Queries.Profiles;
 using WepApp.Extensions;
 using WepApp.HostedServices.EventBusSubscribers;
-using WepApp.HostedServices.Queue;
+using WepApp.HostedServices.SheduleManager;
 using WepApp.JobManagers;
+using WepApp.JobManagers.Profile;
 using WepApp.Middlewares;
 
 namespace WepApp
@@ -51,8 +54,6 @@ namespace WepApp
             Configuration = configuration;
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
             var serviceFactory = new Services.ServiceFactory();
@@ -75,13 +76,13 @@ namespace WepApp
             {
                 return serviceFactory.CreateLogger(x);
             });
-            services.AddTransient<ICianFileService, CianFileService>();
             services.AddTransient<ICianHttpClient, CianHttpClient>();
             services.AddSingleton<ITelegramMessageSender, TelegramMessageSender>(x =>
             {
                 return new TelegramMessageSender(Configuration.GetSection("ClientAppUrl").Get<string>());
             });
             services.AddTransient<IProxyManager, ProxyManager>();
+            services.AddTransient<INotificationCreatorFactory, NotificationCreatorFactrory>();
           
             services.AddTransient<IParseCianManager, ParseCianManager>();
             services.AddScoped<IPollService, PollingService>(x =>
@@ -92,48 +93,28 @@ namespace WepApp
 
             services.AddSingleton<IEventBus, InMemoryBus>();
 
-            services.AddScoped<ITelegramNotificationCreator, TelegramNotificationCreator>();
             services.AddScoped<IFilterFlatService, FilterFlatService>();
             services.AddSingleton<IFlatCountInMessageManager, FlatCountInMessageManager>(x =>
             {
                 return new FlatCountInMessageManager() { FlatCount = Configuration.GetSection("FlatCountInMessage").Get<int>() };
             });
             services.AddScoped<IImageManager, ImageManager>();
+            services.AddScoped<ICianFileManager, CianFileManager>();
 
             //EventBustSubsribers
             services.AddHostedService<CianSubscribers>();
-
+            services.AddHostedService<StartSheduleJobs>();
 
             //Jobs
             services.AddTransient<ParseCianRentFlatJob>();
             services.AddTransient<SendEveryDayFlatsNotificationJob>();
             services.AddTransient<SendEveryWeekFlatsNotificationJob>();
-            services.AddHostedService<JobsQueue>();
+            services.AddSingleton<IJobStateManager, JobStateManager>();
 
             //Managers
-            services.AddTransient<ISheduleJobManager, ParseCianJobManager>(x =>
-            {
-                return new ParseCianJobManager(
-                    x.GetRequiredService<ILoggerService>(),
-                    x.GetRequiredService<IServiceScopeFactory>(),
-                    Configuration.GetSection("Jobs:ParseCianJobManager").Get<int>());
-            });
-
-            services.AddTransient<ISheduleJobManager, SendEveryDayFlatsNotificationManager>(x =>
-            {
-                return new SendEveryDayFlatsNotificationManager(
-                    x.GetRequiredService<ILoggerService>(),
-                    x.GetRequiredService<IServiceScopeFactory>(),
-                    Configuration.GetSection("Jobs:SendEveryDayFlatsNotification").Get<int>());
-            });
-
-            services.AddTransient<ISheduleJobManager, SendEveryWeekFlatsNotificationManager>(x =>
-            {
-                return new SendEveryWeekFlatsNotificationManager(
-                    x.GetRequiredService<ILoggerService>(),
-                    x.GetRequiredService<IServiceScopeFactory>(),
-                    Configuration.GetSection("Jobs:SendEveryWeekFlatsNotification").Get<int>());
-            });
+            services.AddTransient<ParseCianJobManager>();
+            services.AddTransient<SendEveryDayFlatsNotificationManager>();
+            services.AddTransient<SendEveryWeekFlatsNotificationManager>();
 
             //EventHandlers
             services.AddTransient<HtmlDownloadHandler>();
@@ -148,13 +129,13 @@ namespace WepApp
             services.AddAutoMapper(
                 typeof(ProxyProfile),
                 typeof(UserProfile),
-                typeof(DistrictProfile));
-            services.AddMemoryCache();
+                typeof(DistrictProfile),
+                typeof(JobManagerProfile));
 
+            services.AddMemoryCache();
             services.AddSwaggerDi();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())

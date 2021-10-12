@@ -37,7 +37,7 @@ namespace Infrastructure.Implemtation.Telegram
         {
             var url = $"{_client.BaseAddress}/notify/{chatId}/new/objects";
 
-            var request = new { Message = items };
+            var request = new { Messages = items };
 
             var body = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
 

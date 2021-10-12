@@ -1,99 +1,87 @@
-﻿using Entities.Models;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Entities.Models.Exceptions;
 using Infrastructure.Interfaces.DataAccess;
 using Infrastructure.Interfaces.Jobs;
+using Infrastructure.Interfaces.Jobs.Dto;
 using Infrastructure.Interfaces.Logger;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using WepApp.JobManagers.Dto;
 
 namespace WepApp.JobManagers.Base
 {
     public abstract class BaseSheduleJobManager<T> : ISheduleJobManager
         where T : IJob
     {
-        private Timer _timer;
-        private TimeSpan _period;
         protected ILoggerService Logger;
         protected IServiceScopeFactory ScopeFactory;
         protected T HandleJobService;
+        private IJobStateManager _stateManager;
 
-        public event Action FinishEvent;
+        public event Action<Type, JobStatusDto, string> FinishEvent;
 
         public BaseSheduleJobManager(
             ILoggerService logger,
-            IServiceScopeFactory serviceScopeFactory,
-            TimeSpan period)
+            IServiceScopeFactory serviceScopeFactory)
         {
             Logger = logger;
             ScopeFactory = serviceScopeFactory;
-            _period = period;
         }
 
-        public abstract bool CanExecute();
+        public abstract CanExecuteResult CanExecute(ICollection<JobManagerDto> runningJobs);
 
         public async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _timer = new Timer(InternalExecute, stoppingToken, TimeSpan.Zero, _period);
-        }
-
-        private void InternalExecute(object state)
-        {
-            var cts = (CancellationToken)state;
             Logger.Info($"Start {typeof(T).Name}");
 
             using (var scope = ScopeFactory.CreateScope())
             {
-                var dbContext = scope.ServiceProvider.GetRequiredService<IDbContext>();
-                var job = typeof(T).Name;
-
-                var history = new JobHistory
-                {
-                    Name = job,
-                    StartDate = DateTime.Now,
-                    Status = Entities.Enums.JobStatus.Running
-                };
-
-                dbContext.JobHistory.Add(history);
-                dbContext.SaveChangesAsync(cts).Wait();  
-
                 try
                 {
-                    if (CanExecute())
-                    {
-                        var service = scope.ServiceProvider.GetRequiredService<T>();
-                        service.ExecuteAsync(cts).Wait();
-                    }
+                    var mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
+                    var dbContext = scope.ServiceProvider.GetRequiredService<IDbContext>();
 
-                    history.Status = Entities.Enums.JobStatus.Success;
+                    var jobManagers = dbContext
+                        .SheduleJobManagers
+                        .Where(x => x.IsRunning)
+                        .ProjectTo<JobManagerDto>(mapper.ConfigurationProvider)
+                        .ToList();
+
+                    var canExecuteResult = CanExecute(jobManagers);
+
+                    if (canExecuteResult.CanExecute == false)
+                    {
+                        FinishEvent?.Invoke(this.GetType(), canExecuteResult.Status.Value, default);
+                        return;
+                    }
+                   
+                    _stateManager = scope.ServiceProvider.GetRequiredService<IJobStateManager>();
+                    _stateManager.RunJob();
+
+                    var service = scope.ServiceProvider.GetRequiredService<T>();
+                    service.ExecuteAsync(stoppingToken).Wait();
+
+                    FinishEvent?.Invoke(this.GetType(), JobStatusDto.Success, default);
                 }
                 catch (Exception ex)
                 {
-                    string message = string.Empty;
-                    if (ex.InnerException is ExceptionBase exBase)
+                    string message;
+                    if (ex.InnerException is ExceptionBase eBase)
                     {
-                        message = exBase.Message;
+                        message = eBase.Message;
                     }
                     else
                     {
                         message = "Internal";
                     }
 
-                    history.Message = message;
-                    history.EndDate = DateTime.Now;
-                    history.Status = Entities.Enums.JobStatus.Fail;
-
-                    dbContext.SaveChangesAsync(cts).Wait();
-                }
-                finally
-                {
-                    history.EndDate = DateTime.Now;
-                    history.NextFireAt = DateTime.Now.Add(_period);
-                    dbContext.SaveChangesAsync(cts).Wait();
-
-                    Logger.Info($"Finish {typeof(T).Name}");
-                    FinishEvent.Invoke();
+                    FinishEvent?.Invoke(this.GetType(), JobStatusDto.Fail, message);
                 }
             }
         }

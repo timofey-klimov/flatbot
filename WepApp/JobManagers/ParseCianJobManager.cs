@@ -1,8 +1,10 @@
 ﻿using Infrastructure.Interfaces.Logger;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using UseCases.Flats.BackgroundJobs;
 using WepApp.JobManagers.Base;
+using WepApp.JobManagers.Dto;
 
 namespace WepApp.JobManagers
 {
@@ -10,16 +12,18 @@ namespace WepApp.JobManagers
     {
         public ParseCianJobManager(
             ILoggerService logger,
-            IServiceScopeFactory serviceScopeFactory,
-            int hours)
-            :base(logger, serviceScopeFactory, TimeSpan.FromHours(hours))
+            IServiceScopeFactory serviceScopeFactory)
+            :base(logger, serviceScopeFactory)
         {
 
         }
 
-        public override bool CanExecute()
+        public override CanExecuteResult CanExecute(ICollection<JobManagerDto> runningJobs)
         {
-            return (DateTime.Now.AddHours(3).Hour >= 8);
+            if (DateTime.Now.AddHours(3).Hour <= 8)
+                return CanExecuteResult.JobCannotExecute(Infrastructure.Interfaces.Jobs.Dto.JobStatusDto.DateTimeNotInRange);
+
+            return CanExecuteResult.JobCanExecute();
         }
     }
 }

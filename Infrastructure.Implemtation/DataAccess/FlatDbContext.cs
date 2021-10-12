@@ -24,10 +24,11 @@ namespace Infrastructure.Implemtation.DataAccess
         }
 
         public DbSet<Flat> Flats { get; set; }
-        public DbSet<JobHistory> JobHistory { get; set; }
         public DbSet<Proxy> Proxies { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<District> Districts { get; set; }
+        public DbSet<Image> Images { get; set; }
+        public DbSet<SheduleJobManager> SheduleJobManagers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -56,6 +57,11 @@ namespace Infrastructure.Implemtation.DataAccess
             {
                 throw new Exception(ex.Message);
             }
+        }
+
+        public async Task ClearTableFlats(CancellationToken token = default)
+        {
+            await this.Database.ExecuteSqlRawAsync("TRUNCATE TABLE dbo.Flats", token);
         }
     }
 }

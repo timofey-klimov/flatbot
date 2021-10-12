@@ -1,4 +1,5 @@
-﻿using Infrastructure.Interfaces.Common;
+﻿using Infrastructure.Implemtation.Telegram.Factory;
+using Infrastructure.Interfaces.Common;
 using Infrastructure.Interfaces.DataAccess;
 using Infrastructure.Interfaces.Jobs;
 using Infrastructure.Interfaces.Telegram;
@@ -13,21 +14,21 @@ namespace UseCases.Notifications.Jobs
     public class SendEveryWeekFlatsNotificationJob : IJob
     {
         private readonly IDbContext _dbContext;
-        private readonly ITelegramNotificationCreator _tgNotifyService;
+        private readonly INotificationCreatorFactory _creatorFactory;
         private readonly ITelegramMessageSender _tgMessageSender;
         private readonly IFilterFlatService _filter;
         private readonly IFlatCountInMessageManager _countManager;
 
         public SendEveryWeekFlatsNotificationJob(
             IDbContext dbContext,
-            ITelegramNotificationCreator tgNotifyService,
+            INotificationCreatorFactory creatorFactory,
             ITelegramMessageSender tgMessageSender,
             IFilterFlatService filter,
             IFlatCountInMessageManager countManager)
         {
             _dbContext = dbContext;
             _tgMessageSender = tgMessageSender;
-            _tgNotifyService = tgNotifyService;
+            _creatorFactory = creatorFactory;
             _filter = filter;
             _countManager = countManager;
         }
@@ -47,13 +48,11 @@ namespace UseCases.Notifications.Jobs
             {
                 var flats = await _filter.GetFlatsByUserContextAsync(user.UserContext, _countManager.FlatCount, token);
 
-                var messages = _tgNotifyService.CreateMessages(flats, flats.Count);
+                var notificationCreator = _creatorFactory.Create(Infrastructure.Interfaces.Telegram.Model.NotificationCreationType.WithImage);
 
-                foreach (var message in messages)
-                {
-                    await _tgMessageSender.SendMessageAsync(message, user.ChatId);
-                    await Task.Delay(1000);
-                }
+                var messages = await notificationCreator.CreateAsync(flats);
+
+                await _tgMessageSender.SendMessagesAsync(messages, user.ChatId);
 
                 if (!messages.Any())
                 {

@@ -1,4 +1,5 @@
-﻿using Infrastructure.Interfaces.Bus;
+﻿using Infrastructure.Implemtation.Telegram.Factory;
+using Infrastructure.Interfaces.Bus;
 using Infrastructure.Interfaces.Cian.Events.FinishParseCian;
 using Infrastructure.Interfaces.Common;
 using Infrastructure.Interfaces.DataAccess;
@@ -14,20 +15,20 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
     {
         private readonly IDbContext _dbContext;
         private readonly ITelegramMessageSender _messageSender;
-        private readonly ITelegramNotificationCreator _tgNotifyService;
+        private readonly INotificationCreatorFactory _creator;
         private readonly IFilterFlatService _filter;
         private readonly IFlatCountInMessageManager _countManager;
 
         public SendNotificationsHandler(
             IDbContext dbContext,
             ITelegramMessageSender messageSender,
-            ITelegramNotificationCreator tgNotifyService,
+            INotificationCreatorFactory creator,
             IFilterFlatService filter,
             IFlatCountInMessageManager countManager) 
         {
             _dbContext = dbContext;
             _messageSender = messageSender;
-            _tgNotifyService = tgNotifyService;
+            _creator = creator;
             _filter = filter;
             _countManager = countManager;
         }
@@ -39,7 +40,6 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
                 .Include(x => x.UserContext)
                 .ThenInclude(x => x.Disctricts)
                 .Where(x => x.NotificationContext.IsActive == true && x.NotificationContext.NotificationType == Entities.Enums.NotificationType.Default)
-                .AsNoTracking()
                 .ToListAsync();
 
             foreach (var user in users)
@@ -49,7 +49,10 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
                 if (!flats.Any())
                     continue;
 
-                var messages = await _tgNotifyService.CreateObjectsAsync(flats);
+                ///Сделать фабрику 
+                var notificationCreator = _creator.Create(Interfaces.Telegram.Model.NotificationCreationType.WithImage);
+
+                var messages = await notificationCreator.CreateAsync(flats);
 
                 await _messageSender.SendMessagesAsync(messages, user.ChatId);
 

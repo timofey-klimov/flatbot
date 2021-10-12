@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Infrastructure.Interfaces.Jobs.Dto;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,6 @@ namespace Infrastructure.Interfaces.Jobs
     public interface ISheduleJobManager
     {
         Task ExecuteAsync(CancellationToken stoppingToken);
-        event Action FinishEvent;
+        event Action<Type, JobStatusDto, string> FinishEvent;
     }
 }

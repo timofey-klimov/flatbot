@@ -4,6 +4,8 @@
     {
         Success,
         Fail,
-        Running
+        Running,
+        Concurrent,
+        DateTimeNotInRange
     }
 }

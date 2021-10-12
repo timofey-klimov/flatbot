@@ -1,7 +1,9 @@
 ﻿using AngleSharp.Html.Parser;
 using Entities.Models;
 using Infrastructure.Interfaces.Bus;
+using Infrastructure.Interfaces.Cian;
 using Infrastructure.Interfaces.Cian.Events.ExcelDownloaded;
+using Infrastructure.Interfaces.Cian.FileManager;
 using Infrastructure.Interfaces.DataAccess;
 using Infrastructure.Interfaces.Logger;
 using Microsoft.EntityFrameworkCore;
@@ -16,13 +18,19 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
     {
         private readonly ILoggerService _logger;
         private readonly IDbContext _context;
+        private readonly IParseCianManager _parseManager;
+        private readonly ICianFileManager _fileManger;
 
         public HtmlDownloadHandler(
             IDbContext dbContext,
-            ILoggerService loggerService)
+            ILoggerService loggerService,
+            IParseCianManager parseManager,
+            ICianFileManager fileManager)
         {
             _context = dbContext;
             _logger = loggerService;
+            _parseManager = parseManager;
+            _fileManger = fileManager;
         }
 
         public async Task HandleAsync(HtmlDownloadedEvent @event)
@@ -138,12 +146,31 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
 
                     var district = await _context.Districts.FirstOrDefaultAsync(x => x.Name == districtName);
 
-                    var images = card
-                         ?.QuerySelectorAll("img")
-                         .Select(x => x.GetAttribute("src"))
-                         .Where(x => x.Contains("cdn-p.cian.site/images"))
-                         .Take(2)
-                         .ToList();
+                    var downloadImage = await _context.Images.FirstOrDefaultAsync(x => x.CiandId == cianId);
+                    if (downloadImage == null || downloadImage.Data == null)
+                    {
+                        var imageSource = card
+                             ?.QuerySelectorAll("img")
+                             .Select(x => x.GetAttribute("src"))
+                             .Where(x => x.Contains("cdn-p.cian.site/images"))
+                             .Take(1)
+                             .FirstOrDefault();
+
+                        if (imageSource == null)
+                        {
+                            imageSource = await _parseManager.GetCianImageSourceAsync(cianReference);
+                        }
+
+                        var byteArray = await _fileManger.GetFileAsync(imageSource);
+
+                        var imageEntity = new Image()
+                        {
+                            CiandId = cianId,
+                            Source = imageSource,
+                            Data = byteArray
+                        };
+                        _context.Images.Add(imageEntity);
+                    }
 
                     var pdf = card
                         ?.QuerySelectorAll("a")
@@ -170,8 +197,6 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
                         District = district,
                         PdfReference = pdf
                     };
-
-                    flat.ImagesCollections.Value.AddRange(images);
 
                     var entity = await _context.Flats.FirstOrDefaultAsync(x => x.CianId == flat.CianId);
 

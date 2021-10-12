@@ -129,9 +129,6 @@ namespace Infrastructure.Implemtation.Migrations
                     b.Property<double>("FlatArea")
                         .HasColumnType("float");
 
-                    b.Property<string>("Images")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("MaxFloor")
                         .HasColumnType("int");
 
@@ -170,6 +167,27 @@ namespace Infrastructure.Implemtation.Migrations
                     b.ToTable("Flats");
                 });
 
+            modelBuilder.Entity("Entities.Models.Image", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<long>("CiandId")
+                        .HasColumnType("bigint");
+
+                    b.Property<byte[]>("Data")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("Source")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Images");
+                });
+
             modelBuilder.Entity("Entities.Models.JobHistory", b =>
                 {
                     b.Property<int>("Id")
@@ -177,26 +195,21 @@ namespace Infrastructure.Implemtation.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime?>("EndDate")
+                    b.Property<DateTime?>("FinishTime")
                         .HasColumnType("datetime2(0)");
 
                     b.Property<string>("Message")
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("NextFireAt")
-                        .HasColumnType("datetime2(2)");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2(0)");
+                    b.Property<int>("SheduleJobManagerId")
+                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SheduleJobManagerId");
 
                     b.ToTable("JobHistory");
                 });
@@ -248,6 +261,44 @@ namespace Infrastructure.Implemtation.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Proxies");
+                });
+
+            modelBuilder.Entity("Entities.Models.SheduleJobManager", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRunning")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("JobManagerName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("JobType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Period")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("PlanningRunTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.Property<DateTime?>("RunTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SheduleJobManagers");
+
+                    b.HasDiscriminator<int>("JobType");
                 });
 
             modelBuilder.Entity("Entities.Models.User", b =>
@@ -326,6 +377,23 @@ namespace Infrastructure.Implemtation.Migrations
                     b.ToTable("UserState");
                 });
 
+            modelBuilder.Entity("Entities.Models.ReccurentJobManager", b =>
+                {
+                    b.HasBaseType("Entities.Models.SheduleJobManager");
+
+                    b.HasDiscriminator().HasValue(0);
+                });
+
+            modelBuilder.Entity("Entities.Models.TimedJobManager", b =>
+                {
+                    b.HasBaseType("Entities.Models.SheduleJobManager");
+
+                    b.Property<DateTime>("SheduleRunTime")
+                        .HasColumnType("datetime2(0)");
+
+                    b.HasDiscriminator().HasValue(1);
+                });
+
             modelBuilder.Entity("DistrictUserContext", b =>
                 {
                     b.HasOne("Entities.Models.District", null)
@@ -348,6 +416,15 @@ namespace Infrastructure.Implemtation.Migrations
                         .HasForeignKey("DistrictId");
 
                     b.Navigation("District");
+                });
+
+            modelBuilder.Entity("Entities.Models.JobHistory", b =>
+                {
+                    b.HasOne("Entities.Models.SheduleJobManager", null)
+                        .WithMany("JobHistories")
+                        .HasForeignKey("SheduleJobManagerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Entities.Models.NotificationContext", b =>
@@ -377,6 +454,11 @@ namespace Infrastructure.Implemtation.Migrations
                         .IsRequired();
 
                     b.Navigation("UserContext");
+                });
+
+            modelBuilder.Entity("Entities.Models.SheduleJobManager", b =>
+                {
+                    b.Navigation("JobHistories");
                 });
 
             modelBuilder.Entity("Entities.Models.User", b =>

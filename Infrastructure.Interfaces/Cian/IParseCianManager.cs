@@ -8,14 +8,10 @@ namespace Infrastructure.Interfaces.Cian
     {
         Task<int> GetPagesCountAsync(City city);
 
-        string BuildCianUrl(City city, int page);
-
         Task<string> GetHtmlAsync(string url);
 
         Task<bool> CheckAnnouncement(string url);
 
-        Task ClearDatabase();
-
-        Task<ICollection<string>> GetCianImagesAsync(string url);
+        Task<string> GetCianImageSourceAsync(string url);
     }
 }

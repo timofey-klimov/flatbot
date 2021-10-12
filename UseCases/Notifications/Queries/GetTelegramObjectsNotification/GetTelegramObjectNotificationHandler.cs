@@ -1,6 +1,8 @@
 ﻿using Entities.Models;
+using Infrastructure.Implemtation.Telegram.Factory;
 using Infrastructure.Interfaces.Common;
 using Infrastructure.Interfaces.DataAccess;
+using Infrastructure.Interfaces.Jobs;
 using Infrastructure.Interfaces.Telegram;
 using Infrastructure.Interfaces.Telegram.Dto;
 using MediatR;
@@ -17,25 +19,33 @@ namespace UseCases.Notifications.Queries.GetTelegramObjectsNotification
     public class GetTelegramObjectNotificationHandler : IRequestHandler<GetTelegramObjectNotificationRequest, ICollection<NotificationDto>>
     {
         private readonly IDbContext _dbContext;
-        private readonly ITelegramNotificationCreator _tgNotifyCreator;
+        private readonly INotificationCreatorFactory _creatorFactory;
         private readonly IFilterFlatService _filter;
         private readonly IFlatCountInMessageManager _flatCountManager;
+        private readonly IJobStateManager _stateManager;
 
         public GetTelegramObjectNotificationHandler(
             IDbContext dbContext,
-            ITelegramNotificationCreator telegramNotification,
+            INotificationCreatorFactory creatorFactory,
             IFilterFlatService filterFlatService,
-            IFlatCountInMessageManager flatCountManager
+            IFlatCountInMessageManager flatCountManager,
+            IJobStateManager jobStateManager
             )
         {
             _dbContext = dbContext;
-            _tgNotifyCreator = telegramNotification;
+            _creatorFactory = creatorFactory;
             _filter = filterFlatService;
             _flatCountManager = flatCountManager;
+            _stateManager = jobStateManager;
         }
 
         public async Task<ICollection<NotificationDto>> Handle(GetTelegramObjectNotificationRequest request, CancellationToken cancellationToken)
         {
+            if (_stateManager.IsRunning)
+            {
+                return new List<NotificationDto>() { new NotificationDto() { HasImage = false, Message = "Сервера сейчас сильно нагружены, попробуйте позже" } };
+            }
+
             var user = await _dbContext
                  .Users
                  .Include(x => x.UserContext)
@@ -45,7 +55,9 @@ namespace UseCases.Notifications.Queries.GetTelegramObjectsNotification
 
             var flats = await _filter.GetFlatsByUserContextAsync(user.UserContext, _flatCountManager.FlatCount, cancellationToken);
 
-            var notifications = await _tgNotifyCreator.CreateObjectsAsync(flats);
+            var notificationCreator = _creatorFactory.Create(Infrastructure.Interfaces.Telegram.Model.NotificationCreationType.WithImage);
+
+            var notifications = await notificationCreator.CreateAsync(flats);
 
             user.NotificationContext.CreateLastNotifyDateNow();
             user.UserContext.AddNotifications(flats.Select(x => x.CianId));

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Entities.Models
 {
-    public class Flat : JsonPropertyEntity
+    public class Flat : Entity<int>
     {
         public long CianId { get; set; }
 
@@ -43,23 +43,14 @@ namespace Entities.Models
 
         public DateTime? UpdateDate { get; set; }
 
-        public string Images { get; set; }
-
         public string PdfReference { get; set; }
 
-        public Lazy<List<string>> ImagesCollections { get; set; }
 
         public Flat()
         {
             CreateDate = DateTime.Now;
-            Images = JsonConvert.SerializeObject(new List<string>());
-            ImagesCollections = new Lazy<List<string>>(() => JsonConvert.DeserializeObject<List<string>>(Images));
         }
 
-        public override void UpdateJsonEntity()
-        {
-            Images = JsonConvert.SerializeObject(ImagesCollections.Value);
-        }
 
         public override bool Equals(object obj)
         {
