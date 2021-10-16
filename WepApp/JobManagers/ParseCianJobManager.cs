@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UseCases.Flats.BackgroundJobs;
 using WepApp.JobManagers.Base;
 using WepApp.JobManagers.Dto;
@@ -22,6 +23,9 @@ namespace WepApp.JobManagers
         {
             if (DateTime.Now.AddHours(3).Hour < 8)
                 return CanExecuteResult.JobCannotExecute(Infrastructure.Interfaces.Jobs.Dto.JobStatusDto.DateTimeNotInRange);
+
+            if (runningJobs.Any(x => x.Name == nameof(UpdateProxiesJobManager)))
+                return CanExecuteResult.JobCannotExecute(Infrastructure.Interfaces.Jobs.Dto.JobStatusDto.Concurrent);
 
             return CanExecuteResult.JobCanExecute();
         }

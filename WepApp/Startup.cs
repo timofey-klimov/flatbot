@@ -11,6 +11,7 @@ using Infrastructure.Implemtation.Jobs;
 using Infrastructure.Implemtation.JsonConverters;
 using Infrastructure.Implemtation.Logger;
 using Infrastructure.Implemtation.Polly;
+using Infrastructure.Implemtation.Proxy.HttpClient;
 using Infrastructure.Implemtation.Telegram;
 using Infrastructure.Implemtation.Telegram.Factory;
 using Infrastructure.Interfaces.BitmapManager;
@@ -23,6 +24,7 @@ using Infrastructure.Interfaces.DataAccess;
 using Infrastructure.Interfaces.Jobs;
 using Infrastructure.Interfaces.Logger;
 using Infrastructure.Interfaces.Poll;
+using Infrastructure.Interfaces.Proxy.HttpClient;
 using Infrastructure.Interfaces.Telegram;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -34,6 +36,7 @@ using Microsoft.Extensions.Hosting;
 using UseCases.District.Profiles;
 using UseCases.Flats.BackgroundJobs;
 using UseCases.Notifications.Jobs;
+using UseCases.Proxies.Jobs;
 using UseCases.User.Base;
 using UseCases.User.Queries.Profiles;
 using WepApp.Extensions;
@@ -102,6 +105,7 @@ namespace WepApp
             });
             services.AddScoped<IImageManager, ImageManager>();
             services.AddScoped<ICianFileManager, CianFileManager>();
+            services.AddScoped<IProxyHttpClient, ProxyHttpClient>();
 
             //EventBustSubsribers
             services.AddHostedService<CianSubscribers>();
@@ -111,12 +115,14 @@ namespace WepApp
             services.AddTransient<ParseCianRentFlatJob>();
             services.AddTransient<SendEveryDayFlatsNotificationJob>();
             services.AddTransient<SendEveryWeekFlatsNotificationJob>();
+            services.AddTransient<UpdateProxiesJob>();
             services.AddSingleton<IJobStateManager, JobStateManager>();
 
             //Managers
             services.AddTransient<ParseCianJobManager>();
             services.AddTransient<SendEveryDayFlatsNotificationManager>();
             services.AddTransient<SendEveryWeekFlatsNotificationManager>();
+            services.AddTransient<UpdateProxiesJobManager>();
 
             //EventHandlers
             services.AddTransient<HtmlDownloadHandler>();
