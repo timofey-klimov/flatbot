@@ -2,10 +2,10 @@
 {
     public enum JobStatusDto
     {
-        Success,
-        Fail,
-        Running,
-        Concurrent,
-        DateTimeNotInRange
+        Success = 0,
+        Fail = 1,
+        Running = 2,
+        Concurrent = 3,
+        DateTimeNotInRange = 4
     }
 }

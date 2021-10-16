@@ -28,7 +28,7 @@ namespace WepApp.Middlewares
             }
             catch (Exception ex)
             {
-                logger.Error(ex.Message);
+                logger.Error(this.GetType(), ex.Message);
 
                 string response = string.Empty;
 

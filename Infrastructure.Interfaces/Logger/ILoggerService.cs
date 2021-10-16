@@ -1,11 +1,13 @@
-﻿namespace Infrastructure.Interfaces.Logger
+﻿using System;
+
+namespace Infrastructure.Interfaces.Logger
 {
     public interface ILoggerService
     {
-         void Error(string message);
+         void Error(Type errorPlace, string message);
 
-         void Info(string message);
+         void Info(Type infoPlace, string message);
 
-         void Debug(string message);
+         void Debug(Type debugPlace, string message);
     }
 }

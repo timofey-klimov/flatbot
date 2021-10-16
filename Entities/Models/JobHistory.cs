@@ -26,6 +26,7 @@ namespace Entities.Models
         {
             FinishTime = date;
             Status = JobStatus.Success;
+            Message = "Success";
         }
 
         public void UpdateStateToFail(DateTime date, string message)

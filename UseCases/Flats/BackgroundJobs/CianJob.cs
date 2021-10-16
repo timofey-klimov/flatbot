@@ -37,7 +37,7 @@ namespace UseCases.Flats.BackgroundJobs
         {
             var pagesCount = await ParseCianManager.GetPagesCountAsync(city);
 
-            Logger.Info($"Find {pagesCount} pages");
+            Logger.Info(this.GetType(), $"Find {pagesCount} pages");
 
             if (pagesCount == 0)
                 throw new FindZeroPagesException("Cant find count of pages");
@@ -46,7 +46,7 @@ namespace UseCases.Flats.BackgroundJobs
 
             for (int i = 0; i < pagesCount; i++)
             {
-                Logger.Info($"Start {i} page");
+                Logger.Info(this.GetType(), $"Start {i} page");
 
                 try
                 {
@@ -61,7 +61,7 @@ namespace UseCases.Flats.BackgroundJobs
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error($"{ex.GetType().Name} {ex.Message}");
+                    Logger.Error(this.GetType(), $"{ex.GetType().Name} {ex.Message}");
                 }
             }
 

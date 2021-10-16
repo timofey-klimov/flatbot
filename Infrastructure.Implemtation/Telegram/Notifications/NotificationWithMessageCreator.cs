@@ -47,7 +47,7 @@ namespace Infrastructure.Implemtation.Telegram.NotificationCreators
             stopWatch.Stop();
             var time = stopWatch.Elapsed.TotalSeconds;
 
-            _logger.Info($"Время выполнения {nameof(NotificationWithMessageCreator)} CreateAsync: {time}");
+            _logger.Info(this.GetType(), $"Время выполнения {nameof(CreateAsync)}: {time}");
 
             return items;
         }

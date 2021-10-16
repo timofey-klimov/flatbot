@@ -36,10 +36,10 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
         public async Task HandleAsync(FinishParseCianEvent @event)
         {
             var users = await _dbContext.Users
+                .Where(x => x.NotificationContext.IsActive == true && x.NotificationContext.NotificationType == Entities.Enums.NotificationType.Default)
                 .Include(x => x.NotificationContext)
                 .Include(x => x.UserContext)
                 .ThenInclude(x => x.Disctricts)
-                .Where(x => x.NotificationContext.IsActive == true && x.NotificationContext.NotificationType == Entities.Enums.NotificationType.Default)
                 .ToListAsync();
 
             foreach (var user in users)
@@ -49,16 +49,15 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
                 if (!flats.Any())
                     continue;
 
-                ///Сделать фабрику 
                 var notificationCreator = _creator.Create(Interfaces.Telegram.Model.NotificationCreationType.WithImage);
 
                 var messages = await notificationCreator.CreateAsync(flats);
 
-                await _messageSender.SendMessagesAsync(messages, user.ChatId);
+                var result = await _messageSender.SendMessagesAsync(messages, user.ChatId);
 
-                var ciandIds = flats.Select(x => x.CianId);
+                if (result.Success)
+                    user.UserContext.AddNotifications(flats.Select(x => x.CianId));
 
-                user.UserContext.AddNotifications(ciandIds);
                 user.NotificationContext.CreateLastNotifyDateNow();
 
                 await _dbContext.SaveChangesAsync();

@@ -26,9 +26,6 @@ namespace WepApp.JobManagers
             if (concurrentJob != null)
                 return CanExecuteResult.JobCannotExecute(Infrastructure.Interfaces.Jobs.Dto.JobStatusDto.Concurrent);
 
-            if (DateTime.Now.AddHours(3).Hour <= 8)
-                return CanExecuteResult.JobCannotExecute(Infrastructure.Interfaces.Jobs.Dto.JobStatusDto.DateTimeNotInRange);
-
             return CanExecuteResult.JobCanExecute();
         }
     }

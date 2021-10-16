@@ -52,7 +52,6 @@ namespace Entities.Models
 
         public void UpdateJobHistoryToConcurrent(DateTime finishDate)
         {
-            PlanningRunTime += TimeSpan.FromMinutes(10);
             var jobHistory = JobHistories.Last();
             jobHistory.UpdateStateToConcurrent(finishDate);
         }

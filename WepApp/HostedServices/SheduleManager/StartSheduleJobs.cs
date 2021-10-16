@@ -41,8 +41,8 @@ namespace WepApp.HostedServices.SheduleManager
 
         private void StartJobs(object state)
         {
-            //if (_env.IsDevelopment())
-            //    return;
+            if (_env.IsDevelopment())
+                return;
 
             var token = (CancellationToken)state;
 
@@ -86,7 +86,7 @@ namespace WepApp.HostedServices.SheduleManager
                     }
                     catch (Exception ex)
                     {
-                        logger.Info(ex.Message);
+                        logger.Info(this.GetType(), ex.Message);
                     }
                 }
             }
@@ -97,10 +97,8 @@ namespace WepApp.HostedServices.SheduleManager
             using (var scope = _scopeFactory.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<IDbContext>();
-                var mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
-                var jobManager = dbContext.
-                    SheduleJobManagers
+                var jobManager = dbContext.SheduleJobManagers
                     .Include(x => x.JobHistories)
                     .FirstOrDefault(x => x.JobManagerName == jobManagerType.Name);
 
@@ -112,25 +110,30 @@ namespace WepApp.HostedServices.SheduleManager
                 if (jobStatusDto != JobStatusDto.Concurrent)
                 {
                     if (jobManager is TimedJobManager timeJob)
-                        timeJob.PlanningRunTime = timeJob.SheduleRunTime + TimeSpan.FromHours(timeJob.Period);
+                    {
+                        timeJob.SheduleRunTime += TimeSpan.FromHours(timeJob.Period);
+                        timeJob.PlanningRunTime = timeJob.SheduleRunTime;
+                    }
                     else
                         jobManager.PlanningRunTime = jobManager.PlanningRunTime == null ? jobManager.RunTime + nextFireAt : jobManager.PlanningRunTime + nextFireAt;
                 }
-
-                var jobStatus = mapper.Map<JobStatus>(jobStatusDto);
-
-                switch (jobStatus)
+                else
                 {
-                    case JobStatus.Success:
+                    jobManager.PlanningRunTime += TimeSpan.FromMinutes(5);
+                }
+
+                switch (jobStatusDto)
+                {
+                    case JobStatusDto.Success:
                         jobManager.UpdateJobHistoryToSuccess(DateTime.Now);
                         break;
-                    case JobStatus.Fail:
+                    case JobStatusDto.Fail:
                         jobManager.UpdateJobHistoryToFail(DateTime.Now, message);
                         break;
-                    case JobStatus.Concurrent:
+                    case JobStatusDto.Concurrent:
                         jobManager.UpdateJobHistoryToConcurrent(DateTime.Now);
                         break;
-                    case JobStatus.DateTimeNotInRange:
+                    case JobStatusDto.DateTimeNotInRange:
                         jobManager.UpdateJobHistoryToDateTimeNotInRange(DateTime.Now);
                         break;
                 }

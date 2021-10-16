@@ -211,14 +211,14 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
                     else
                     {
                         await _context.Flats.AddAsync(flat);
-                        _logger.Info($"Create new flat CianId: {flat.CianId}");
+                        _logger.Info(this.GetType(), $"Create new flat CianId: {flat.CianId}");
                     }
 
                     await _context.SaveChangesAsync(default);
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex.Message);
+                    _logger.Error(this.GetType(), ex.Message);
                 }
             }
         }

@@ -36,12 +36,16 @@ namespace UseCases.Notifications.Jobs
         public async Task ExecuteAsync(CancellationToken token = default)
         {
             var users = await _dbContext.Users
+                .Where(x => x.NotificationContext.IsActive
+                    && x.NotificationContext.NotificationType == Entities.Enums.NotificationType.EveryWeek
+                    &&(!x.NotificationContext.NextNotify.HasValue
+                        ||
+                    ((x.NotificationContext.NextNotify.Value.Day == DateTime.Now.Day
+                         &&
+                         x.NotificationContext.NextNotify.Value.Month == DateTime.Now.Month))))
                 .Include(x => x.UserContext)
                 .ThenInclude(x => x.Disctricts)
                 .Include(x => x.NotificationContext)
-                .Where(x => x.NotificationContext.IsActive
-                    && x.NotificationContext.NotificationType == Entities.Enums.NotificationType.EveryWeek
-                    && (x.NotificationContext.NextNotify == null || x.NotificationContext.NextNotify.Value.Day == DateTime.Now.Day))
                 .ToListAsync(token);
 
             foreach (var user in users)
@@ -52,14 +56,16 @@ namespace UseCases.Notifications.Jobs
 
                 var messages = await notificationCreator.CreateAsync(flats);
 
-                await _tgMessageSender.SendMessagesAsync(messages, user.ChatId);
+                var result =  await _tgMessageSender.SendMessagesAsync(messages, user.ChatId);
 
                 if (!messages.Any())
                 {
-                    await _tgMessageSender.SendMessageAsync("Сегодня не нашлось объявлений по твоим фильтрам", user.ChatId);
+                    _ = await _tgMessageSender.SendMessageAsync("Сегодня не нашлось объявлений по твоим фильтрам", user.ChatId);
                 }
 
-                user.UserContext.AddNotifications(flats.Select(x => x.CianId));
+                if (result.Success)
+                    user.UserContext.AddNotifications(flats.Select(x => x.CianId));
+
                 user.NotificationContext.CreateLastNotifyDateNow();
 
                 ///неделя

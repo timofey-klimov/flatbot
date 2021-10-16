@@ -27,7 +27,7 @@ namespace Infrastructure.Implemtation.Polly
 
             for (int i = 0; i < _attemptCount; i++)
             {
-                _logger.Info($"Попытка {i}");
+                _logger.Info(this.GetType(), $"Попытка {i}");
 
                 await retryAction();
 
@@ -39,17 +39,17 @@ namespace Infrastructure.Implemtation.Polly
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex.Message);
+                    _logger.Error(this.GetType(), ex.Message);
                 }
 
                 if (actResult?.IsSuccess == true)
                 {
-                    _logger.Info("Poll success");
+                    _logger.Info(this.GetType(), "Poll success");
                     return actResult.Data;
                 }
 
                 if (i == _attemptCount - 1)
-                    _logger.Error("Error in polling");
+                    _logger.Error(this.GetType(), "Error in polling");
             }
 
             return default;
@@ -65,7 +65,7 @@ namespace Infrastructure.Implemtation.Polly
 
             for (int i = 0; i < _attemptCount; i++)
             {
-                _logger.Info($"Попытка {i}");
+                _logger.Info(this.GetType(), $"Попытка {i}");
 
                 await retryAction();
 
@@ -77,17 +77,17 @@ namespace Infrastructure.Implemtation.Polly
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex.Message);
+                    _logger.Error(this.GetType(), ex.Message);
                 }
 
                 if (actResult?.IsSuccess == true)
                 {
-                    _logger.Info("Poll success");
+                    _logger.Info(this.GetType(), "Poll success");
                     return actResult.Data;
                 }
 
                 if (i == _attemptCount - 1)
-                    _logger.Error("Error in polling");
+                    _logger.Error(this.GetType(), "Error in polling");
             }
 
             return default;

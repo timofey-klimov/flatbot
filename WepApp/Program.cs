@@ -23,7 +23,7 @@ namespace WepApp
             }
             catch (Exception ex)
             {
-                logger?.Error(ex.Message);
+                logger?.Error(typeof(Program), ex.Message);
             }
         }
 
@@ -38,7 +38,7 @@ namespace WepApp
             using var scope = services.CreateScope();
             using var db = scope.ServiceProvider.GetRequiredService<IDbContext>();
             await db.Database.MigrateAsync();
-            logger.Info("Migrate succesfully");
+            logger.Info(typeof(Program), "Migrate succesfully");
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

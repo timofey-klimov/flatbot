@@ -34,7 +34,7 @@ namespace Infrastructure.Implemtation.Bus
 
         public async Task Publish(IEvent @event)
         {
-            _logger.Info($"Publish event {@event.GetType().Name}");
+            _logger.Info(this.GetType(),$"Publish event {@event.GetType().Name}");
 
             var messageType = @event.GetType();
 
@@ -44,7 +44,7 @@ namespace Infrastructure.Implemtation.Bus
 
             if (handler == null)
             {
-                _logger.Error($"Handler for message {@event.GetType().Name} not found");
+                _logger.Error(this.GetType(), $"Handler for message {@event.GetType().Name} not found");
             }
 
             using (var scope = _factory.CreateScope())
@@ -64,7 +64,7 @@ namespace Infrastructure.Implemtation.Bus
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error($"Exception in {service.GetTypeName()}, {ex.Message}");
+                    _logger.Error(this.GetType(), $"Exception in {service.GetTypeName()}, {ex.Message}");
                 }
             }
         }

@@ -12,7 +12,6 @@ namespace Infrastructure.Implemtation.Logger
         private Action<string> writeInfo;
         private Action<string> writeDebug;
 
-
         public LoggerService(
             Action<string> writeError,
             Action<string> writeInfo,
@@ -23,19 +22,22 @@ namespace Infrastructure.Implemtation.Logger
             this.writeDebug = writeDebug;
         }
 
-        public void Error(string message)
+        public void Error(Type errorPlace, string message)
         {
-            writeError(message);
+            var typedMessage = $"{errorPlace.FullName}: {message}";
+            writeError(typedMessage);
         }
 
-        public void Info(string message)
+        public void Info(Type infoPlace, string message)
         {
-            writeInfo(message);
+            var typedMessage = $"{infoPlace.FullName}: {message}";
+            writeInfo(typedMessage);
         }
 
-        public void Debug(string message)
+        public void Debug(Type debugPlace, string message)
         {
-            writeDebug(message);
+            var typedMessage = $"{debugPlace.FullName}: {message}";
+            writeDebug(typedMessage);
         }
     }
 }

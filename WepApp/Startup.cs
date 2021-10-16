@@ -79,7 +79,9 @@ namespace WepApp
             services.AddTransient<ICianHttpClient, CianHttpClient>();
             services.AddSingleton<ITelegramMessageSender, TelegramMessageSender>(x =>
             {
-                return new TelegramMessageSender(Configuration.GetSection("ClientAppUrl").Get<string>());
+                return new TelegramMessageSender(
+                    Configuration.GetSection("ClientAppUrl").Get<string>(),
+                    x.GetRequiredService<ILoggerService>());
             });
             services.AddTransient<IProxyManager, ProxyManager>();
             services.AddTransient<INotificationCreatorFactory, NotificationCreatorFactrory>();

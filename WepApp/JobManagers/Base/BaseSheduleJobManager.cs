@@ -38,7 +38,7 @@ namespace WepApp.JobManagers.Base
 
         public async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            Logger.Info($"Start {typeof(T).Name}");
+            Logger.Info(this.GetType(), $"Start {typeof(T).Name}");
 
             using (var scope = ScopeFactory.CreateScope())
             {
@@ -65,12 +65,14 @@ namespace WepApp.JobManagers.Base
                     _stateManager.RunJob();
 
                     var service = scope.ServiceProvider.GetRequiredService<T>();
-                    service.ExecuteAsync(stoppingToken).Wait();
+                    await service.ExecuteAsync(stoppingToken);
 
                     FinishEvent?.Invoke(this.GetType(), JobStatusDto.Success, default);
                 }
                 catch (Exception ex)
                 {
+                    Logger.Error(this.GetType(), ex.Message);
+
                     string message;
                     if (ex.InnerException is ExceptionBase eBase)
                     {

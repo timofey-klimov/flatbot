@@ -20,7 +20,7 @@ namespace WepApp.JobManagers
 
         public override CanExecuteResult CanExecute(ICollection<JobManagerDto> runningJobs)
         {
-            if (DateTime.Now.AddHours(3).Hour <= 8)
+            if (DateTime.Now.AddHours(3).Hour < 8)
                 return CanExecuteResult.JobCannotExecute(Infrastructure.Interfaces.Jobs.Dto.JobStatusDto.DateTimeNotInRange);
 
             return CanExecuteResult.JobCanExecute();
