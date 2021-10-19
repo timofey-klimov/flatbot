@@ -24,7 +24,7 @@ namespace Infrastructure.Implemtation.DataAccess
         }
 
         public DbSet<Flat> Flats { get; set; }
-        public DbSet<Proxy> Proxies { get; set; }
+        public DbSet<Entities.Models.Proxy> Proxies { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<District> Districts { get; set; }
         public DbSet<Image> Images { get; set; }

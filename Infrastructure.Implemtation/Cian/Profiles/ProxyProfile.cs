@@ -8,7 +8,7 @@ namespace Infrastructure.Implemtation.Cian.Profiles
     {
         public ProxyProfile()
         {
-            CreateMap<Proxy, ProxyDto>();
+            CreateMap<Entities.Models.Proxy, ProxyDto>();
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Infrastructure.Interfaces.DataAccess
     {
         DbSet<Flat> Flats { get; }
 
-        DbSet<Proxy> Proxies { get; }
+        DbSet<Entities.Models.Proxy> Proxies { get; }
 
         DbSet<User> Users { get; }
 

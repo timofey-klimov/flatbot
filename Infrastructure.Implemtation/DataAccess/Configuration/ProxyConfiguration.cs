@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Implemtation.DataAccess.Configuration
 {
-    public class ProxyConfiguration : IEntityTypeConfiguration<Proxy>
+    public class ProxyConfiguration : IEntityTypeConfiguration<Entities.Models.Proxy>
     {
-        public void Configure(EntityTypeBuilder<Proxy> builder)
+        public void Configure(EntityTypeBuilder<Entities.Models.Proxy> builder)
         {
             builder.HasKey(x => x.Id);
 

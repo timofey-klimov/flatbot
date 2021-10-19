@@ -41,8 +41,8 @@ namespace WepApp.HostedServices.SheduleManager
 
         private void StartJobs(object state)
         {
-            if (_env.IsDevelopment())
-                return;
+            //if (_env.IsDevelopment())
+            //    return;
 
             var token = (CancellationToken)state;
 
