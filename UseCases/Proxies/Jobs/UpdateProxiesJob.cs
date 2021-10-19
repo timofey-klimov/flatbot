@@ -44,18 +44,25 @@ namespace UseCases.Proxies.Jobs
             {
                 var task = Task.Run(async () =>
                 {
-                    var scope = _scopeFactory.CreateScope();
-                    var dbContext = scope.ServiceProvider.GetRequiredService<IDbContext>();
-
-                    _logger.Info(this.GetType(), $"start check old proxy {proxy.Ip} {proxy.Port}");
-
-                    var result = await _proxyHttpClient.CheckProxyAsync(proxy.Ip, proxy.Port);
-
-                    if (!result)
+                    try
                     {
-                        var proxyToDelete = await dbContext.Proxies.FirstOrDefaultAsync(x => x.Id == proxy.Id);
-                        dbContext.Proxies.Remove(proxyToDelete);
-                        await _dbContext.SaveChangesAsync();
+                        using var scope = _scopeFactory.CreateScope();
+                        var dbContext = scope.ServiceProvider.GetRequiredService<IDbContext>();
+
+                        _logger.Info(this.GetType(), $"start check old proxy {proxy.Ip} {proxy.Port}");
+
+                        var result = await _proxyHttpClient.CheckProxyAsync(proxy.Ip, proxy.Port);
+
+                        if (!result)
+                        {
+                            var proxyToDelete = await dbContext.Proxies.FirstOrDefaultAsync(x => x.Id == proxy.Id);
+                            dbContext.Proxies.Remove(proxyToDelete);
+                            await dbContext.SaveChangesAsync();
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        _logger.Error(this.GetType(), ex.Message);
                     }
                 });
 
@@ -63,6 +70,8 @@ namespace UseCases.Proxies.Jobs
             }
 
             await Task.WhenAll(tasks);
+
+            _logger.Info(this.GetType(), "Finish check old proxies");
 
             tasks = new List<Task>();
 
@@ -72,18 +81,25 @@ namespace UseCases.Proxies.Jobs
             {
                 var task = Task.Run(async () =>
                 {
-                    _logger.Info(this.GetType(), $"start new proxy {hidemyProxy.Ip} {hidemyProxy.Port}");
-                    var scope = _scopeFactory.CreateScope();
-
-                    var dbContext = scope.ServiceProvider.GetRequiredService<IDbContext>();
-
-                    var result = await _proxyHttpClient.CheckProxyAsync(hidemyProxy.Ip, hidemyProxy.Port);
-
-                    if (result && await dbContext.Proxies.FirstOrDefaultAsync(x => x.Ip == hidemyProxy.Ip && x.Port == hidemyProxy.Port) == null)
+                    try
                     {
-                        var proxyToCreate = new Entities.Models.Proxy() { Ip = hidemyProxy.Ip, Port = hidemyProxy.Port };
-                        await dbContext.Proxies.AddAsync(proxyToCreate);
-                        await dbContext.SaveChangesAsync();
+                        _logger.Info(this.GetType(), $"start new proxy {hidemyProxy.Ip} {hidemyProxy.Port}");
+                        using var scope = _scopeFactory.CreateScope();
+
+                        var dbContext = scope.ServiceProvider.GetRequiredService<IDbContext>();
+
+                        var result = await _proxyHttpClient.CheckProxyAsync(hidemyProxy.Ip, hidemyProxy.Port);
+
+                        if (result && await dbContext.Proxies.FirstOrDefaultAsync(x => x.Ip == hidemyProxy.Ip && x.Port == hidemyProxy.Port) == null)
+                        {
+                            var proxyToCreate = new Entities.Models.Proxy() { Ip = hidemyProxy.Ip, Port = hidemyProxy.Port };
+                            await dbContext.Proxies.AddAsync(proxyToCreate);
+                            await dbContext.SaveChangesAsync();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error(this.GetType(), ex.Message);
                     }
                 });
 
@@ -91,6 +107,8 @@ namespace UseCases.Proxies.Jobs
             }
 
             await Task.WhenAll(tasks);
+
+            _logger.Info(this.GetType(), "Finish check new proxies");
 
             _logger.Info(this.GetType(), "Finish UpdateProxiesJob");
         }

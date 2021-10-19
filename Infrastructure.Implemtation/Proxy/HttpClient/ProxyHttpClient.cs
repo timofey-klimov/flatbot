@@ -1,4 +1,5 @@
 ﻿using Infrastructure.Interfaces.Cian.Dto;
+using Infrastructure.Interfaces.Logger;
 using Infrastructure.Interfaces.Proxy.HttpClient;
 using Newtonsoft.Json;
 using System;
@@ -14,13 +15,15 @@ namespace Infrastructure.Implemtation.Proxy.HttpClient
     public class ProxyHttpClient : IProxyHttpClient
     {
         private System.Net.Http.HttpClient _httpClient;
+        private readonly ILoggerService _logger;
 
         const string hidemiAddress = "https://hidemy.name/ru/api/proxylist.php?out=js&type=5&code=658844074094668";
         const string cianUrl = "https://www.cian.ru/cat.php?deal_type=rent&engine_version=2&offer_type=flat&p=7&region=1&room1=1&room2=1&type=4";
 
-        public ProxyHttpClient()
+        public ProxyHttpClient(ILoggerService loggerService)
         {
-            _httpClient = new System.Net.Http.HttpClient(); 
+            _httpClient = new System.Net.Http.HttpClient();
+            _logger = loggerService;
         }
 
 
@@ -37,10 +40,7 @@ namespace Infrastructure.Implemtation.Proxy.HttpClient
 
                 var result = await _httpClient.GetAsync(cianUrl);
 
-                if (result.IsSuccessStatusCode)
-                    return true;
-
-                return false;
+                return result?.IsSuccessStatusCode == true; 
             }
             catch (Exception ex)
             {
@@ -50,6 +50,8 @@ namespace Infrastructure.Implemtation.Proxy.HttpClient
 
         public async Task<ICollection<ProxyDto>> GetProxiesAsync()
         {
+            _httpClient = new System.Net.Http.HttpClient();
+
             var data = await _httpClient.GetAsync(hidemiAddress);
 
             var streamData = await data.Content.ReadAsStreamAsync();
