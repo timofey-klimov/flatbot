@@ -74,7 +74,7 @@ namespace WepApp.JobManagers.Base
                     Logger.Error(this.GetType(), ex.Message);
 
                     string message;
-                    if (ex.InnerException is ExceptionBase eBase)
+                    if (ex is ExceptionBase eBase)
                     {
                         message = eBase.Message;
                     }
