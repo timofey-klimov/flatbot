@@ -24,6 +24,7 @@ namespace Entities.Models
         public void ChangeNotificationType(NotificationType notificationType)
         {
             NotificationType = notificationType;
+            NextNotify = null;
         }
 
         public void Enable()
