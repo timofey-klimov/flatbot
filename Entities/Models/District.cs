@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Entities.Models.Base;
+using System.Collections.Generic;
 
 namespace Entities.Models
 {
-    public class District : Entity<int>
+    public class District : AgregateRoot<int>
     {
         public string Name { get; set; }
 

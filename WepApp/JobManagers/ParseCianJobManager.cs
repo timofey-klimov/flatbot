@@ -1,4 +1,5 @@
 ﻿using Infrastructure.Interfaces.Logger;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -13,13 +14,14 @@ namespace WepApp.JobManagers
     {
         public ParseCianJobManager(
             ILoggerService logger,
-            IServiceScopeFactory serviceScopeFactory)
-            :base(logger, serviceScopeFactory)
+            IServiceScopeFactory serviceScopeFactory,
+            IWebHostEnvironment hostEnvironment)
+            :base(logger, serviceScopeFactory, hostEnvironment)
         {
 
         }
 
-        public override CanExecuteResult CanExecute(ICollection<JobManagerDto> runningJobs)
+        protected  override CanExecuteResult CanExecute(ICollection<JobManagerDto> runningJobs)
         {
             if (DateTime.Now.AddHours(3).Hour < 8)
                 return CanExecuteResult.JobCannotExecute(Infrastructure.Interfaces.Jobs.Dto.JobStatusDto.DateTimeNotInRange);

@@ -8,7 +8,7 @@ namespace Infrastructure.Implemtation.DataAccess
         public FlatDbContext CreateDbContext(string[] args)
         {
             var optBuilder = new DbContextOptionsBuilder<FlatDbContext>();
-            optBuilder.UseSqlServer("Server=DESKTOP-1O8U0H5\\SQLEXPRESS;Database=FlatBot;Trusted_Connection=True;");
+            optBuilder.UseSqlServer("Server=DESKTOP-JDVB3O9\\SQLEXPRESS01;Database=FlatBot;Trusted_Connection=True;");
 
             return new FlatDbContext(optBuilder.Options);
         }

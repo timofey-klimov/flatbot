@@ -6,7 +6,9 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
+using Utils;
 
 namespace Infrastructure.Implemtation.Cian.HttpClient
 {
@@ -38,6 +40,9 @@ namespace Infrastructure.Implemtation.Cian.HttpClient
         }
         public async Task<byte[]> GetExcelFromCianAsync(string url)
         {
+            if (url.IsEmpty())
+                throw new ArgumentNullException(url);
+
             var response = await _client.GetAsync(url);
 
             if (!response.IsSuccessStatusCode)
@@ -48,7 +53,14 @@ namespace Infrastructure.Implemtation.Cian.HttpClient
 
         public async Task<string> GetPageAsync(string url)
         {
-            var response = await _client.GetAsync(url);
+            var ctsS = new CancellationTokenSource();
+            ctsS.CancelAfter(TimeSpan.FromSeconds(10));
+
+            var token = ctsS.Token;
+            if (url.IsEmpty())
+                throw new ArgumentNullException(url);
+
+            var response = await _client.GetAsync(url, token);
 
             if (!response.IsSuccessStatusCode)
                 throw new HttpException(nameof(HttpException));
@@ -59,6 +71,9 @@ namespace Infrastructure.Implemtation.Cian.HttpClient
 
         public async Task<byte[]> GetFileInBytesAsync(string url)
         {
+            if (url.IsEmpty())
+                throw new ArgumentNullException(url);
+
             var response = await _client.GetAsync(url);
 
             if (!response.IsSuccessStatusCode)
@@ -69,6 +84,9 @@ namespace Infrastructure.Implemtation.Cian.HttpClient
 
         public async Task<Stream> GetFileInStreamAsync(string url)
         {
+            if (url.IsEmpty())
+                throw new ArgumentNullException(url);
+
             var response = await _client.GetAsync(url);
 
             if (!response.IsSuccessStatusCode)

@@ -1,4 +1,5 @@
 ﻿using Entities.Models;
+using Entities.Models.FlatEntities;
 using Infrastructure.Interfaces.DataAccess;
 using Infrastructure.Interfaces.Logger;
 using Infrastructure.Interfaces.Telegram.Base;

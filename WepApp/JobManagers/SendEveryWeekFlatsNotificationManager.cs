@@ -1,4 +1,5 @@
 ﻿using Infrastructure.Interfaces.Logger;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,13 +13,14 @@ namespace WepApp.JobManagers
     {
         public SendEveryWeekFlatsNotificationManager(
             ILoggerService logger,
-            IServiceScopeFactory serviceScopeFactory)
-            :base(logger, serviceScopeFactory)
+            IServiceScopeFactory serviceScopeFactory,
+            IWebHostEnvironment webHostEnvironment)
+            :base(logger, serviceScopeFactory, webHostEnvironment)
         {
 
         }
 
-        public override CanExecuteResult CanExecute(ICollection<JobManagerDto> runningJobs)
+        protected override CanExecuteResult CanExecute(ICollection<JobManagerDto> runningJobs)
         {
             var concurrentJob = runningJobs.FirstOrDefault(x => x.Name == nameof(ParseCianJobManager));
 

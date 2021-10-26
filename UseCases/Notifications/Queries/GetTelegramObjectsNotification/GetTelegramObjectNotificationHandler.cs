@@ -22,30 +22,22 @@ namespace UseCases.Notifications.Queries.GetTelegramObjectsNotification
         private readonly INotificationCreatorFactory _creatorFactory;
         private readonly IFilterFlatService _filter;
         private readonly IFlatCountInMessageManager _flatCountManager;
-        private readonly IJobStateManager _stateManager;
 
         public GetTelegramObjectNotificationHandler(
             IDbContext dbContext,
             INotificationCreatorFactory creatorFactory,
             IFilterFlatService filterFlatService,
-            IFlatCountInMessageManager flatCountManager,
-            IJobStateManager jobStateManager
+            IFlatCountInMessageManager flatCountManager
             )
         {
             _dbContext = dbContext;
             _creatorFactory = creatorFactory;
             _filter = filterFlatService;
             _flatCountManager = flatCountManager;
-            _stateManager = jobStateManager;
         }
 
         public async Task<ICollection<NotificationDto>> Handle(GetTelegramObjectNotificationRequest request, CancellationToken cancellationToken)
         {
-            if (_stateManager.IsRunning)
-            {
-                return new List<NotificationDto>() { new NotificationDto() { HasImage = false, Message = "Сервера сейчас сильно нагружены, попробуйте позже" } };
-            }
-
             var user = await _dbContext
                  .Users
                  .Include(x => x.UserContext)

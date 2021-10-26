@@ -1,71 +1,50 @@
 ﻿using Infrastructure.Interfaces.Bus;
 using Infrastructure.Interfaces.Cian;
 using Infrastructure.Interfaces.Cian.Enums;
-using Infrastructure.Interfaces.Cian.Events.ExcelDownloaded;
-using Infrastructure.Interfaces.Cian.Events.FinishParseCian;
 using Infrastructure.Interfaces.DataAccess;
 using Infrastructure.Interfaces.Logger;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using UseCases.Flats.BackgroundJobs.Exceptions;
 
 namespace UseCases.Flats.BackgroundJobs
 {
     public abstract class CianJob
     {
-        protected IParseCianManager ParseCianManager;
+        protected IParseCianHtmlManager ParseCianManager;
         protected ILoggerService Logger;
         protected IEventBus Bus;
-        protected IDbContext DbContext;
         protected ICianUrlBuilder UrlBuilder;
+        protected IFinderCianFlatsByHtml FinderFlats;
+        protected ICianFlatsCreator FlatsCreator;
 
         public CianJob(
-            IParseCianManager cianService,
+            IParseCianHtmlManager cianService,
             ILoggerService logger,
-            IEventBus eventBus,
-            IDbContext dbContext,
-            ICianUrlBuilder urlBuilder)
+            ICianUrlBuilder urlBuilder,
+            IFinderCianFlatsByHtml creatorFlats,
+            ICianFlatsCreator cianFlatsCreator)
         {
             ParseCianManager = cianService;
             Logger = logger;
-            Bus = eventBus;
-            DbContext = dbContext;
             UrlBuilder = urlBuilder;
+            FinderFlats = creatorFlats;
+            FlatsCreator = cianFlatsCreator;
+            
         }
         protected async Task Execute(City city, CancellationToken token)
         {
-            var pagesCount = await ParseCianManager.GetPagesCountAsync(city);
+            if (token.IsCancellationRequested)
+                return;
 
-            Logger.Info(this.GetType(), $"Find {pagesCount} pages");
+            var url = UrlBuilder.BuildCianUrlByTimeInterval(city, 60);
+            var html = await ParseCianManager.GetHtmlAsync(url);
+            var findedFlatDto = await FinderFlats.ExecuteAsync(html);
 
-            if (pagesCount == 0)
-                throw new FindZeroPagesException("Cant find count of pages");
+            await FlatsCreator.CreateAsync(findedFlatDto);
 
-            await DbContext.ClearTableFlats(token);
-
-            for (int i = 0; i < pagesCount; i++)
-            {
-                Logger.Info(this.GetType(), $"Start {i} page");
-
-                try
-                {
-                    if (token.IsCancellationRequested)
-                        break;
-
-                    var url = UrlBuilder.BuildCianUrl(city, i);
-                    var html = await ParseCianManager.GetHtmlAsync(url);
-                    Bus.Publish(new HtmlDownloadedEvent(html));
-
-                    await Task.Delay(6000);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(this.GetType(), $"{ex.GetType().Name} {ex.Message}");
-                }
-            }
-
-            Bus.Publish(new FinishParseCianEvent());
+            //Bus.Publish(new FinishParseCianEvent());
         }
     }
 }

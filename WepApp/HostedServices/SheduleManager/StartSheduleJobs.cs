@@ -105,7 +105,7 @@ namespace WepApp.HostedServices.SheduleManager
                 if (jobManager == null)
                     throw new JobManagerNotFoundException(jobManagerType.Name);
 
-                var nextFireAt = TimeSpan.FromHours(jobManager.Period);
+                var nextFireAt = TimeSpan.FromMinutes(jobManager.Period);
 
                 if (jobStatusDto != JobStatusDto.Concurrent)
                 {
@@ -115,7 +115,12 @@ namespace WepApp.HostedServices.SheduleManager
                         timeJob.PlanningRunTime = timeJob.SheduleRunTime;
                     }
                     else
-                        jobManager.PlanningRunTime = jobManager.PlanningRunTime == null ? jobManager.RunTime + nextFireAt : jobManager.PlanningRunTime + nextFireAt;
+                    {
+                        if (jobManager.PlanningRunTime == null || jobManager.PlanningRunTime + nextFireAt < DateTime.Now)
+                            jobManager.PlanningRunTime = jobManager.RunTime + nextFireAt;
+                        else
+                            jobManager.PlanningRunTime = DateTime.Now + nextFireAt;
+                    }
                 }
                 else
                 {
