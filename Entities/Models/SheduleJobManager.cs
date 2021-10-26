@@ -1,12 +1,12 @@
 ﻿using Entities.Enums;
+using Entities.Models.Base;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Entities.Models
 {
-    public abstract class SheduleJobManager : Entity<int>
+    public abstract class SheduleJobManager : AgregateRoot<int>
     {
         public string JobManagerName { get; set; }
 

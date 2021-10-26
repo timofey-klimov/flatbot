@@ -1,9 +1,10 @@
 ﻿using Entities.Enums;
+using Entities.Models.Base;
 using System;
 
 namespace Entities.Models
 {
-    public class User : Entity<int>
+    public class User : AgregateRoot<int>
     {
         public long ChatId { get; private set; }
 

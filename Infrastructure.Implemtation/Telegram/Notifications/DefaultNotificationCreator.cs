@@ -1,4 +1,5 @@
 ﻿using Entities.Models;
+using Entities.Models.FlatEntities;
 using Infrastructure.Interfaces.Telegram.Base;
 using Infrastructure.Interfaces.Telegram.Dto;
 using System;

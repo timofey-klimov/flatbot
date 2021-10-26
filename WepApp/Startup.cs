@@ -2,12 +2,10 @@ using Infrastructure.Implemtation.BitmapManger;
 using Infrastructure.Implemtation.Bus;
 using Infrastructure.Implemtation.Cian;
 using Infrastructure.Implemtation.Cian.EventHandlers;
-using Infrastructure.Implemtation.Cian.FileManager;
 using Infrastructure.Implemtation.Cian.HttpClient;
 using Infrastructure.Implemtation.Cian.Profiles;
 using Infrastructure.Implemtation.Common;
 using Infrastructure.Implemtation.DataAccess;
-using Infrastructure.Implemtation.Jobs;
 using Infrastructure.Implemtation.JsonConverters;
 using Infrastructure.Implemtation.Logger;
 using Infrastructure.Implemtation.Polly;
@@ -17,11 +15,9 @@ using Infrastructure.Implemtation.Telegram.Factory;
 using Infrastructure.Interfaces.BitmapManager;
 using Infrastructure.Interfaces.Bus;
 using Infrastructure.Interfaces.Cian;
-using Infrastructure.Interfaces.Cian.FileManager;
 using Infrastructure.Interfaces.Cian.HttpClient;
 using Infrastructure.Interfaces.Common;
 using Infrastructure.Interfaces.DataAccess;
-using Infrastructure.Interfaces.Jobs;
 using Infrastructure.Interfaces.Logger;
 using Infrastructure.Interfaces.Poll;
 using Infrastructure.Interfaces.Proxy.HttpClient;
@@ -40,7 +36,6 @@ using UseCases.Proxies.Jobs;
 using UseCases.User.Base;
 using UseCases.User.Queries.Profiles;
 using WepApp.Extensions;
-using WepApp.HostedServices.EventBusSubscribers;
 using WepApp.HostedServices.SheduleManager;
 using WepApp.JobManagers;
 using WepApp.JobManagers.Profile;
@@ -89,7 +84,7 @@ namespace WepApp
             services.AddTransient<IProxyManager, ProxyManager>();
             services.AddTransient<INotificationCreatorFactory, NotificationCreatorFactrory>();
           
-            services.AddTransient<IParseCianManager, ParseCianManager>();
+            services.AddTransient<IParseCianHtmlManager, ParseCianHtmlManager>();
             services.AddScoped<IPollService, PollingService>(x =>
             {
                 return new PollingService(Configuration.GetSection("RetryCount").Get<int>(), 
@@ -104,11 +99,15 @@ namespace WepApp
                 return new FlatCountInMessageManager() { FlatCount = Configuration.GetSection("FlatCountInMessage").Get<int>() };
             });
             services.AddScoped<IImageManager, ImageManager>();
-            services.AddScoped<ICianFileManager, CianFileManager>();
             services.AddScoped<IProxyHttpClient, ProxyHttpClient>();
+            services.AddTransient<IFinderCianFlatsByHtml, FinderCianFlatsByHtml>();
+            services.AddTransient<ICianFlatJsonParser, CianFlatJsonParser>();
+            services.AddTransient<ICianFlatJsonCreator, CianFlatJsonCreator>();
+            services.AddTransient<ICianFlatsCreator, CianFlatsCreator>();
 
             //EventBustSubsribers
-            services.AddHostedService<CianSubscribers>();
+
+            //SheduleJobManager
             services.AddHostedService<StartSheduleJobs>();
 
             //Jobs
@@ -116,7 +115,6 @@ namespace WepApp
             services.AddTransient<SendEveryDayFlatsNotificationJob>();
             services.AddTransient<SendEveryWeekFlatsNotificationJob>();
             services.AddTransient<UpdateProxiesJob>();
-            services.AddSingleton<IJobStateManager, JobStateManager>();
 
             //Managers
             services.AddTransient<ParseCianJobManager>();
@@ -125,7 +123,6 @@ namespace WepApp
             services.AddTransient<UpdateProxiesJobManager>();
 
             //EventHandlers
-            services.AddTransient<HtmlDownloadHandler>();
             services.AddTransient<SendNotificationsHandler>();
 
 

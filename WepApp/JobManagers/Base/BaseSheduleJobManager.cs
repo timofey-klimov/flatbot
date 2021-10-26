@@ -5,7 +5,9 @@ using Infrastructure.Interfaces.DataAccess;
 using Infrastructure.Interfaces.Jobs;
 using Infrastructure.Interfaces.Jobs.Dto;
 using Infrastructure.Interfaces.Logger;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,19 +24,21 @@ namespace WepApp.JobManagers.Base
         protected ILoggerService Logger;
         protected IServiceScopeFactory ScopeFactory;
         protected T HandleJobService;
-        private IJobStateManager _stateManager;
+        protected IWebHostEnvironment WebHostEnvironment;
 
         public event Action<Type, JobStatusDto, string> FinishEvent;
 
         public BaseSheduleJobManager(
             ILoggerService logger,
-            IServiceScopeFactory serviceScopeFactory)
+            IServiceScopeFactory serviceScopeFactory,
+            IWebHostEnvironment env)
         {
             Logger = logger;
             ScopeFactory = serviceScopeFactory;
+            WebHostEnvironment = env;
         }
 
-        public abstract CanExecuteResult CanExecute(ICollection<JobManagerDto> runningJobs);
+        protected abstract CanExecuteResult CanExecute(ICollection<JobManagerDto> runningJobs);
 
         public async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -55,15 +59,12 @@ namespace WepApp.JobManagers.Base
 
                     var canExecuteResult = CanExecute(jobManagers);
 
-                    if (canExecuteResult.CanExecute == false)
+                    if (!WebHostEnvironment.IsDevelopment() && canExecuteResult.CanExecute == false)
                     {
                         FinishEvent?.Invoke(this.GetType(), canExecuteResult.Status.Value, default);
                         return;
                     }
                    
-                    _stateManager = scope.ServiceProvider.GetRequiredService<IJobStateManager>();
-                    _stateManager.RunJob();
-
                     var service = scope.ServiceProvider.GetRequiredService<T>();
                     await service.ExecuteAsync(stoppingToken);
 

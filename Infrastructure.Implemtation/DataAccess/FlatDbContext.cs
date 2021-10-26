@@ -1,5 +1,6 @@
 ﻿using Entities.Models;
 using Entities.Models.Base;
+using Entities.Models.FlatEntities;
 using Infrastructure.Interfaces.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;

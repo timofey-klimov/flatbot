@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Interfaces.Cian
 {
-    public interface IParseCianManager
+    public interface IParseCianHtmlManager
     {
         Task<int> GetPagesCountAsync(City city);
 

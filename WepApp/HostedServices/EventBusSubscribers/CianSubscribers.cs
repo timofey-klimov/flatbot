@@ -20,7 +20,6 @@ namespace WepApp.HostedServices.EventBusSubscribers
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _bus.Subscribe<HtmlDownloadHandler, HtmlDownloadedEvent>();
             _bus.Subscribe<SendNotificationsHandler, FinishParseCianEvent>();
 
             return Task.CompletedTask;

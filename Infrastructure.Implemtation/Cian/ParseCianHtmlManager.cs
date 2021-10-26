@@ -15,14 +15,14 @@ using System.Collections.Generic;
 
 namespace Infrastructure.Implemtation.Cian
 {
-    public class ParseCianManager : IParseCianManager
+    public class ParseCianHtmlManager : IParseCianHtmlManager
     {
         private readonly ICianHttpClient _cianClient;
         private readonly IPollService _pollService;
         private readonly ILoggerService _logger;
         private readonly ICianUrlBuilder _cianUrlBuilder;
 
-        public ParseCianManager(
+        public ParseCianHtmlManager(
             ICianHttpClient httpCLient,
             IPollService pollService,
             ILoggerService logger,
@@ -143,7 +143,7 @@ namespace Infrastructure.Implemtation.Cian
 
             for (int pageNumber = 0; pageNumber < int.MaxValue; pageNumber += 8)
             {
-                var url = _cianUrlBuilder.BuildCianUrl(city, pageNumber);
+                var url = _cianUrlBuilder.BuildCianUrlByPage(city, pageNumber);
 
                 string content = string.Empty;
 

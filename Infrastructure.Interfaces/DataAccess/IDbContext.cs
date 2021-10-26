@@ -1,4 +1,5 @@
 ﻿using Entities.Models;
+using Entities.Models.FlatEntities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System;
