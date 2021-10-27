@@ -8,5 +8,6 @@ namespace Entities.Models
         public string Name { get; set; }
 
         public ICollection<UserContext> UserContexts { get; set; }
+
     }
 }

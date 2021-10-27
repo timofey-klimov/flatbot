@@ -39,7 +39,7 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
                 .Where(x => x.NotificationContext.IsActive == true && x.NotificationContext.NotificationType == Entities.Enums.NotificationType.Default)
                 .Include(x => x.NotificationContext)
                 .Include(x => x.UserContext)
-                .ThenInclude(x => x.Disctricts)
+                .ThenInclude(x => x.Districts)
                 .ToListAsync();
 
             foreach (var user in users)

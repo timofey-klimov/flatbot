@@ -28,7 +28,6 @@ namespace Infrastructure.Implemtation.DataAccess
         public DbSet<Entities.Models.Proxy> Proxies { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<District> Districts { get; set; }
-        public DbSet<Image> Images { get; set; }
         public DbSet<SheduleJobManager> SheduleJobManagers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

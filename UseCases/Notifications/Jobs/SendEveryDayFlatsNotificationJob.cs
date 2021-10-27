@@ -43,7 +43,7 @@ namespace UseCases.Notifications.Jobs
                     &&
                     x.NotificationContext.NextNotify.Value.Month == DateTime.Now.Month)))
                 .Include(x => x.UserContext)
-                .ThenInclude(x => x.Disctricts)
+                .ThenInclude(x => x.Districts)
                 .Include(x => x.NotificationContext)
                 .ToListAsync(token);
 

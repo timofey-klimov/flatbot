@@ -33,16 +33,16 @@ namespace Infrastructure.Implemtation.Telegram.NotificationCreators
 
             foreach (var flat in flats)
             {
-                var image = await _dbContext.Images.FirstOrDefaultAsync(x => x.CiandId == flat.CianId);
+                //var image = await _dbContext.Images.FirstOrDefaultAsync(x => x.CiandId == flat.CianId);
 
-                if (image == null || image.Data == null)
-                {
-                    items.Add(new NotificationDto() { HasImage = false, Message = CreateNotificationMessage(flat) });
-                }
-                else
-                {
-                    items.Add(new NotificationDto() { HasImage = true, Message = CreateNotificationMessage(flat), Image = image.Data });
-                }
+                //if (image == null || image.Data == null)
+                //{
+                //    items.Add(new NotificationDto() { HasImage = false, Message = CreateNotificationMessage(flat) });
+                //}
+                //else
+                //{
+                //    items.Add(new NotificationDto() { HasImage = true, Message = CreateNotificationMessage(flat), Image = image.Data });
+                //}
             }
 
             stopWatch.Stop();
@@ -51,6 +51,11 @@ namespace Infrastructure.Implemtation.Telegram.NotificationCreators
             _logger.Info(this.GetType(), $"Время выполнения {nameof(CreateAsync)}: {time}");
 
             return items;
+        }
+
+        public Task<NotificationDto> CreateAsync(Flat flat)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

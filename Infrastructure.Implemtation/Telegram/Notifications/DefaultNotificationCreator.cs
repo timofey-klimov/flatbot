@@ -29,5 +29,10 @@ namespace Infrastructure.Implemtation.Telegram.NotificationCreators
 
             return items;
         }
+
+        public async Task<NotificationDto> CreateAsync(Flat flat)
+        {
+            return new NotificationDto() { Message = CreateNotificationMessage(flat) };
+        }
     }
 }

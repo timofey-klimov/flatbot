@@ -21,7 +21,7 @@ namespace UseCases.Distincts.Commands.UpdateUsersDistincts
         {
             var user = await _dbContext.Users
                 .Include(x => x.UserContext)
-                .ThenInclude(x => x.Disctricts)
+                .ThenInclude(x => x.Districts)
                 .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
 
             if (user == null)
@@ -32,7 +32,7 @@ namespace UseCases.Distincts.Commands.UpdateUsersDistincts
             if (district == null)
                 throw new DistrictNotFoundException("No such district");
 
-            user.UserContext.Disctricts.Add(district);
+            user.UserContext.AddDistrict(district);
 
             await _dbContext.SaveChangesAsync();
 

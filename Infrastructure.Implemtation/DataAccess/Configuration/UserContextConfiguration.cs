@@ -16,13 +16,14 @@ namespace Infrastructure.Implemtation.DataAccess.Configuration
             builder.Property(x => x.MaximumPrice)
                 .HasColumnType("decimal(18,2)");
 
-            builder.Property(x => x.PostedNotifications)
-                .HasColumnType("nvarchar(max)");
 
-            builder.Ignore(x => x.NotificationsList);
+            builder.Metadata
+                .FindNavigation(nameof(UserContext.PostedNotifications))
+                .SetField("_postedNotifications");
 
-            builder.HasMany(x => x.Disctricts)
-                .WithMany(x => x.UserContexts);
+            builder.Metadata
+                .FindNavigation(nameof(UserContext.UserRoomCounts))
+                .SetField("_roomCounts");
         }
     }
 }

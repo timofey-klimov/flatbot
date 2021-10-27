@@ -26,8 +26,8 @@ namespace Infrastructure.Implemtation.Common
             if (context == null)
                 throw new ArgumentException(nameof(UserContext));
 
-            if (context.Disctricts == null)
-                throw new ArgumentException(nameof(context.Disctricts));
+            if (context.Districts == null)
+                throw new ArgumentException(nameof(context.Districts));
 
             var flats = await _dbContext.Flats
                 .Include(x => x.Address)
@@ -43,8 +43,8 @@ namespace Infrastructure.Implemtation.Common
                         && x.PriceInfo.Price >= context.MinimumPrice
                         && x.UndergroundInfos.Where(x => x.Time <= context.TimeToMetro) != null
                         && x.CurrentFloor >= context.MinimumFloor
-                        && (!context.Disctricts.Any() || context.Disctricts.Contains(x.Address.Okrug))
-                        && !context.NotificationsList.Value.Contains(x.CianId))
+                        && (!context.Districts.Any() || context.Districts.Contains(x.Address.Okrug))
+                        && !context.PostedNotifications.Contains(x.CianId))
                 .AsNoTracking()
                 .OrderBy(x => x.PriceInfo.Price)
                 .Take(takeCount)

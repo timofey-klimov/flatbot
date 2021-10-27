@@ -5,6 +5,7 @@ using Infrastructure.Implemtation.Cian.EventHandlers;
 using Infrastructure.Implemtation.Cian.HttpClient;
 using Infrastructure.Implemtation.Cian.Profiles;
 using Infrastructure.Implemtation.Common;
+using Infrastructure.Implemtation.Common.EventHandlers;
 using Infrastructure.Implemtation.DataAccess;
 using Infrastructure.Implemtation.JsonConverters;
 using Infrastructure.Implemtation.Logger;
@@ -36,6 +37,7 @@ using UseCases.Proxies.Jobs;
 using UseCases.User.Base;
 using UseCases.User.Queries.Profiles;
 using WepApp.Extensions;
+using WepApp.HostedServices.EventBusSubscribers;
 using WepApp.HostedServices.SheduleManager;
 using WepApp.JobManagers;
 using WepApp.JobManagers.Profile;
@@ -106,7 +108,7 @@ namespace WepApp
             services.AddTransient<ICianFlatsCreator, CianFlatsCreator>();
 
             //EventBustSubsribers
-
+            services.AddHostedService<BusSubscribers>();
             //SheduleJobManager
             services.AddHostedService<StartSheduleJobs>();
 
@@ -124,6 +126,7 @@ namespace WepApp
 
             //EventHandlers
             services.AddTransient<SendNotificationsHandler>();
+            services.AddTransient<NewFlatCreatedHandler>();
 
 
             //frameworks

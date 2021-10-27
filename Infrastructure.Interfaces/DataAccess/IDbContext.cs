@@ -18,8 +18,6 @@ namespace Infrastructure.Interfaces.DataAccess
 
         DbSet<District> Districts { get; }
 
-        DbSet<Image> Images { get; }
-
         DbSet<SheduleJobManager> SheduleJobManagers { get; }
 
         DatabaseFacade Database { get; }

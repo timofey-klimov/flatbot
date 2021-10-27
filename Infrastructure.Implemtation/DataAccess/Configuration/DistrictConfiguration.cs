@@ -14,7 +14,7 @@ namespace Infrastructure.Implemtation.DataAccess.Configuration
                 .HasMaxLength(30);
 
             builder.HasMany(x => x.UserContexts)
-                .WithMany(x => x.Disctricts);
+                .WithMany(x => x.Districts);
 
             builder.HasData(
                 new District[]

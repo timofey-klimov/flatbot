@@ -33,9 +33,9 @@ namespace UseCases.District.Queries
 
             var userDistricts = await _dbContext.Users
                 .Include(x => x.UserContext)
-                .ThenInclude(x => x.Disctricts)
+                .ThenInclude(x => x.Districts)
                 .Where(x => x.ChatId == request.ChatId)
-                .Select(x => x.UserContext.Disctricts)
+                .Select(x => x.UserContext.Districts)
                 .FirstOrDefaultAsync();
 
             var userCollection = _mapper.Map<DistrictDto[]>(userDistricts);

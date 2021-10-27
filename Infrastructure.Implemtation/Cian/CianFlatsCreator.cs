@@ -1,12 +1,12 @@
-﻿using Infrastructure.Interfaces.Cian;
+﻿using Infrastructure.Interfaces.Bus;
+using Infrastructure.Interfaces.Cian;
 using Infrastructure.Interfaces.Cian.Dto;
+using Infrastructure.Interfaces.Common.Events;
 using Infrastructure.Interfaces.DataAccess;
 using Infrastructure.Interfaces.Logger;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Implemtation.Cian
@@ -17,17 +17,20 @@ namespace Infrastructure.Implemtation.Cian
         private readonly ICianFlatJsonCreator _jsonCreator;
         private readonly ICianFlatJsonParser _jsonParser;
         private readonly ILoggerService _logger;
+        private readonly IEventBus _bus;
 
         public CianFlatsCreator(
             IDbContext dbContext,
             ICianFlatJsonParser cianFlatJsonParser,
             ICianFlatJsonCreator cianFlatJsonCreator,
-            ILoggerService logger) 
+            ILoggerService logger,
+            IEventBus bus) 
         {
             _dbContext = dbContext;
             _jsonCreator = cianFlatJsonCreator;
             _jsonParser = cianFlatJsonParser;
             _logger = logger;
+            _bus = bus;
         }
 
         public async Task CreateAsync(IEnumerable<FindedFlatDto> flats)
@@ -43,7 +46,9 @@ namespace Infrastructure.Implemtation.Cian
 
                     var json = await _jsonCreator.CreateAsync(flat.CianUrl);
 
-                    await _jsonParser.ParseAsync(json, flat);
+                    var createdFlatId = await _jsonParser.ParseAsync(json, flat);
+
+                    _bus.Publish(new NewFlatCreatedEvent(createdFlatId));
                 }
                 catch (Exception ex)
                 {

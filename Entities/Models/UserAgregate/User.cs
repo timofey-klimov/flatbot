@@ -20,7 +20,7 @@ namespace Entities.Models
         {
             ChatId = chatId;
             UserName = userName;
-            UserContext = new UserContext(RoomCountContext.One, 40000, 25000, 10, 1);
+            UserContext = new UserContext(40000, 25000, 10, 1);
             NotificationContext = new NotificationContext(NotificationType.Default, true);
         }
 
@@ -70,5 +70,6 @@ namespace Entities.Models
 
             UserContext.ChangeTimeToMetro(time);
         }
+       
     }
 }

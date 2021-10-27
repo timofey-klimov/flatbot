@@ -15,6 +15,8 @@ namespace Entities.Models
 
         public bool IsActive { get; private set; }
 
+        private NotificationContext() { }
+
         public NotificationContext(NotificationType notificationType, bool isActive)
         {
             NotificationType = notificationType;

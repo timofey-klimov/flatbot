@@ -24,7 +24,7 @@ namespace UseCases.District.Commands.RemoveUserDistrict
         {
             var user = await _dbContext.Users
                 .Include(x => x.UserContext)
-                .ThenInclude(x => x.Disctricts)
+                .ThenInclude(x => x.Districts)
                 .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
 
             if (user == null)
@@ -35,7 +35,7 @@ namespace UseCases.District.Commands.RemoveUserDistrict
             if (district == null)
                 throw new DistrictNotFoundException("No such district");
 
-            user.UserContext.Disctricts.Remove(district);
+            user.UserContext.RemoveDistrict(district);
 
             await _dbContext.SaveChangesAsync();
 

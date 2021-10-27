@@ -21,4 +21,9 @@
     <ProjectReference Include="..\Infrastructure.Interfaces\Infrastructure.Interfaces.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="HtmlViewRenderer\" />
+    <Folder Include="Views\" />
+  </ItemGroup>
+
 </Project>

@@ -41,7 +41,7 @@ namespace UseCases.Notifications.Queries.GetTelegramObjectsNotification
             var user = await _dbContext
                  .Users
                  .Include(x => x.UserContext)
-                 .ThenInclude(x => x.Disctricts)
+                 .ThenInclude(x => x.Districts)
                  .Include(x => x.NotificationContext)
                  .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
 
