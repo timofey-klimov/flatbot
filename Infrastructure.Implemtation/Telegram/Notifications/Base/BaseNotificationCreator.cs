@@ -1,11 +1,7 @@
-﻿using Entities.Models;
-using Entities.Models.FlatEntities;
+﻿using Entities.Models.FlatEntities;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Utils;
 
 namespace Infrastructure.Implemtation.Telegram.NotificationCreators
 {
@@ -18,23 +14,96 @@ namespace Infrastructure.Implemtation.Telegram.NotificationCreators
 
             var builder = new StringBuilder();
 
-            var pledge = flat.PriceInfo.Deposit == null ? "Нет" : flat.PriceInfo.Deposit.ToString();
-            var comission = flat.PriceInfo.AgentFee == null ? "Нет" : $"{flat.PriceInfo.AgentFee}%";
+            foreach (var undergroundInfo in flat.UndergroundInfos)
+            {
+                switch (undergroundInfo.Type)
+                {
+                    case "walk":
+                        builder.Append($"<strong>м.{undergroundInfo.Name} {undergroundInfo.Time}мин. <i>&#127939;</i></strong>");
+                        break;
 
-            //builder.AppendLine("Новая квартира")
-            //    .AppendLine($"Цена: {price}")
-            //    .AppendLine($"Залог: {pledge}")
-            //    .AppendLine($"Комиссия: {comission}")
-            //    .AppendLine($"Метро: {flat.Metro}")
-            //    .AppendLine($"Адрес:{flat.Address}")
-            //    .AppendLine($"Площадь:{flat.FlatArea} кв.м")
-            //    .AppendLine($"Этаж: {flat.CurrentFloor}")
-            //    .AppendLine($"Этажей в доме: {flat.MaxFloor}")
-            //    .AppendLine($"Время до метро: {flat.TimeToMetro} минут {wayToGo}")
-            //    .AppendLine($"Ссылка: {flat.CianReference}")
-            //    .AppendLine(string.Empty);
+                    case "transport":
+                        builder.Append($"<strong>м.{undergroundInfo.Name} {undergroundInfo.Time}мин. <i>&#128663;</i></strong>");
+                        break;
+
+                }
+                builder.Append("\n");
+            }
+
+            builder.Append($"<i>&#127984</i> {flat.Address}");
+            builder.Append("\n");
+            builder.Append("\n");
+
+            builder.Append($"<strong>{flat.RoomsCount}-комн. квартира {flat.TotalArea}м, {flat.CurrentFloor}/{flat.FloorsCount}этаж</strong>");
+            builder.Append("\n");
+
+            if (flat.CellingHeight != null)
+            {
+                builder.Append($"<strong>Высота потолков {flat.CellingHeight}м</strong>");
+                builder.Append("\n");
+            }
+
+            if (flat?.BuildingInfo?.BuildYear != null)
+            {
+                builder.Append($"Год постройки {flat.BuildingInfo.BuildYear}");
+                builder.Append("\n");
+            }
+
+            if (flat?.BuildingInfo?.Type != null)
+            {
+                builder.Append($"Тип здания {GetBuildingTypeName(flat.BuildingInfo.Type)}");
+                builder.Append("\n");
+            }
+
+            builder.Append("\n");
+
+            builder.Append($"<strong>Цена {flat.PriceInfo.Price} руб.</strong>");
+            builder.Append("\n");
+
+            var comission = flat.PriceInfo?.AgentFee == null ? "Нет" : $"{flat.PriceInfo.AgentFee}%";
+            builder.Append($"<strong>Комиссия {comission}</strong>");
+            builder.Append("\n");
+
+            var deposit = flat.PriceInfo?.Deposit == null ? "Нет" : $"{flat.PriceInfo.Deposit} руб.";
+            builder.Append($"<strong>Депозит {deposit}</strong>");
+            builder.Append("\n");
+            builder.Append("\n");
+
+            builder.Append($"<a href=\"{flat.CianUrl}\"><i>&#128073;</i>Посмотреть подробнее...</a>");
+
+            builder.Append("\n");
+            builder.Append("\n");
+
+            if (flat?.Description != null)
+            {
+                var description = flat.Description;
+
+                if (flat.Description.Length > 120)
+                {
+                    description = description.Substring(0, 120) + "...";
+                }
+
+                builder.Append($"{description}");
+                builder.Append("\n");
+            }
+
 
             return builder.ToString();
         }
+
+        private string GetBuildingTypeName(string type)
+        {
+            var dictionary = new Dictionary<string, string>
+            {
+                { "block", "блочный" },
+                { "brick", "кирпичный" },
+                { "monolith", "монолитный" },
+                { "monolithBrick", "кирпичный  монолит" },
+                { "panel", "панельный" }
+            };
+
+            return dictionary[type];
+        }
     }
 }
+

@@ -135,7 +135,7 @@ namespace Infrastructure.Implemtation.Cian
 
             var deposit = payInfo.Value<int?>("deposit");
 
-            flat.UpdatePriceInfo(price, agentFee, deposit);
+            flat.UpdatePriceInfo(price, deposit, agentFee);
 
             var phonesInfo = offerData["phones"];
 

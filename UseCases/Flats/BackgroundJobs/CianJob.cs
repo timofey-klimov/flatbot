@@ -38,7 +38,7 @@ namespace UseCases.Flats.BackgroundJobs
             if (token.IsCancellationRequested)
                 return;
 
-            var url = UrlBuilder.BuildCianUrlByTimeInterval(city, 60);
+            var url = UrlBuilder.BuildCianUrlByTimeInterval(city, 1800);
             var html = await ParseCianManager.GetHtmlAsync(url);
             var findedFlatDto = await FinderFlats.ExecuteAsync(html);
 
