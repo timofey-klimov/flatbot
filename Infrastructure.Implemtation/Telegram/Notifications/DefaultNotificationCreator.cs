@@ -2,6 +2,7 @@
 using Entities.Models.FlatEntities;
 using Infrastructure.Interfaces.Telegram.Base;
 using Infrastructure.Interfaces.Telegram.Dto;
+using Infrastructure.Interfaces.Telegram.HostManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,12 @@ namespace Infrastructure.Implemtation.Telegram.NotificationCreators
 {
     public class DefaultNotificationCreator : BaseNotificationCreator, INotificationCreator
     {
-        public async Task<ICollection<NotificationDto>> CreateAsync(ICollection<Flat> flats)
+        public DefaultNotificationCreator(ITelegramClientHostManager hostManager) 
+            : base(hostManager)
+        {
+        }
+
+        public async Task<ICollection<NotificationDto>> CreateAsync(ICollection<Flat> flats, long chatId)
         {
             var items = new List<NotificationDto>(flats.Count);
 
@@ -21,7 +27,7 @@ namespace Infrastructure.Implemtation.Telegram.NotificationCreators
                 var notification = new NotificationDto
                 {
                     HasImage = false,
-                    Message = CreateNotificationMessage(flat)
+                    Message = CreateNotificationMessage(flat, chatId)
                 };
 
                 items.Add(notification);
@@ -30,9 +36,9 @@ namespace Infrastructure.Implemtation.Telegram.NotificationCreators
             return items;
         }
 
-        public async Task<NotificationDto> CreateAsync(Flat flat)
+        public async Task<NotificationDto> CreateAsync(Flat flat, long chatId)
         {
-            return new NotificationDto() { Message = CreateNotificationMessage(flat) };
+            return new NotificationDto() { Message = CreateNotificationMessage(flat, chatId) };
         }
     }
 }

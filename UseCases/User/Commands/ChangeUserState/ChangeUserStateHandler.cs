@@ -28,7 +28,7 @@ namespace UseCases.User.Commands.ChangeUserState
                 .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
 
             if (user == null)
-                throw new UserIsNullException(request.ChatId);
+                throw new UserNotFoundException(request.ChatId);
 
             var state = _mapper.Map<Entities.Enums.UserStates>(request.UserState);
 

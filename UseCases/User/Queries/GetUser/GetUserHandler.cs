@@ -29,7 +29,7 @@ namespace UseCases.User.Queries.GetUser
                 .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
 
             if (user == null)
-                throw new UserIsNullException(request.ChatId);
+                throw new UserNotFoundException(request.ChatId);
 
             return _mapper.Map<UserDto>(user);
         }

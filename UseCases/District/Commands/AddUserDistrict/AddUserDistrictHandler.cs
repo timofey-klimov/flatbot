@@ -25,7 +25,7 @@ namespace UseCases.Distincts.Commands.UpdateUsersDistincts
                 .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
 
             if (user == null)
-                throw new UserIsNullException(request.ChatId);
+                throw new UserNotFoundException(request.ChatId);
 
             var district = await _dbContext.Districts.FirstOrDefaultAsync(x => x.Name == request.DistrictName);
 

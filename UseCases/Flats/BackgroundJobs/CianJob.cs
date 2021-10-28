@@ -1,10 +1,6 @@
-﻿using Infrastructure.Interfaces.Bus;
-using Infrastructure.Interfaces.Cian;
+﻿using Infrastructure.Interfaces.Cian;
 using Infrastructure.Interfaces.Cian.Enums;
-using Infrastructure.Interfaces.DataAccess;
 using Infrastructure.Interfaces.Logger;
-using Microsoft.EntityFrameworkCore;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,7 +10,6 @@ namespace UseCases.Flats.BackgroundJobs
     {
         protected IParseCianHtmlManager ParseCianManager;
         protected ILoggerService Logger;
-        protected IEventBus Bus;
         protected ICianUrlBuilder UrlBuilder;
         protected IFinderCianFlatsByHtml FinderFlats;
         protected ICianFlatsCreator FlatsCreator;
@@ -38,13 +33,11 @@ namespace UseCases.Flats.BackgroundJobs
             if (token.IsCancellationRequested)
                 return;
 
-            var url = UrlBuilder.BuildCianUrlByTimeInterval(city, 1800);
+            var url = UrlBuilder.BuildCianUrlByTimeInterval(city, 180);
             var html = await ParseCianManager.GetHtmlAsync(url);
             var findedFlatDto = await FinderFlats.ExecuteAsync(html);
 
             await FlatsCreator.CreateAsync(findedFlatDto);
-
-            //Bus.Publish(new FinishParseCianEvent());
         }
     }
 }

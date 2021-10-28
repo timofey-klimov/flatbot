@@ -12,10 +12,16 @@ namespace UseCases.User.Commands.CreateUser
     {
         public string UserName { get; }
 
-        public CreateUserRequest(long chatId, string userName)
+        public string Name { get;  }
+
+        public string Surname { get;  }
+
+        public CreateUserRequest(long chatId, string userName, string name, string surname)
             : base(chatId)
         {
             UserName = userName;
+            Name = name;
+            Surname = surname;
         }
     }
 }

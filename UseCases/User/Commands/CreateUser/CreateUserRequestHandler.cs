@@ -20,7 +20,7 @@ namespace UseCases.User.Commands.CreateUser
 
             if (user == null)
             {
-                var createUser = new Entities.Models.User(request.ChatId, request.UserName);
+                var createUser = new Entities.Models.User(request.ChatId, request.UserName, request.Name, request.Surname);
 
                 await _dbContext.Users.AddAsync(createUser);
                 await _dbContext.SaveChangesAsync();

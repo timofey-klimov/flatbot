@@ -1,4 +1,5 @@
 ﻿using Entities.Models.FlatEntities;
+using Infrastructure.Interfaces.Telegram.HostManager;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,7 +8,13 @@ namespace Infrastructure.Implemtation.Telegram.NotificationCreators
 {
     public abstract class BaseNotificationCreator
     {
-        protected string CreateNotificationMessage(Flat flat)
+        private readonly ITelegramClientHostManager _hostManager;
+        public BaseNotificationCreator(ITelegramClientHostManager hostManager)
+        {
+            _hostManager = hostManager;
+        }
+
+        protected string CreateNotificationMessage(Flat flat, long chatId)
         {
             if (flat == null)
                 throw new ArgumentException(nameof(flat));
@@ -69,7 +76,7 @@ namespace Infrastructure.Implemtation.Telegram.NotificationCreators
             builder.Append("\n");
             builder.Append("\n");
 
-            builder.Append($"<a href=\"{flat.CianUrl}\"><i>&#128073;</i>Посмотреть подробнее...</a>");
+            builder.Append($"<a href=\"{_hostManager.HostUrl}/link/{flat.Id}/{chatId}\"><i>&#128073;</i>Посмотреть подробнее...</a>");
 
             builder.Append("\n");
             builder.Append("\n");

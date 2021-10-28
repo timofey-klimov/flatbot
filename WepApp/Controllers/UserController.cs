@@ -22,44 +22,44 @@ namespace WepApp.Controllers
     [Route("api/user")]
     public class UserController : BaseApiController
     {
-        public IMediator _mediator;
         public UserController(IMediator mediator)
+            : base(mediator)
         {
-            _mediator = mediator;
+            Mediator = mediator;
         }
 
         [HttpPut("{chatId}/{price}/minimum-price")]
         public async Task<ApiResponse> SetFlatMinimumPrice(long chatId, decimal price, CancellationToken token)
         {
-            await _mediator.Send(new SetFlatMinimumPriceRequest(chatId, price), token);
+            await Mediator.Send(new SetFlatMinimumPriceRequest(chatId, price), token);
             return Ok();
         }
 
-        [HttpPost("{chatId}/{userName}/create")]
-        public async Task<ApiResponse> CreateUser(long chatId, string userName, CancellationToken token)
+        [HttpPost("{chatId}/create")]
+        public async Task<ApiResponse> CreateUser(long chatId, [FromBody] CreateUserDto dto, CancellationToken token)
         {
-            await _mediator.Send(new CreateUserRequest(chatId, userName), token);
+            await Mediator.Send(new CreateUserRequest(chatId, dto.Username, dto.Name, dto.Surname), token);
             return Ok();
         }
 
         [HttpPut("{chatId}/{price}/maximum-price")]
         public async Task<ApiResponse> SetFlatMaximumPrice(long chatId, decimal price, CancellationToken token)
         {
-            await _mediator.Send(new SetFlatMaximumPriceRequest(chatId, price), token);
+            await Mediator.Send(new SetFlatMaximumPriceRequest(chatId, price), token);
             return Ok();
         }
 
         [HttpPut("{chatId}/{number}/minimum-floor")]
         public async Task<ApiResponse> SetMinimumFloor(long chatId, int number, CancellationToken token)
         {
-            await _mediator.Send(new SetMinimumFloorRequest(chatId, number), token);
+            await Mediator.Send(new SetMinimumFloorRequest(chatId, number), token);
             return Ok();
         }
 
         [HttpPost("{chatId}/{timeToMetro}/set-time-to-metro")]
         public async Task<ApiResponse> SetTimeToMetro(long chatId, int timeToMetro, CancellationToken token)
         {
-            await _mediator.Send(new SetTimeToMetroRequest(chatId, timeToMetro), token);
+            await Mediator.Send(new SetTimeToMetroRequest(chatId, timeToMetro), token);
 
             return Ok();
         }
@@ -67,7 +67,7 @@ namespace WepApp.Controllers
         [HttpGet("{chatId}/profile")]
         public async Task<ApiResponse<string>> GetUserProfile(long chatId, CancellationToken token)
         {
-            var result = await _mediator.Send(new GetUserProfileRequest(chatId), token);
+            var result = await Mediator.Send(new GetUserProfileRequest(chatId), token);
 
             return Ok(result);
         }
@@ -75,7 +75,7 @@ namespace WepApp.Controllers
         [HttpGet("{chatId}")]
         public async Task<ApiResponse<UserDto>> GetUser(long chatId, CancellationToken token)
         {
-            var result = await _mediator.Send(new GetUserRequest(chatId), token);
+            var result = await Mediator.Send(new GetUserRequest(chatId), token);
 
             return Ok(result);
         }
@@ -83,7 +83,7 @@ namespace WepApp.Controllers
         [HttpPost("state/{chatId}/change")]
         public async Task<ApiResponse> ChangeState([FromBody] UserStateDto userStateDto, long chatId, CancellationToken token)
         {
-            var result = await _mediator.Send(new ChangeUserStateRequest(chatId, userStateDto.UserState), token);
+            var result = await Mediator.Send(new ChangeUserStateRequest(chatId, userStateDto.UserState), token);
 
             return Ok();
         }
@@ -91,7 +91,7 @@ namespace WepApp.Controllers
         [HttpGet("state/{chatId}/get")]
         public async Task<ApiResponse<UserStates>> GetUserState(long chatId, CancellationToken token)
         {
-            var result = await _mediator.Send(new GetUserStateRequest(chatId), token);
+            var result = await Mediator.Send(new GetUserStateRequest(chatId), token);
             return Ok(result);
         }
     }

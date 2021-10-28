@@ -49,7 +49,7 @@ namespace UseCases.Notifications.Queries.GetTelegramObjectsNotification
 
             var notificationCreator = _creatorFactory.Create(Infrastructure.Interfaces.Telegram.Model.NotificationCreationType.WithImage);
 
-            var notifications = await notificationCreator.CreateAsync(flats);
+            var notifications = await notificationCreator.CreateAsync(flats, user.ChatId);
 
             user.NotificationContext.CreateLastNotifyDateNow();
             user.UserContext.AddNotifications(flats.Select(x => x.CianId));

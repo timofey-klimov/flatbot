@@ -4,6 +4,7 @@ using Infrastructure.Interfaces.Cian;
 using Infrastructure.Interfaces.Cian.Dto;
 using Infrastructure.Interfaces.DataAccess;
 using Infrastructure.Interfaces.Logger;
+using Infrastructure.Interfaces.Telegram.HostManager;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using System;

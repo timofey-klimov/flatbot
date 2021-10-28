@@ -29,7 +29,7 @@ namespace UseCases.Notifications.Commands.SelectNotificationType
                 .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
 
             if (user == null)
-                throw new UserIsNullException(request.ChatId);
+                throw new UserNotFoundException(request.ChatId);
 
             var notType = _mapper.Map<NotificationType>(request.NotificationType);
 

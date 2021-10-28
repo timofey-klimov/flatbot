@@ -13,6 +13,7 @@ using Infrastructure.Implemtation.Polly;
 using Infrastructure.Implemtation.Proxy.HttpClient;
 using Infrastructure.Implemtation.Telegram;
 using Infrastructure.Implemtation.Telegram.Factory;
+using Infrastructure.Implemtation.Telegram.HostManager;
 using Infrastructure.Interfaces.BitmapManager;
 using Infrastructure.Interfaces.Bus;
 using Infrastructure.Interfaces.Cian;
@@ -23,6 +24,7 @@ using Infrastructure.Interfaces.Logger;
 using Infrastructure.Interfaces.Poll;
 using Infrastructure.Interfaces.Proxy.HttpClient;
 using Infrastructure.Interfaces.Telegram;
+using Infrastructure.Interfaces.Telegram.HostManager;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -106,6 +108,10 @@ namespace WepApp
             services.AddTransient<ICianFlatJsonParser, CianFlatJsonParser>();
             services.AddTransient<ICianFlatJsonCreator, CianFlatJsonCreator>();
             services.AddTransient<ICianFlatsCreator, CianFlatsCreator>();
+            services.AddSingleton<ITelegramClientHostManager, TelegramClientHostManager>(x =>
+            {
+                return new TelegramClientHostManager(Configuration.GetSection("ClientAppUrl").Get<string>());
+            });
 
             //EventBustSubsribers
             services.AddHostedService<BusSubscribers>();

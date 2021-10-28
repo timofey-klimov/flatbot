@@ -50,7 +50,7 @@ namespace Infrastructure.Implemtation.Common.EventHandlers
             {
                 var notifyCreator = _notificationFactory.Create(Interfaces.Telegram.Model.NotificationCreationType.Default);
 
-                var notification = await notifyCreator.CreateAsync(flat);
+                var notification = await notifyCreator.CreateAsync(flat, user.ChatId);
 
                 await _messageSender.SendMessagesAsync(new[] { notification }, user.ChatId);
             }

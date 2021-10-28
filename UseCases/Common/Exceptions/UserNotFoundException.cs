@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace UseCases.Common.Exceptions
 {
-    public class UserIsNullException : ExceptionBase
+    public class UserNotFoundException : ExceptionBase
     {
-        public UserIsNullException(long chatId)
+        public UserNotFoundException(long chatId)
             : base($"No such user: {chatId}")
         {
 
