@@ -35,5 +35,10 @@ namespace Entities.Models.FlatEntities
             House = house;
             Okrug = okrug;
         }
+
+        public override string ToString()
+        {
+            return $"{City} р-н {Raion} ул {Street} д{House}";
+        }
     }
 }

@@ -11,8 +11,8 @@ namespace Infrastructure.Interfaces.Telegram.Base
 {
     public interface INotificationCreator
     {
-        Task<ICollection<NotificationDto>> CreateAsync(ICollection<Flat> flats);
+        Task<ICollection<NotificationDto>> CreateAsync(ICollection<Flat> flats, long chatId);
 
-        Task<NotificationDto> CreateAsync(Flat flat);
+        Task<NotificationDto> CreateAsync(Flat flat, long chatId);
     }
 }

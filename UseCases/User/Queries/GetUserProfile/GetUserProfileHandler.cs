@@ -26,7 +26,7 @@ namespace UseCases.User.Queries.GetUserProfile
                 .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
 
             if (user == null)
-                throw new UserIsNullException(request.ChatId);
+                throw new UserNotFoundException(request.ChatId);
 
             var userContext = user.UserContext;
 

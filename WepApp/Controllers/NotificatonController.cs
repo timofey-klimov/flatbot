@@ -1,7 +1,6 @@
 ﻿using Infrastructure.Interfaces.Telegram.Dto;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UseCases.Notifications.Commands.DisableNotifications;
@@ -18,24 +17,24 @@ namespace WepApp.Controllers
     [Route("api/notify")]
     public class NotificatonController : BaseApiController
     {
-        private IMediator _mediator;
         public NotificatonController(IMediator mediator)
+            : base(mediator)
         {
-            _mediator = mediator;
+            Mediator = mediator;
         }
 
 
         [HttpPut("{chatId}/enable")]
         public async Task<ApiResponse> EnableNotifications(long chatId)
         {
-            await _mediator.Send(new EnableNotificationsRequest(chatId));
+            await Mediator.Send(new EnableNotificationsRequest(chatId));
             return Ok();
         }
 
         [HttpPut("{chatId}/disable")]
         public async Task<ApiResponse> DisableNotifications(long chatId)
         {
-            await _mediator.Send(new DisableNotificationsRequest(chatId));
+            await Mediator.Send(new DisableNotificationsRequest(chatId));
 
             return Ok();
         }
@@ -44,7 +43,7 @@ namespace WepApp.Controllers
 
         public async Task<ApiResponse> UpdateNotificationType(long chatId, [FromBody] UpdateNotificationTypeDto dto)
         {
-            await _mediator.Send(new SelectNotificationTypeRequest(chatId, dto.Type));
+            await Mediator.Send(new SelectNotificationTypeRequest(chatId, dto.Type));
 
             return Ok();
         }
@@ -52,7 +51,7 @@ namespace WepApp.Controllers
         [HttpGet("telegram/{chatId}/messages")]
         public async Task<ApiResponse<string>> GetTelegramMessagesNotifications(long chatId)
         {
-            var result = await _mediator.Send(new GetTelegramMessagesNotificationRequest(chatId));
+            var result = await Mediator.Send(new GetTelegramMessagesNotificationRequest(chatId));
 
             return Ok(result);
         }
@@ -60,7 +59,7 @@ namespace WepApp.Controllers
         [HttpGet("telegram/{chatId}/objects")]
         public async Task<ApiResponse<ICollection<NotificationDto>>> GetTelegramObjectsNotifications(long chatId)
         {
-            var result = await _mediator.Send(new GetTelegramObjectNotificationRequest(chatId));
+            var result = await Mediator.Send(new GetTelegramObjectNotificationRequest(chatId));
 
             return Ok(result);
         }

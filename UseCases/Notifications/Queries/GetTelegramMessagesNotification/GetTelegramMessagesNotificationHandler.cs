@@ -48,7 +48,7 @@ namespace UseCases.Notifications.Queries.GetTelegramNotification
 
             var notificationCreator = _creatorFactory.Create(Infrastructure.Interfaces.Telegram.Model.NotificationCreationType.Default);
 
-            var messages = await notificationCreator.CreateAsync(flats);
+            var messages = await notificationCreator.CreateAsync(flats, user.ChatId);
 
 
             user.NotificationContext.CreateLastNotifyDateNow();

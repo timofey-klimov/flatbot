@@ -22,7 +22,7 @@ namespace UseCases.User.Commands.SetMaximumPrice
                 .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
 
             if (user == null)
-                throw new UserIsNullException(request.ChatId);
+                throw new UserNotFoundException(request.ChatId);
 
             user.UserContext.ChangeMaximumPrice(request.MaximumPrice);
 

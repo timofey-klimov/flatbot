@@ -51,7 +51,7 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
 
                 var notificationCreator = _creator.Create(Interfaces.Telegram.Model.NotificationCreationType.WithImage);
 
-                var messages = await notificationCreator.CreateAsync(flats);
+                var messages = await notificationCreator.CreateAsync(flats, user.ChatId);
 
                 var result = await _messageSender.SendMessagesAsync(messages, user.ChatId);
 

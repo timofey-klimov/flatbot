@@ -17,17 +17,15 @@ namespace WepApp.Controllers
     [Route("api/districts")]
     public class DistrictController : BaseApiController
     {
-        private readonly IMediator _mediator;
-
         public DistrictController(IMediator mediator)
+            : base(mediator)
         {
-            _mediator = mediator;
         }
 
         [HttpPost("add/{chatId}")]
         public async Task<ApiResponse> AddUserDistrict(long chatId, [FromBody] DistrictDto districtDto, CancellationToken token)
         {
-            await _mediator.Send(new AddUserDistrictRequest(chatId, districtDto.Name), token);
+            await Mediator.Send(new AddUserDistrictRequest(chatId, districtDto.Name), token);
 
             return Ok();
         }
@@ -35,7 +33,7 @@ namespace WepApp.Controllers
         [HttpPost("remove/{chatId}")]
         public async Task<ApiResponse> RemoveUserDistrict(long chatId, [FromBody] DistrictDto districtDto, CancellationToken token)
         {
-            await _mediator.Send(new RemoveUserDictrictRequest(chatId, districtDto.Name), token);
+            await Mediator.Send(new RemoveUserDictrictRequest(chatId, districtDto.Name), token);
 
             return Ok();
         }
@@ -43,7 +41,7 @@ namespace WepApp.Controllers
         [HttpGet("{chatId}")]
         public async Task<ApiResponse<ICollection<DistrictMenuDto>>> GetUsersDistricts(long chatId)
         {
-            var result = await _mediator.Send(new GetUsersDistrictsRequest(chatId));
+            var result = await Mediator.Send(new GetUsersDistrictsRequest(chatId));
 
             return Ok(result);
         }
@@ -51,7 +49,7 @@ namespace WepApp.Controllers
         [HttpGet]
         public async Task<ApiResponse<ICollection<DistrictDto>>> GetDistricts()
         {
-            var result = await _mediator.Send(new GetDistrictsRequest());
+            var result = await Mediator.Send(new GetDistrictsRequest());
 
             return Ok(result);
         }

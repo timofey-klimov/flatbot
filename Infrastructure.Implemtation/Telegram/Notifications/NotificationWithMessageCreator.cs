@@ -1,10 +1,9 @@
-﻿using Entities.Models;
-using Entities.Models.FlatEntities;
+﻿using Entities.Models.FlatEntities;
 using Infrastructure.Interfaces.DataAccess;
 using Infrastructure.Interfaces.Logger;
 using Infrastructure.Interfaces.Telegram.Base;
 using Infrastructure.Interfaces.Telegram.Dto;
-using Microsoft.EntityFrameworkCore;
+using Infrastructure.Interfaces.Telegram.HostManager;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -18,13 +17,15 @@ namespace Infrastructure.Implemtation.Telegram.NotificationCreators
 
         public NotificationWithMessageCreator(
             IDbContext dbContext, 
-            ILoggerService loggerService)
+            ILoggerService loggerService,
+            ITelegramClientHostManager hostManager)
+            : base(hostManager)
         {
             _dbContext = dbContext;
             _logger = loggerService;
         }
 
-        public async Task<ICollection<NotificationDto>> CreateAsync(ICollection<Flat> flats)
+        public async Task<ICollection<NotificationDto>> CreateAsync(ICollection<Flat> flats, long chatId)
         {
             var stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -53,7 +54,7 @@ namespace Infrastructure.Implemtation.Telegram.NotificationCreators
             return items;
         }
 
-        public Task<NotificationDto> CreateAsync(Flat flat)
+        public Task<NotificationDto> CreateAsync(Flat flat, long chatId)
         {
             throw new System.NotImplementedException();
         }

@@ -54,7 +54,7 @@ namespace UseCases.Notifications.Jobs
 
                 var notificationCreator = _creatorFactory.Create(Infrastructure.Interfaces.Telegram.Model.NotificationCreationType.WithImage);
 
-                var messages = await notificationCreator.CreateAsync(flats);
+                var messages = await notificationCreator.CreateAsync(flats, user.ChatId);
 
                 var result =  await _tgMessageSender.SendMessagesAsync(messages, user.ChatId);
 
