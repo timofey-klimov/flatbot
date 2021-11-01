@@ -1,16 +1,11 @@
-﻿using Entities.Models.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Entities.Exceptions.Base;
 
 namespace UseCases.Common.Exceptions
 {
-    public class FlatNotFoundExeption : ExceptionBase
+    public class FlatNotFoundExeption : EntityNotFoundException<int>
     {
         public FlatNotFoundExeption(int flatId)
-            : base($"Not found flat {flatId}")
+            : base(flatId, typeof(Entities.Models.FlatEntities.Flat))
         {
 
         }

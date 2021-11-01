@@ -24,7 +24,7 @@ namespace UseCases.User.Commands.SetMinimumFloor
             if (user == null)
                 throw new UserNotFoundException(request.ChatId);
 
-            user.UserContext.ChangeMinimumFloor(request.MinimumFloor);
+            user.UserContext.UpdateMinimumFloor(request.MinimumFloor);
 
             await _dbContext.SaveChangesAsync();
 

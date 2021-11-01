@@ -16,6 +16,12 @@ using UseCases.User.Commands.ChangeUserState;
 using WepApp.Controllers.Base;
 using UseCases.User.Queries.GetUserState;
 using UseCases.User.Dto;
+using UseCases.User.Commands.UpdateUserRoomsCount.AddUserRoomsCount;
+using UseCases.User.Commands.UpdateUserRoomsCount.RemoveUserRoomsCount;
+using System.Collections.Generic;
+using UseCases.User.Queries.GetUserRoomsCountMenu;
+using UseCases.User.Commands.UpdateFlatArea;
+using UseCases.User.Commands.UpdateBuildingYear;
 
 namespace WepApp.Controllers
 {
@@ -93,6 +99,46 @@ namespace WepApp.Controllers
         {
             var result = await Mediator.Send(new GetUserStateRequest(chatId), token);
             return Ok(result);
+        }
+
+        [HttpPost("roomsCount/{chatId}/{roomsCount}/add")]
+        public async Task<ApiResponse> AddUserRoomsCount(long chatId, int roomsCount, CancellationToken token)
+        {
+            var result = await Mediator.Send(new AddUserRoomsCountRequest(chatId, roomsCount), token);
+
+            return Ok();
+        }
+
+        [HttpPost("roomsCount/{chatId}/{roomsCount}/remove")]
+        public async Task<ApiResponse> RemoveUserRoomsCount(long chatId, int roomsCount, CancellationToken token)
+        {
+            var result = await Mediator.Send(new RemoveUserRoomsCountRequest(chatId, roomsCount), token);
+
+            return Ok();
+        }
+
+        [HttpGet("roomsCount/{chatId}/menu")]
+        public async Task<ApiResponse<ICollection<UserRoomsCountMenuDto>>> GetUserRoomsMenu(long chatId, CancellationToken token)
+        {
+            var result = await Mediator.Send(new GetUserRoomsCountMenuRequest(chatId), token);
+
+            return Ok(result);
+        }
+
+        [HttpPost("flatArea/{chatId}/{flatArea}")]
+        public async Task<ApiResponse> UpdateFlatArea(long chatId, int flatArea, CancellationToken token)
+        {
+            var result = await Mediator.Send(new UpdateFlatAreaqRequest(chatId, flatArea), token);
+
+            return Ok();
+        }
+
+        [HttpPost("buildingYear/{chatId}/{buildingYear}")]
+        public async Task<ApiResponse> UpdateBuildingYear(long chatId, int buildingYear, CancellationToken token)
+        {
+            var result = await Mediator.Send(new UpdateBuildingYearRequest(chatId, buildingYear), token);
+
+            return Ok();
         }
     }
 }

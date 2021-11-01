@@ -11,6 +11,9 @@
         ChangeTimeToMetro = 6,
         UpdateDistricts = 7,
         NotificationSettings = 8,
-        NotificationTypeSettings = 9
+        NotificationTypeSettings = 9,
+        UpdateUsersRoom = 10,
+        UpdateFlatArea = 11,
+        UpdateBuildingYear = 12
     }
 }

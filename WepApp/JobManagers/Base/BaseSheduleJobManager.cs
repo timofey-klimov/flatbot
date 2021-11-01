@@ -50,8 +50,7 @@ namespace WepApp.JobManagers.Base
                     var mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
                     var dbContext = scope.ServiceProvider.GetRequiredService<IDbContext>();
 
-                    var jobManagers = dbContext
-                        .SheduleJobManagers
+                    var jobManagers = dbContext.SheduleJobManagers
                         .Where(x => x.IsRunning)
                         .ProjectTo<JobManagerDto>(mapper.ConfigurationProvider)
                         .ToList();

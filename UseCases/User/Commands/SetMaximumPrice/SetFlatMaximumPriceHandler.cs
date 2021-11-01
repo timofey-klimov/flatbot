@@ -24,7 +24,7 @@ namespace UseCases.User.Commands.SetMaximumPrice
             if (user == null)
                 throw new UserNotFoundException(request.ChatId);
 
-            user.UserContext.ChangeMaximumPrice(request.MaximumPrice);
+            user.UserContext.UpdateMaximumPrice(request.MaximumPrice);
 
             await _dbContext.SaveChangesAsync();
 

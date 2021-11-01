@@ -3,12 +3,8 @@ using Infrastructure.Interfaces.Bus;
 using Infrastructure.Interfaces.Common.Events;
 using Infrastructure.Interfaces.DataAccess;
 using Infrastructure.Interfaces.Telegram;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Implemtation.Common.EventHandlers
@@ -33,6 +29,8 @@ namespace Infrastructure.Implemtation.Common.EventHandlers
         {
             var users = _dbContext.Users
                 .FromSqlRaw($"exec FindUsersForMessaging @flatId = {@event.Id}")
+                .Include(x => x.UserContext)
+                .Include(x => x.NotificationContext)
                 .ToArray();
           
             if (!users.Any())
@@ -52,7 +50,13 @@ namespace Infrastructure.Implemtation.Common.EventHandlers
 
                 var notification = await notifyCreator.CreateAsync(flat, user.ChatId);
 
-                await _messageSender.SendMessagesAsync(new[] { notification }, user.ChatId);
+                var result = await _messageSender.SendMessagesAsync(new[] { notification }, user.ChatId);
+
+                if (result?.Success == true)
+                {
+                    user.UserContext.UpdateNotifications(new[] { flat.CianId });
+                    user.NotificationContext.CreateLastNotifyDateNow();
+                }
             }
         }
     }

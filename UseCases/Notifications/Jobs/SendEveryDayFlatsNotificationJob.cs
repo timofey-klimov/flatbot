@@ -63,7 +63,7 @@ namespace UseCases.Notifications.Jobs
                 }
 
                 if (result.Success)
-                    user.UserContext.AddNotifications(flats.Select(x => x.CianId));
+                    user.UserContext.UpdateNotifications(flats.Select(x => x.CianId));
 
                 user.NotificationContext.SetNextNotifyDate(24);
 

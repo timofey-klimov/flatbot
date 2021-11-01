@@ -32,7 +32,7 @@ namespace UseCases.User.Commands.ChangeUserState
 
             var state = _mapper.Map<Entities.Enums.UserStates>(request.UserState);
 
-            user.UserContext.ChangeState(state);
+            user.UserContext.UpdateState(state);
 
             await _dbContext.SaveChangesAsync();
 

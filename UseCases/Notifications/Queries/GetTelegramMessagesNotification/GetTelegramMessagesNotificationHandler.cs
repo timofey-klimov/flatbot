@@ -52,7 +52,7 @@ namespace UseCases.Notifications.Queries.GetTelegramNotification
 
 
             user.NotificationContext.CreateLastNotifyDateNow();
-            user.UserContext.AddNotifications(flats.Select(x => x.CianId));
+            user.UserContext.UpdateNotifications(flats.Select(x => x.CianId));
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 

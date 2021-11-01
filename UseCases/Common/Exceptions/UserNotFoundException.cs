@@ -1,16 +1,12 @@
-﻿using Entities.Models.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Entities.Exceptions.Base;
+using Entities.Models.Exceptions;
 
 namespace UseCases.Common.Exceptions
 {
-    public class UserNotFoundException : ExceptionBase
+    public class UserNotFoundException : EntityNotFoundException<long>
     {
-        public UserNotFoundException(long chatId)
-            : base($"No such user: {chatId}")
+        public UserNotFoundException(long id)
+            : base(id, typeof(Entities.Models.User))
         {
 
         }

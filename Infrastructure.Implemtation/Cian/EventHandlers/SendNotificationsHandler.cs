@@ -56,7 +56,7 @@ namespace Infrastructure.Implemtation.Cian.EventHandlers
                 var result = await _messageSender.SendMessagesAsync(messages, user.ChatId);
 
                 if (result.Success)
-                    user.UserContext.AddNotifications(flats.Select(x => x.CianId));
+                    user.UserContext.UpdateNotifications(flats.Select(x => x.CianId));
 
                 user.NotificationContext.CreateLastNotifyDateNow();
 

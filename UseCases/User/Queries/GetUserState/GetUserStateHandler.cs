@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
 using System.Threading.Tasks;
+using UseCases.Common.Exceptions;
 using UseCases.User.Dto;
 
 namespace UseCases.User.Queries.GetUserState
@@ -24,6 +25,9 @@ namespace UseCases.User.Queries.GetUserState
                 .Include(x => x.UserContext)
                 .ThenInclude(x => x.State)
                 .FirstOrDefaultAsync(x => x.ChatId == request.ChatId);
+
+            if (user == null)
+                throw new UserNotFoundException(request.ChatId);
 
             return _mapper.Map<UserStates>(user.UserContext.State.State);
         }

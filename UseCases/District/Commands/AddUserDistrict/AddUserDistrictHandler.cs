@@ -30,7 +30,7 @@ namespace UseCases.Distincts.Commands.UpdateUsersDistincts
             var district = await _dbContext.Districts.FirstOrDefaultAsync(x => x.Name == request.DistrictName);
 
             if (district == null)
-                throw new DistrictNotFoundException("No such district");
+                throw new DistrictNotFoundException(request.DistrictName);
 
             user.UserContext.AddDistrict(district);
 

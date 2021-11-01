@@ -25,7 +25,7 @@ namespace UseCases.User.Commands.SetTimeToMetro
             if (user == null)
                 throw new UserNotFoundException(request.ChatId);
 
-            user.UserContext.ChangeTimeToMetro(request.TimeToMetro);
+            user.UserContext.UpdateTimeToMetro(request.TimeToMetro);
 
             await _dbContext.SaveChangesAsync();
 

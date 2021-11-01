@@ -22,6 +22,7 @@ namespace Entities.Models
 
         public NotificationContext NotificationContext { get; private set; }
 
+
         private List<FollowedLink> _followedLinks;
 
         public IReadOnlyCollection<FollowedLink> FollowedLinks => _followedLinks.AsReadOnly();
@@ -34,7 +35,7 @@ namespace Entities.Models
             UserName = userName;
             Name = name;
             Surname = surname;
-            UserContext = new UserContext(40000, 25000, 10, 1);
+            UserContext = new UserContext(40000, 25000, 10, 1, 20, 1900);
             NotificationContext = new NotificationContext(NotificationType.Default, true);
         }
 
@@ -43,7 +44,7 @@ namespace Entities.Models
             if (UserContext == null)
                 throw new ArgumentNullException(nameof(UserContext));
 
-            UserContext.ChangeMinimumPrice(price);
+            UserContext.UpdateMinimumPrice(price);
         }
 
         public void ChangeMaximumPrice(decimal price)
@@ -51,7 +52,7 @@ namespace Entities.Models
             if (UserContext == null)
                 throw new ArgumentNullException(nameof(UserContext));
 
-            UserContext.ChangeMaximumPrice(price);
+            UserContext.UpdateMaximumPrice(price);
         }
         public void DisableNotifications()
         {
@@ -82,7 +83,7 @@ namespace Entities.Models
             if (UserContext == null)
                 throw new ArgumentNullException(nameof(UserContext));
 
-            UserContext.ChangeTimeToMetro(time);
+            UserContext.UpdateTimeToMetro(time);
         }
 
         public void UpdateFollowedLinks(string source)
@@ -97,6 +98,5 @@ namespace Entities.Models
             else
                 link.UpdateCountOn(1);
         }
-       
     }
 }

@@ -1,4 +1,5 @@
-﻿using Entities.Models.Exceptions;
+﻿using Entities.Exceptions.Base;
+using Entities.Models.Exceptions;
 using Infrastructure.Interfaces.Logger;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,18 +31,28 @@ namespace WepApp.Middlewares
             {
                 logger.Error(this.GetType(), ex.Message);
 
-                string response = string.Empty;
+                var apiResponse = CreateApiResponse(ex);
 
-                if (ex is ExceptionBase baseEx)
-                {
-                    response = JsonConvert.SerializeObject(ApiResponse.Fail(baseEx.Message));
-                }
-                else
-                {
-                    response = JsonConvert.SerializeObject(ApiResponse.Fail("Internal error"));
-                }
+                await context.Response.WriteAsync(JsonConvert.SerializeObject(apiResponse));
+            }
+        }
 
-                await context.Response.WriteAsync(response);
+        private static ApiResponse CreateApiResponse(Exception ex)
+        {
+            if (ex is ExceptionBase baseEx)
+            {
+                var apiResponse = baseEx switch
+                {
+                    EntityNotFoundExceptionBase notFoundEx => ApiResponse.Fail(notFoundEx.Message, 400),
+
+                    _ => ApiResponse.Fail(baseEx.Message, 500)
+                };
+
+                return apiResponse;
+            }
+            else
+            {
+                return ApiResponse.FailInternal();
             }
         }
     }

@@ -5,17 +5,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using UseCases.Common.Exceptions;
 
-namespace UseCases.User.Commands.SetFlatMinumPrice
+namespace UseCases.User.Commands.UpdateFlatArea
 {
-    public class SetFlatMinimumPriceRequestHandler : IRequestHandler<SetFlatMinimumPriceRequest>
+    public class UpdateFlatAreaHandler : IRequestHandler<UpdateFlatAreaqRequest>
     {
-        private IDbContext _dbContext;
-        public SetFlatMinimumPriceRequestHandler(IDbContext dbContext)
+        private readonly IDbContext _dbContext;
+        public UpdateFlatAreaHandler(IDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
-        public async Task<Unit> Handle(SetFlatMinimumPriceRequest request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateFlatAreaqRequest request, CancellationToken cancellationToken)
         {
             var user = await _dbContext.Users
                 .Include(x => x.UserContext)
@@ -24,7 +24,7 @@ namespace UseCases.User.Commands.SetFlatMinumPrice
             if (user == null)
                 throw new UserNotFoundException(request.ChatId);
 
-            user.UserContext.UpdateMinimumPrice(request.MinimumPrice);
+            user.UserContext.UpdateFlatArea(request.FlatArea);
 
             await _dbContext.SaveChangesAsync();
 

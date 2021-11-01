@@ -20,7 +20,9 @@ namespace WepApp.Dto
 
         public static ApiResponse Success(string message) => new ApiResponse(0, message);
 
-        public static ApiResponse Fail(string message) => new ApiResponse(500, message);
+        public static ApiResponse FailInternal() => new ApiResponse(500, "Internal Error");
+
+        public static ApiResponse Fail(string message, int code) => new ApiResponse(code, message);
 
         public static ApiResponse Success() => new ApiResponse(0, string.Empty);
 
@@ -38,7 +40,7 @@ namespace WepApp.Dto
 
         public static ApiResponse<T> Success(T data, string message) => new ApiResponse<T>(data, 0, message);
 
-        public static ApiResponse<T> Fail(string message) => new ApiResponse<T>(default, 500, message);
+        public static ApiResponse<T> FailInternal(string message) => new ApiResponse<T>(default, 500, message);
 
         public static ApiResponse<T> Success(T data) => new ApiResponse<T>(data, 0, string.Empty);
     }
